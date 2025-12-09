@@ -1,18 +1,16 @@
-import { DefaultEntity } from "./_default.js";
-import { YearDay } from "./value-objects/day.js";
-import { HourTime } from "./value-objects/hour-time.js";
+import z from "zod";
+import { IdObj } from "./value-objects/id.js";
+import { DayObj } from "./value-objects/day.js";
+import { TimeObj } from "./value-objects/time.js";
 
-export interface ScheduleProps {
-  sellerId: string;
-  clientName: string;
-  clientPhoneNumber: string;
-  day: YearDay;
-  startTime: HourTime;
-  endTime: HourTime;
-}
+export const ScheduleSchema = z.object({
+  id: IdObj,
+  sellerId: IdObj,
+  clientName: z.string().min(1),
+  clientPhoneNumber: z.string().min(1),
+  day: DayObj,
+  startTime: TimeObj,
+  endTime: TimeObj,
+});
 
-export class Schedule extends DefaultEntity<ScheduleProps> {
-  create(props: ScheduleProps, id?: string): Schedule {
-    return new Schedule(props, id);
-  }
-}
+export type ScheduleType = z.infer<typeof ScheduleSchema>;

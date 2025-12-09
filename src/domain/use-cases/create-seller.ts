@@ -1,28 +1,38 @@
-import { Seller } from "../entities/seller.js";
-import { Email } from "../entities/value-objects/email.js";
-import { Password } from "../entities/value-objects/password.js";
+import z from "zod";
+import { SellerType } from "../entities/seller.js";
 import { SellerRepository } from "../repositories/seller.interface.js";
 import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
+import { hashPassword } from "../../core/utils/password.js";
 
-interface CreateSellerProps {
-  email: Email;
-  password: Password;
-}
+export const CreateSellerSchema = z.object({
+  email: z.email().min(1),
+  password: z.string().min(6),
+});
+
+export type CreateSellerType = z.infer<typeof CreateSellerSchema>;
 
 export class CreateSellerUseCase {
   constructor(private sellerRepository: SellerRepository) {}
 
-  async execute({ email, password }: CreateSellerProps): Promise<Seller> {
-    const existingSeller = await this.sellerRepository.getSeller(email.value);
+  async execute(newSellerToCreate: CreateSellerType): Promise<SellerType> {
+    const existingSeller = await this.sellerRepository.getSeller(
+      newSellerToCreate.email
+    );
+
     if (existingSeller) {
       throw new EntityAlreadyExist();
     }
 
-    const newSeller = await this.sellerRepository.createSeller({
-      email: email.value,
-      password: password.hashValue,
-    });
+    const formatNewSeller = this.formatSellerToCreate(newSellerToCreate);
+    const newSeller = await this.sellerRepository.createSeller(formatNewSeller);
 
     return newSeller;
+  }
+
+  formatSellerToCreate(newSeller: CreateSellerType): CreateSellerType {
+    const formatNewSeller = structuredClone(newSeller);
+    formatNewSeller.password = hashPassword(newSeller.password);
+
+    return formatNewSeller;
   }
 }

@@ -1,12 +1,10 @@
-import { DefaultEntity } from "./_default.js";
+import z from "zod";
+import { IdObj } from "./value-objects/id.js";
 
-export interface AgendaDayOfWeekProps {
-  agendaConfigId: string;
-  dayOfWeek: number;
-}
+export const AgendaDayOfWeekSchema = z.object({
+  id: IdObj,
+  agendaConfigId: IdObj,
+  dayOfWeek: z.number().min(1).max(7),
+});
 
-export class AgendaDayOfWeek extends DefaultEntity<AgendaDayOfWeekProps> {
-  static create(props: AgendaDayOfWeekProps, id?: string): AgendaDayOfWeek {
-    return new AgendaDayOfWeek(props, id);
-  }
-}
+export type AgendaDayOfWeekType = z.infer<typeof AgendaDayOfWeekSchema>;

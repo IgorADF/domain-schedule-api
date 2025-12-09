@@ -11,15 +11,15 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@types/luxon": "^3.7.1",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
+    "fastify": "^5.6.2",
     "luxon": "^3.7.2",
-    "openai": "^6.9.1",
     "zod": "^4.1.13"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.3",
+    "@types/luxon": "^3.7.1",
     "@types/node": "^24.10.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.14"

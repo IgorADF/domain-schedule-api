@@ -1,5 +1,1 @@
-export class DefaultUseCaseError extends Error {
-  constructor(message: string) {
-    super(message);
-  }
-}
+export class DefaultUseCaseError extends Error {}

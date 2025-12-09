@@ -1,26 +1,22 @@
-import { DefaultEntity } from "./_default.js";
-import { InvalidMinIntervalValue } from "./errors/agenda-periods.js";
-import { HourTime } from "./value-objects/hour-time.js";
+import z from "zod";
+import { IdObj } from "./value-objects/id.js";
+import { TimeObj } from "./value-objects/time.js";
 
-export interface AgendaPeriodProps {
-  agendaDayOfWeekId: string;
-  overwriteId?: string;
-  startTime: HourTime;
-  endTime: HourTime;
-  minutesOfInterval: number;
-  order: number;
-}
+export const AgendaPeriodSchema = z.object({
+  id: IdObj,
+  agendaDayOfWeekId: IdObj,
+  overwriteId: IdObj,
+  startTime: TimeObj,
+  endTime: TimeObj,
+  minutesOfService: z.number().positive(),
+  minutesOfInterval: z
+    .number()
+    .positive()
+    .min(1)
+    .refine((val) => val >= 5, {
+      message: "Minimum interval must be at least 5 minutes",
+    }),
+  order: z.number().positive().min(1),
+});
 
-export class AgendaPeriod extends DefaultEntity<AgendaPeriodProps> {
-  set minutesOfInterval(value: number) {
-    if (value && value < 5) {
-      throw new InvalidMinIntervalValue();
-    }
-
-    this.props.minutesOfInterval = value;
-  }
-
-  static create(props: AgendaPeriodProps, id?: string): AgendaPeriod {
-    return new AgendaPeriod(props, id);
-  }
-}
+export type AgendaPeriodType = z.infer<typeof AgendaPeriodSchema>;

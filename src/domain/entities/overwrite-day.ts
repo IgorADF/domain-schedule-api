@@ -1,13 +1,12 @@
-import { DefaultEntity } from "./_default.js";
+import z from "zod";
+import { IdObj } from "./value-objects/id.js";
+import { DayObj } from "./value-objects/day.js";
 
-export interface OverwriteDayProps {
-  agendaId: string;
-  day: Date;
-  cancelAllDay: boolean;
-}
+export const OverwriteDaySchema = z.object({
+  id: IdObj,
+  agendaId: IdObj,
+  day: DayObj,
+  cancelAllDay: z.boolean(),
+});
 
-export class OverwriteDay extends DefaultEntity<OverwriteDayProps> {
-  static create(props: OverwriteDayProps, id?: string): OverwriteDay {
-    return new OverwriteDay(props, id);
-  }
-}
+export type OverwriteDayType = z.infer<typeof OverwriteDaySchema>;

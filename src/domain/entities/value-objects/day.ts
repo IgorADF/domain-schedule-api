@@ -1,31 +1,7 @@
-export class YearDay {
-  year: number;
-  month: number;
-  day: number;
-  // startHour: number;
-  // startMinute: number;
+import z from "zod";
 
-  constructor(
-    year: number,
-    month: number,
-    day: number,
-    startHour: number,
-    startMinute: number
-  ) {
-    this.year = year;
-    this.month = month;
-    this.day = day;
-    // this.startHour = startHour;
-    // this.startMinute = startMinute;
-  }
-
-  private getDateValue(): Date {
-    return new Date(
-      Number(this.year),
-      Number(this.month) - 1,
-      Number(this.day)
-      // Number(this.startHour),
-      // Number(this.startMinute)
-    );
-  }
-}
+export const DayObj = z.object({
+  year: z.number().min(1970),
+  month: z.number().min(1).max(12),
+  day: z.number().min(1).max(31),
+});

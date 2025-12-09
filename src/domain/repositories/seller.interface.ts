@@ -1,6 +1,6 @@
-import { Seller } from "../entities/seller.js";
+import { SellerType } from "../entities/seller.js";
 
 export interface SellerRepository {
-  getSeller(email: string): Promise<Seller | null>;
-  createSeller(_: { email: string; password: string }): Promise<Seller>;
+  getSeller(email: string): Promise<SellerType | null>;
+  createSeller(_: { email: string; password: string }): Promise<SellerType>;
 }
