@@ -1,8 +1,15 @@
+import { Transaction as SequelizeTransaction } from "sequelize";
 import { ISellerRepository } from "../../domain/repositories/seller.interface.js";
 import { SellerMapper } from "../database/entities-mappers/seller.js";
 import { SellerModel } from "../database/models/seller.js";
 
 export class SellerRepository implements ISellerRepository {
+  private transaction: SequelizeTransaction;
+
+  constructor(_transaction: SequelizeTransaction) {
+    this.transaction = _transaction;
+  }
+
   async createSeller({ email, password }: { email: string; password: string }) {
     const sup = await SellerModel.create({ email, password });
     return SellerMapper.toEntity(sup);

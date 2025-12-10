@@ -1,51 +1,49 @@
+import { Transaction as SequelizeTransaction } from "sequelize";
+import { ISellerRepository } from "../../../domain/repositories/seller.interface.js";
 import { Class } from "../../@types/class.js";
-import { IUnitOfWork, Repository } from "./unit-of-work.js";
+import { sequelizeConnection } from "../../database/connection.js";
+import { SellerRepository } from "../seller.repository.js";
+import { IUnitOfWork } from "../../../domain/repositories/uow/unit-of-work.js";
 
 export class SequelizeUnitOfWork implements IUnitOfWork {
-  transaction: any;
-  _userRepository: Repository | null;
+  private transaction: SequelizeTransaction | null = null;
 
-  constructor() {
-    this.transaction = null;
-    this._userRepository = null;
-  }
+  private _sellerRepository: ISellerRepository | null = null;
 
-  async begin() {
+  resetTransaction() {
     this.transaction = null;
   }
 
-  async commit() {
+  async beginTransaction() {
+    this.transaction = await sequelizeConnection.transaction();
+  }
+
+  async commitTransaction() {
+    if (!this.transaction) return;
+
     await this.transaction.commit();
-    this.transaction = null;
+    this.resetTransaction();
   }
 
-  async rollback() {
-    if (this.transaction) {
-      await this.transaction.rollback();
-      this.transaction = null;
+  async rollbackTransaction() {
+    if (!this.transaction) return;
+
+    await this.transaction.rollback();
+    this.resetTransaction();
+  }
+
+  private createAndGetRepository<T>(ClassDef: Class, propName: keyof this) {
+    if (!this[propName as keyof this]) {
+      this[propName as keyof this] = new ClassDef(this.transaction);
     }
+
+    return this[propName as keyof this] as T;
   }
 
-  createAndGetRepository<T>(ClassDef: Class, propName: keyof this) {
-    if (!this[propName]) {
-      this[propName] = new ClassDef(this.transaction);
-    }
-
-    return this[propName] as T;
-  }
-
-  //   get userRepository() {
-  //     if (!this._userRepository) {
-  //       //   this._userRepository = new UserRepositoryKnex(this.transaction);
-  //       this._userRepository = new Repository(this.transaction);
-  //     }
-  //     return this._userRepository;
-  //   }
-
-  get userRepository() {
-    return this.createAndGetRepository<Repository>(
-      Repository,
-      "_userRepository"
+  get sellerRepository() {
+    return this.createAndGetRepository<ISellerRepository>(
+      SellerRepository,
+      "_sellerRepository" as keyof this
     );
   }
 }

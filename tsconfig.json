@@ -6,7 +6,9 @@
     "target": "es2022",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "outDir": "./dist",
 
     "allowJs": true
-  }
+  },
+  "exclude": ["src/**/*.js", "src/**/*.cjs"]
 }

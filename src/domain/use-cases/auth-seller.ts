@@ -1,7 +1,7 @@
 import z from "zod";
-import { ISellerRepository } from "../repositories/seller.interface.js";
 import { InvalidCredentials } from "./errors/invalid-credentials.js";
 import { comparePasswords } from "../../core/utils/password.js";
+import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 
 export const AuthSellerSchema = z.object({
   email: z.email(),
@@ -11,10 +11,10 @@ export const AuthSellerSchema = z.object({
 export type AuthSellerType = z.infer<typeof AuthSellerSchema>;
 
 export class AuthSellerUseCase {
-  constructor(private sellerRepository: ISellerRepository) {}
+  constructor(private uow: IUnitOfWork) {}
 
   async execute({ email, password }: AuthSellerType) {
-    const existingSeller = await this.sellerRepository.getSeller(email);
+    const existingSeller = await this.uow.sellerRepository.getSeller(email);
 
     if (!existingSeller) {
       throw new InvalidCredentials();
