@@ -1,5 +1,5 @@
 import z from "zod";
-import { SellerRepository } from "../repositories/seller.interface.js";
+import { ISellerRepository } from "../repositories/seller.interface.js";
 import { InvalidCredentials } from "./errors/invalid-credentials.js";
 import { comparePasswords } from "../../core/utils/password.js";
 
@@ -11,7 +11,7 @@ export const AuthSellerSchema = z.object({
 export type AuthSellerType = z.infer<typeof AuthSellerSchema>;
 
 export class AuthSellerUseCase {
-  constructor(private sellerRepository: SellerRepository) {}
+  constructor(private sellerRepository: ISellerRepository) {}
 
   async execute({ email, password }: AuthSellerType) {
     const existingSeller = await this.sellerRepository.getSeller(email);

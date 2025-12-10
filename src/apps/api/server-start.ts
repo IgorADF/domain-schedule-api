@@ -1,8 +1,11 @@
-import { fastify } from "./server-config.js";
+import { authenticateDbConnection } from "../../core/database/connection.js";
+import { Envs } from "../../core/envs/envs.js";
+import { fastifyInstance } from "./server-config.js";
 
 try {
-  await fastify.listen({ port: 3000 });
+  await authenticateDbConnection();
+  await fastifyInstance.listen({ port: Envs.API_PORT });
 } catch (err) {
-  fastify.log.error(err);
+  fastifyInstance.log.error(err);
   process.exit(1);
 }

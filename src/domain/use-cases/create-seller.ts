@@ -1,6 +1,6 @@
 import z from "zod";
 import { SellerType } from "../entities/seller.js";
-import { SellerRepository } from "../repositories/seller.interface.js";
+import { ISellerRepository } from "../repositories/seller.interface.js";
 import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
 import { hashPassword } from "../../core/utils/password.js";
 
@@ -12,7 +12,7 @@ export const CreateSellerSchema = z.object({
 export type CreateSellerType = z.infer<typeof CreateSellerSchema>;
 
 export class CreateSellerUseCase {
-  constructor(private sellerRepository: SellerRepository) {}
+  constructor(private sellerRepository: ISellerRepository) {}
 
   async execute(newSellerToCreate: CreateSellerType): Promise<SellerType> {
     const existingSeller = await this.sellerRepository.getSeller(
