@@ -10,8 +10,11 @@ export class SellerMapper {
   static toModel(sup: SellerWithPasswordSchemaType): SellerModel {
     return new SellerModel({
       id: sup.id,
+      name: sup.name,
       email: sup.email,
       password: sup.password,
+      createdAt: sup.createAt,
+      updatedAt: sup.updatedAt,
     });
   }
 
@@ -20,6 +23,7 @@ export class SellerMapper {
 
     const map = {
       id: sup.id,
+      name: sup.name,
       email: sup.email,
     };
 
@@ -32,6 +36,7 @@ export class SellerMapper {
 
     const map = {
       id: sup.id,
+      name: sup.name,
       email: sup.email,
       password: sup.password,
     };

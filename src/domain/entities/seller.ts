@@ -4,6 +4,7 @@ import { hashPassword } from "../../core/utils/password.js";
 
 export const SellerSchema = z.object({
   id: IdObj,
+  name: z.string().min(1),
   email: z.email().min(1),
   createAt: z.date(),
   updatedAt: z.date(),

@@ -17,6 +17,9 @@ export class SellerModel extends Model<
   SellerModelType,
   SellerModelCreationType
 > {
+  @Column({ allowNull: false, type: DataType.STRING })
+  name!: string;
+
   @Column({ allowNull: false, type: DataType.STRING, unique: true })
   email!: string;
 
@@ -25,10 +28,10 @@ export class SellerModel extends Model<
 
   declare createdAt: Date;
   declare updatedAt: Date;
-  declare deletedAt: Date;
+  declare deletedAt?: Date;
 
   /* Associations */
 
   @HasOne(() => AgendaConfigsModel)
-  agendaConfig!: AgendaConfigsModel;
+  agendaConfig?: AgendaConfigsModel;
 }
