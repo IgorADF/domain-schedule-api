@@ -22,6 +22,7 @@ export const sequelizeConnection = new Sequelize({
   host,
   port,
   models: [SellerModel],
+  logging: true,
 });
 
 export async function authenticateDbConnection() {

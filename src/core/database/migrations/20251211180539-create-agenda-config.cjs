@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Sellers", [
+    await queryInterface.createTable("AgendaConfigs", [
       {
         field: "id",
         type: Sequelize.UUID,
@@ -12,13 +12,26 @@ module.exports = {
         unique: true,
       },
       {
-        field: "email",
-        type: Sequelize.STRING,
+        field: "sellerId",
+        type: Sequelize.UUID,
+        allowNull: false,
         unique: true,
+        references: {
+          key: "id",
+          model: "Sellers",
+        },
+      },
+      {
+        field: "maxDaysOfAdvancedNotice",
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       {
-        field: "password",
+        field: "minHoursOfAdvancedNotice",
+        type: Sequelize.INTEGER,
+      },
+      {
+        field: "timezone",
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -32,14 +45,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      {
-        field: "deletedAt",
-        type: Sequelize.DATE,
-      },
     ]);
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Sellers");
+    await queryInterface.dropTable("AgendaConfigs");
   },
 };

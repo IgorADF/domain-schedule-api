@@ -2,20 +2,34 @@ import {
   AuthSellerSchema,
   AuthSellerUseCase,
 } from "../../../domain/use-cases/auth-seller.js";
-import { SellerRepository } from "../../../core/repository/seller.repository.js";
 import { FastifyZodInstance } from "../@types/fastity-instance.js";
+import { SequelizeUnitOfWork } from "../../../core/repository/uow/sequelize-unit-of-work.js";
+import { FastityInitRoutes } from "../@types/init-routes.js";
+import {
+  CreateSellerSchema,
+  CreateSellerUseCase,
+} from "../../../domain/use-cases/create-seller.js";
 
-export async function initSellerRoutes(fastify: FastifyZodInstance) {
-  fastify.post(
-    "/auth",
-    { schema: { body: AuthSellerSchema } },
-    async function handler(request, reply) {
-      const rep = new SellerRepository();
-      const sup = new AuthSellerUseCase(rep);
+export function initSellerRoutes(uow: SequelizeUnitOfWork): FastityInitRoutes {
+  return async (fastify: FastifyZodInstance) => {
+    fastify.post(
+      "/auth",
+      { schema: { body: AuthSellerSchema } },
+      async function (request, reply) {
+        const sup = new AuthSellerUseCase(uow);
+        const useCase = await sup.execute(request.body);
+        return { id: useCase.seller_id };
+      }
+    );
 
-      const res = await sup.execute(request.body);
-
-      return { id: res.seller_id };
-    }
-  );
+    fastify.post(
+      "/",
+      { schema: { body: CreateSellerSchema } },
+      async function (request, reply) {
+        const sup = new CreateSellerUseCase(uow);
+        const useCase = await sup.execute(request.body);
+        return { data: useCase.data };
+      }
+    );
+  };
 }

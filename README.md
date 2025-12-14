@@ -20,3 +20,21 @@ Usado para:
 1. Criar entidades
 1. Criado nos mappers de entidades e models
 1. Entrada de dados dos casos de uso
+
+## Regras de Agendamento
+
+### Agenda
+
+Dados gerais sobre os agendamentos
+
+### Dia da semana
+
+Um dia da semana possui vários períodos
+
+Deve ser único um dia da semana para a mesma agenda
+
+### Períodos
+
+Um horário de início e fim com o tempo que cada serviço tem
+
+Períodos de um mesmo slot devem ser sequenciais

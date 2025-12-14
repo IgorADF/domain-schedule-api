@@ -1,8 +1,12 @@
 import z from "zod";
-import { SellerType } from "../entities/seller.js";
-import { ISellerRepository } from "../repositories/seller.interface.js";
+import { uuidv7 } from "uuidv7";
+import {
+  SellerType,
+  SellerWithPasswordSchema,
+  SellerWithPasswordSchemaType,
+} from "../entities/seller.js";
 import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
-import { hashPassword } from "../../core/utils/password.js";
+import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 
 export const CreateSellerSchema = z.object({
   email: z.email().min(1),
@@ -12,10 +16,12 @@ export const CreateSellerSchema = z.object({
 export type CreateSellerType = z.infer<typeof CreateSellerSchema>;
 
 export class CreateSellerUseCase {
-  constructor(private sellerRepository: ISellerRepository) {}
+  constructor(private uow: IUnitOfWork) {}
 
-  async execute(newSellerToCreate: CreateSellerType): Promise<SellerType> {
-    const existingSeller = await this.sellerRepository.getSeller(
+  async execute(
+    newSellerToCreate: CreateSellerType
+  ): Promise<{ data: SellerType }> {
+    const existingSeller = await this.uow.sellerRepository.getSeller(
       newSellerToCreate.email
     );
 
@@ -23,16 +29,26 @@ export class CreateSellerUseCase {
       throw new EntityAlreadyExist();
     }
 
-    const formatNewSeller = this.formatSellerToCreate(newSellerToCreate);
-    const newSeller = await this.sellerRepository.createSeller(formatNewSeller);
+    const formattedNewSeller = this.formatNewSeller(newSellerToCreate);
+    const newSeller = await this.uow.sellerRepository.createSeller(
+      formattedNewSeller
+    );
 
-    return newSeller;
+    return { data: newSeller };
   }
 
-  formatSellerToCreate(newSeller: CreateSellerType): CreateSellerType {
-    const formatNewSeller = structuredClone(newSeller);
-    formatNewSeller.password = hashPassword(newSeller.password);
+  formatNewSeller(newSeller: CreateSellerType): SellerWithPasswordSchemaType {
+    const now = new Date();
 
-    return formatNewSeller;
+    const formatNewSeller: SellerWithPasswordSchemaType = {
+      ...newSeller,
+
+      id: uuidv7(),
+      createAt: now,
+      updatedAt: now,
+    };
+
+    const parsedNewSeller = SellerWithPasswordSchema.parse(formatNewSeller);
+    return parsedNewSeller;
   }
 }

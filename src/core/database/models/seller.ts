@@ -1,17 +1,34 @@
 import { InferAttributes, InferCreationAttributes } from "sequelize";
-import { Table, Column, Model, HasMany, DataType } from "sequelize-typescript";
+import {
+  Table,
+  Column,
+  Model,
+  HasMany,
+  DataType,
+  HasOne,
+} from "sequelize-typescript";
+import { AgendaConfigsModel } from "./agenda-configs.js";
 
 export type SellerModelType = InferAttributes<SellerModel>;
 export type SellerModelCreationType = InferCreationAttributes<SellerModel>;
 
-@Table({ tableName: "Sellers" })
+@Table({ tableName: "Sellers", paranoid: true, timestamps: false })
 export class SellerModel extends Model<
   SellerModelType,
   SellerModelCreationType
 > {
-  @Column(DataType.STRING)
+  @Column({ allowNull: false, type: DataType.STRING, unique: true })
   email!: string;
 
-  @Column(DataType.STRING)
+  @Column({ allowNull: false, type: DataType.STRING })
   password!: string;
+
+  declare createdAt: Date;
+  declare updatedAt: Date;
+  declare deletedAt: Date;
+
+  /* Associations */
+
+  @HasOne(() => AgendaConfigsModel)
+  agendaConfig!: AgendaConfigsModel;
 }

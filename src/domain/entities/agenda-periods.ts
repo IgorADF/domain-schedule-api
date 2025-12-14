@@ -17,6 +17,8 @@ export const AgendaPeriodSchema = z.object({
       message: "Minimum interval must be at least 5 minutes",
     }),
   order: z.number().positive().min(1),
+  createAt: z.date(),
+  updatedAt: z.date(),
 });
 
 export type AgendaPeriodType = z.infer<typeof AgendaPeriodSchema>;

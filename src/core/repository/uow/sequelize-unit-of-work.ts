@@ -4,11 +4,13 @@ import { Class } from "../../@types/class.js";
 import { sequelizeConnection } from "../../database/connection.js";
 import { SellerRepository } from "../seller.repository.js";
 import { IUnitOfWork } from "../../../domain/repositories/uow/unit-of-work.js";
+import { IAgendaPeriodsRepository } from "../../../domain/repositories/agenda-periods.interface.js";
 
 export class SequelizeUnitOfWork implements IUnitOfWork {
   private transaction: SequelizeTransaction | null = null;
 
   private _sellerRepository: ISellerRepository | null = null;
+  private _agendaPeriodsRepository: IAgendaPeriodsRepository | null = null;
 
   resetTransaction() {
     this.transaction = null;
@@ -44,6 +46,13 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
     return this.createAndGetRepository<ISellerRepository>(
       SellerRepository,
       "_sellerRepository" as keyof this
+    );
+  }
+
+  get agendaPeriodsRepository() {
+    return this.createAndGetRepository<IAgendaPeriodsRepository>(
+      ,
+      "_agendaPeriodsRepository" as keyof this
     );
   }
 }

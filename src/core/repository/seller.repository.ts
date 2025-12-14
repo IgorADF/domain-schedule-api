@@ -2,6 +2,7 @@ import { Transaction as SequelizeTransaction } from "sequelize";
 import { ISellerRepository } from "../../domain/repositories/seller.interface.js";
 import { SellerMapper } from "../database/entities-mappers/seller.js";
 import { SellerModel } from "../database/models/seller.js";
+import { SellerWithPasswordSchemaType } from "../../domain/entities/seller.js";
 
 export class SellerRepository implements ISellerRepository {
   private transaction: SequelizeTransaction;
@@ -10,8 +11,9 @@ export class SellerRepository implements ISellerRepository {
     this.transaction = _transaction;
   }
 
-  async createSeller({ email, password }: { email: string; password: string }) {
-    const sup = await SellerModel.create({ email, password });
+  async createSeller(data: SellerWithPasswordSchemaType) {
+    const modelInstance = SellerMapper.toModel(data);
+    const sup = await SellerModel.create(modelInstance);
     return SellerMapper.toEntity(sup);
   }
 
