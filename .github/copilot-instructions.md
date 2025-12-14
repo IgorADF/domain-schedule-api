@@ -20,6 +20,7 @@ Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
 - Seeders also use `.cjs`: `src/core/database/seeders/TIMESTAMP-description.cjs`
 
 **Adding a new field workflow:**
+
 1. Create domain entity prop in `src/domain/entities/`
 2. Create `.cjs` migration in `src/core/database/migrations/`
 3. Add prop to Sequelize model in `src/core/database/models/`
@@ -28,6 +29,7 @@ Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
 ## Validation & Type Safety
 
 **Zod schemas** validate at three levels:
+
 1. Domain entity creation (e.g., `SellerWithPasswordSchema`)
 2. API input (e.g., `CreateSellerSchema`)
 3. Mapper transformations
@@ -37,6 +39,7 @@ Example: `SellerWithPasswordSchema` extends `SellerSchema` and transforms passwo
 ## Use-Case Pattern
 
 All business logic lives in `src/domain/use-cases/`. Each class:
+
 - Takes `IUnitOfWork` in constructor
 - Validates input with Zod schema
 - Accesses repositories through UoW
@@ -47,6 +50,7 @@ Example: `CreateSellerUseCase` validates email uniqueness, formats data, persist
 ## API Routes & Transaction Handling
 
 Routes in `src/apps/api/routes/` are initialized with `SequelizeUnitOfWork`:
+
 - Each route handler creates a new UoW instance
 - Call `uow.beginTransaction()` before use-cases
 - Call `uow.commitTransaction()` on success or `uow.rollbackTransaction()` on errors
@@ -75,6 +79,7 @@ Development: **vitest** for testing, **typescript** v5.9+
 ## Scheduling Domain (Agenda)
 
 Emerging pattern in codebase:
+
 - `AgendaConfig` - Top-level scheduling container per seller
 - `AgendaDayOfWeek` - Links day + periods, must be unique per agenda
 - `AgendaPeriods` - Start/end times, sequential within a slot
@@ -89,6 +94,7 @@ Tests colocate with routes: `src/apps/api/routes/tests/`. Use **vitest** for uni
 ## Error Handling
 
 Custom error classes in `src/domain/use-cases/errors/`:
+
 - `EntityAlreadyExist` - Duplicate creation attempts
 - `InvalidCreationData` - Zod validation fails
 - `InvalidCredentials` - Auth failures
