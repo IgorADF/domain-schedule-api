@@ -15,13 +15,13 @@ export class AgendaPeriodsMapper {
     return new AgendaPeriodsModel({
       id: period.id,
       agendaDayOfWeekId: period.agendaDayOfWeekId,
-      overwriteId: period.overwriteId,
+      overwriteId: period?.overwriteId,
       startTime,
       endTime,
       minutesOfService: period.minutesOfService,
       minutesOfInterval: period.minutesOfInterval,
       order: period.order,
-      createdAt: period.createAt,
+      createdAt: period.createdAt,
       updatedAt: period.updatedAt,
     });
   }
@@ -44,7 +44,7 @@ export class AgendaPeriodsMapper {
       minutesOfService: period.minutesOfService,
       minutesOfInterval: period.minutesOfInterval,
       order: period.order,
-      createAt: period.createdAt,
+      createdAt: period.createdAt,
       updatedAt: period.updatedAt,
     };
 

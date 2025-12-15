@@ -25,7 +25,7 @@ export class AgendaPeriodsModel extends Model<
 
   @ForeignKey(() => OverwriteDayModel)
   @Column({ allowNull: false, type: DataType.UUID })
-  overwriteId!: string;
+  overwriteId?: string;
 
   @Column({ allowNull: false, type: DataType.TIME })
   startTime!: Date;
@@ -43,7 +43,7 @@ export class AgendaPeriodsModel extends Model<
     allowNull: false,
     type: DataType.INTEGER,
   })
-  minutesOfInterval!: number;
+  minutesOfInterval?: number;
 
   @Column({
     allowNull: false,

@@ -13,7 +13,7 @@ export class SellerMapper {
       name: sup.name,
       email: sup.email,
       password: sup.password,
-      createdAt: sup.createAt,
+      createdAt: sup.createdAt,
       updatedAt: sup.updatedAt,
     });
   }
@@ -25,9 +25,9 @@ export class SellerMapper {
       id: sup.id,
       name: sup.name,
       email: sup.email,
-      createAt: sup.createdAt,
+      createdAt: sup.createdAt,
       updatedAt: sup.updatedAt,
-      deleteAt: sup.deletedAt,
+      deletedAt: sup.deletedAt,
     };
 
     const entity = SellerSchema.parse(map);
@@ -42,9 +42,9 @@ export class SellerMapper {
       name: sup.name,
       email: sup.email,
       password: sup.password,
-      createAt: sup.createdAt,
+      createdAt: sup.createdAt,
       updatedAt: sup.updatedAt,
-      deleteAt: sup.deletedAt,
+      deletedAt: sup?.deletedAt,
     };
 
     const entity = SellerWithPasswordSchema.parse(map);

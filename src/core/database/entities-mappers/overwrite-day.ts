@@ -28,6 +28,8 @@ export class OverwriteDayMapper {
         day: overwriteDay.day.getDate(),
       },
       cancelAllDay: overwriteDay.cancelAllDay,
+      createdAt: overwriteDay.createdAt,
+      updatedAt: overwriteDay.updatedAt,
     };
 
     const entity = OverwriteDaySchema.parse(map);

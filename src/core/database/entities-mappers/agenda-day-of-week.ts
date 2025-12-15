@@ -10,6 +10,8 @@ export class AgendaDayOfWeekMapper {
       id: dayOfWeek.id,
       agendaConfigId: dayOfWeek.agendaConfigId,
       dayOfWeek: dayOfWeek.dayOfWeek,
+      createdAt: dayOfWeek.createdAt,
+      updatedAt: dayOfWeek.updatedAt,
     });
   }
 
@@ -20,6 +22,8 @@ export class AgendaDayOfWeekMapper {
       id: dayOfWeek.id,
       agendaConfigId: dayOfWeek.agendaConfigId,
       dayOfWeek: dayOfWeek.dayOfWeek,
+      createdAt: dayOfWeek.createdAt,
+      updatedAt: dayOfWeek.updatedAt,
     };
 
     const entity = AgendaDayOfWeekSchema.parse(map);

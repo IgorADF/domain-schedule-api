@@ -19,18 +19,16 @@ export type CreateSellerType = z.infer<typeof CreateSellerSchema>;
 export class CreateSellerUseCase {
   constructor(private uow: IUnitOfWork) {}
 
-  async execute(
-    newSellerToCreate: CreateSellerType
-  ): Promise<{ data: SellerType }> {
+  async execute(input: CreateSellerType): Promise<{ data: SellerType }> {
     const existingSeller = await this.uow.sellerRepository.getSellerByEmail(
-      newSellerToCreate.email
+      input.email
     );
 
     if (existingSeller) {
       throw new EntityAlreadyExist();
     }
 
-    const formattedNewSeller = this.formatNewSeller(newSellerToCreate);
+    const formattedNewSeller = this.formatNewSeller(input);
     const newSeller = await this.uow.sellerRepository.createSeller(
       formattedNewSeller
     );
@@ -45,7 +43,7 @@ export class CreateSellerUseCase {
       ...newSeller,
 
       id: uuidv7(),
-      createAt: now,
+      createdAt: now,
       updatedAt: now,
     };
 

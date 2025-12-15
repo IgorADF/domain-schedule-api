@@ -15,9 +15,7 @@ export type UpdateSellerType = z.infer<typeof UpdateSellerSchema>;
 export class UpdateSellerUseCase {
   constructor(private uow: IUnitOfWork) {}
 
-  async execute(_sellerData: UpdateSellerType): Promise<{ data: SellerType }> {
-    const sellerData = UpdateSellerSchema.parse(_sellerData);
-
+  async execute(sellerData: UpdateSellerType): Promise<{ data: SellerType }> {
     const existingSeller = await this.uow.sellerRepository.getSellerById(
       sellerData.id
     );

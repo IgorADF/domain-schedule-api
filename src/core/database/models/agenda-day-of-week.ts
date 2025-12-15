@@ -27,6 +27,9 @@ export class AgendaDayOfWeekModel extends Model<
   @Column({ allowNull: false, type: DataType.INTEGER })
   dayOfWeek!: number;
 
+  declare createdAt: Date;
+  declare updatedAt: Date;
+
   /* Associations */
 
   @BelongsTo(() => AgendaConfigsModel)

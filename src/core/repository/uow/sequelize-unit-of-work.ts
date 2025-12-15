@@ -6,12 +6,18 @@ import { SellerRepository } from "../seller.repository.js";
 import { IUnitOfWork } from "../../../domain/repositories/uow/unit-of-work.js";
 import { IAgendaPeriodsRepository } from "../../../domain/repositories/agenda-periods.interface.js";
 import { AgendaPeriodsRepository } from "../agenda-periods.repository.js";
+import { IAgendaDayOfWeekRepository } from "../../../domain/repositories/agenda-day-of-week.interface.js";
+import { AgendaDayOfWeekRepository } from "../agenda-day-of-week.repository.js";
+import { IAgendaConfigsRepository } from "../../../domain/repositories/agenda-configs.interface.js";
+import { AgendaConfigsRepository } from "../agenda-configs.repository.js";
 
 export class SequelizeUnitOfWork implements IUnitOfWork {
   private transaction: SequelizeTransaction | null = null;
 
   private _sellerRepository: ISellerRepository | null = null;
   private _agendaPeriodsRepository: IAgendaPeriodsRepository | null = null;
+  private _agendaDayOfWeekRepository: IAgendaDayOfWeekRepository | null = null;
+  private _agendaConfigsRepository: IAgendaConfigsRepository | null = null;
 
   resetTransaction() {
     this.transaction = null;
@@ -54,6 +60,20 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
     return this.createAndGetRepository<IAgendaPeriodsRepository>(
       AgendaPeriodsRepository,
       "_agendaPeriodsRepository" as keyof this
+    );
+  }
+
+  get agendaDayOfWeekRepository() {
+    return this.createAndGetRepository<IAgendaDayOfWeekRepository>(
+      AgendaDayOfWeekRepository,
+      "_agendaDayOfWeekRepository" as keyof this
+    );
+  }
+
+  get agendaConfigsRepository() {
+    return this.createAndGetRepository<IAgendaConfigsRepository>(
+      AgendaConfigsRepository,
+      "_agendaConfigsRepository" as keyof this
     );
   }
 }

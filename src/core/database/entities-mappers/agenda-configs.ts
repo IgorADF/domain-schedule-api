@@ -12,7 +12,7 @@ export class AgendaConfigsMapper {
       maxDaysOfAdvancedNotice: agendaConfig.maxDaysOfAdvancedNotice,
       minHoursOfAdvancedNotice: agendaConfig?.minHoursOfAdvancedNotice,
       timezone: agendaConfig.timezone,
-      createdAt: agendaConfig.createAt,
+      createdAt: agendaConfig.createdAt,
       updatedAt: agendaConfig.updatedAt,
     });
   }
@@ -26,7 +26,7 @@ export class AgendaConfigsMapper {
       maxDaysOfAdvancedNotice: agendaConfig.maxDaysOfAdvancedNotice,
       minHoursOfAdvancedNotice: agendaConfig.minHoursOfAdvancedNotice,
       timezone: agendaConfig.timezone,
-      createAt: agendaConfig.createdAt,
+      createdAt: agendaConfig.createdAt,
       updatedAt: agendaConfig.updatedAt,
     };
 

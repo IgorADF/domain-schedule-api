@@ -21,7 +21,7 @@ Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
 - **Mappers** (`src/core/database/entities-mappers/`) are the bridge between Sequelize models and domain entities:
   - `toModel()` converts domain entity → Sequelize model (for database operations)
   - `toEntity()` converts Sequelize model → domain entity (for business logic)
-  - Handle field name differences (e.g., `createAt` ↔ `createdAt`)
+  - Handle field name differences (e.g., `createdAt` in both domain and database)
   - Transform complex types (e.g., Day value object ↔ DATEONLY string)
   - **Entities not necessary have 1-1 properties to models columns** - models may have additional fields (timestamps, associations) not present in entities
 - **CRITICAL:** When a model creates/updates/removes an association field, the related model MUST also be updated to reflect the bidirectional association. Example: if `AgendaDayOfWeekModel` has `@BelongsTo(() => AgendaConfigsModel)`, then `AgendaConfigsModel` must have `@HasMany(() => AgendaDayOfWeekModel)`
@@ -44,16 +44,16 @@ Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
 Example: `SellerWithPasswordSchema` extends `SellerSchema` and transforms password via `hashPassword()`.
 
 **Zod v4 Pattern in Use-Cases:**
-Always parse input at the start of `execute()` method:
+Input is validated OUTSIDE of use-cases (typically at the API route level). Use-cases receive already-validated data:
 
 ```typescript
-async execute(_input: InputType): Promise<{ data: OutputType }> {
-  const input = InputSchema.parse(_input);
-  // ... business logic
+async execute(input: InputType): Promise<{ data: OutputType }> {
+  // input is already validated, proceed with business logic
+  // ...
 }
 ```
 
-**Type Usage Convention:**
+**Type Usage Convention:\*\***
 
 - Use `SellerType` (without password) as the default for repository method signatures and return types
 - Use `SellerWithPasswordSchemaType` ONLY for:
@@ -64,14 +64,22 @@ async execute(_input: InputType): Promise<{ data: OutputType }> {
 **Import Awareness:**
 When changing types, schemas, or adding new functionality, ALWAYS update imports immediately. Check if the types/schemas/functions you're using are imported at the top of the file.
 
+**Type Safety:**
+Always use correct, specific types for function parameters and return values. NEVER use `any` type unless absolutely necessary. Prefer TypeScript's type inference and utility types (e.g., `Omit`, `Pick`, `Partial`) to maintain type safety.
+
+**Data Formatting:**
+Format data before passing it to function calls, not inline. Avoid formatting data inside function call parameters (e.g., `.map()` inside `execute()`). Always format data in a separate variable first, then pass it as a parameter. This improves readability and makes debugging easier.
+
 ## Use-Case Pattern
 
 All business logic lives in `src/domain/use-cases/`. Each class:
 
 - Takes `IUnitOfWork` in constructor
-- Validates input with Zod schema
+- Receives already-validated input (validation happens at API route level using Zod schemas)
 - Accesses repositories through UoW
 - Throws custom errors from `src/domain/use-cases/errors/`
+- **CRITICAL:** When creating multiple entities, format all data in a loop first, then call a bulk repository method. NEVER call repository methods inside loops - use `bulkCreate` instead
+- **CRITICAL:** The `execute()` method must always exist as the entry point. You can create private helper methods for better code organization
 
 Example: `CreateSellerUseCase` validates email uniqueness, formats data, persists via UoW.
 
@@ -83,6 +91,7 @@ Example: `CreateSellerUseCase` validates email uniqueness, formats data, persist
 
    - Define methods with domain types (e.g., `SellerType`, `AgendaPeriodType`)
    - NEVER use model types or password variants in interfaces
+   - **CRITICAL:** Methods that return arrays MUST NOT return `null`. Always return empty arrays `[]` when no results are found
 
 2. **Implement repository** in `src/core/repository/[name].repository.ts`
 
@@ -90,7 +99,10 @@ Example: `CreateSellerUseCase` validates email uniqueness, formats data, persist
    - Implements the domain interface
    - Uses mappers to convert between models and entities
    - Passes transaction to Sequelize operations
+   - **CRITICAL:** Methods returning arrays must return `[]` when empty, never `null`
+   - **CRITICAL:** Repositories MUST NOT throw errors. Single-object queries should return `null` when not found. Let use-cases handle business logic errors
    - **CRITICAL:** If creating a new model, you MUST create a migration (.cjs) for the table first
+   - **CRITICAL:** When creating Sequelize models, pass the model instance directly to `Model.create()`, do NOT use `.toJSON()`. Example: `await Model.create(model, { transaction })` not `await Model.create(model.toJSON(), { transaction })`
 
 3. **Update UoW interface** in `src/domain/repositories/uow/unit-of-work.ts`
 
@@ -123,6 +135,62 @@ Routes in `src/apps/api/routes/` are initialized with `SequelizeUnitOfWork`:
 - Use-cases access repositories via `uow.sellerRepository`, `uow.agendaPeriodsRepository`, etc.
 
 Routes use **fastify-type-provider-zod** for automatic request validation from Zod schemas.
+
+**Route File Pattern:**
+
+Each route file in `src/apps/api/routes/` follows this structure:
+
+1. **Import use-cases and schemas** - Import specific use-case classes and their Zod schemas
+2. **Import types** - Import `FastifyZodInstance` and `FastityInitRoutes` types
+3. **Import UoW** - Import `SequelizeUnitOfWork` for transaction management
+4. **Export init function** - Export a function named `init[Entity]Routes()` that returns `FastityInitRoutes`
+
+Example pattern from [seller.ts](src/apps/api/routes/seller.ts):
+
+```typescript
+import z from "zod";
+import {
+  CreateSellerSchema,
+  CreateSellerUseCase,
+} from "../../../domain/use-cases/create-seller.js";
+import { FastifyZodInstance } from "../@types/fastity-instance.js";
+import { SequelizeUnitOfWork } from "../../../core/repository/uow/sequelize-unit-of-work.js";
+import { FastityInitRoutes } from "../@types/init-routes.js";
+
+export function initSellerRoutes(): FastityInitRoutes {
+  return async (fastify: FastifyZodInstance) => {
+    fastify.post(
+      "/",
+      { schema: { body: CreateSellerSchema } },
+      async function (request, reply) {
+        const uow = new SequelizeUnitOfWork();
+        const sup = new CreateSellerUseCase(uow);
+        const useCase = await sup.execute(request.body);
+        return { data: useCase.data };
+      }
+    );
+  };
+}
+```
+
+**Route Registration Pattern:**
+
+**CRITICAL:** When creating a new route file, it MUST be registered in [\_init.ts](src/apps/api/routes/_init.ts):
+
+1. **Import the init function** - Import the `init[Entity]Routes` function from the new route file
+2. **Register with prefix** - Call `fastify.register()` with the init function and a URL prefix - **CRITICAL:** Route prefixes MUST always be plural (e.g., `"sellers"`, `"agendas"`, `"periods"`)
+   Example from [\_init.ts](src/apps/api/routes/_init.ts):
+
+```typescript
+import { initSellerRoutes } from "./seller.js";
+import { initAgendaRoutes } from "./agenda.js";
+import { FastifyZodInstance } from "../@types/fastity-instance.js";
+
+export async function initRoutes(fastify: FastifyZodInstance) {
+  fastify.register(initSellerRoutes(), { prefix: "sellers" });
+  fastify.register(initAgendaRoutes(), { prefix: "agendas" });
+}
+```
 
 **Route Validation Pattern:**
 Always validate URL params, body, and query using Zod in the schema option:
