@@ -3,6 +3,7 @@ import { Envs } from "../envs/envs.js";
 import config from "./config/config.js";
 import { SequelizeConfigType } from "./config/config-type.js";
 import { SellerModel } from "./models/seller.js";
+import { AgendaConfigsModel } from "./models/agenda-configs.js";
 
 const connectionConfig: SequelizeConfigType | undefined = config[
   Envs.NODE_ENV
@@ -21,7 +22,7 @@ export const sequelizeConnection = new Sequelize({
   password,
   host,
   port,
-  models: [SellerModel],
+  models: [SellerModel, AgendaConfigsModel],
   logging: true,
 });
 

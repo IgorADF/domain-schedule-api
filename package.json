@@ -4,7 +4,11 @@
   "description": "",
   "main": "test.js",
   "scripts": {
-    "dev": "tsx watch ./src/apps/api/server-start.ts"
+    "dev": "tsx watch ./src/apps/api/server-start.ts",
+    "db:create": "npx sequelize-cli db:create",
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
+    "db:seed": "npx sequelize-cli db:seed:all"
   },
   "keywords": [],
   "author": "",

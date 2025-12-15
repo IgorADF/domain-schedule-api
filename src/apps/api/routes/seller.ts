@@ -1,3 +1,4 @@
+import z from "zod";
 import {
   AuthSellerSchema,
   AuthSellerUseCase,
@@ -9,6 +10,10 @@ import {
   CreateSellerSchema,
   CreateSellerUseCase,
 } from "../../../domain/use-cases/create-seller.js";
+import {
+  UpdateSellerSchema,
+  UpdateSellerUseCase,
+} from "../../../domain/use-cases/update-seller.js";
 
 export function initSellerRoutes(uow: SequelizeUnitOfWork): FastityInitRoutes {
   return async (fastify: FastifyZodInstance) => {
@@ -28,6 +33,22 @@ export function initSellerRoutes(uow: SequelizeUnitOfWork): FastityInitRoutes {
       async function (request, reply) {
         const sup = new CreateSellerUseCase(uow);
         const useCase = await sup.execute(request.body);
+        return { data: useCase.data };
+      }
+    );
+
+    fastify.patch(
+      "/:id",
+      {
+        schema: {
+          params: z.object({ id: z.uuid() }),
+          body: UpdateSellerSchema.omit({ id: true }),
+        },
+      },
+      async function (request, reply) {
+        const { id } = request.params;
+        const sup = new UpdateSellerUseCase(uow);
+        const useCase = await sup.execute({ id, ...request.body });
         return { data: useCase.data };
       }
     );

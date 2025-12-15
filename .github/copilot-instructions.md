@@ -14,10 +14,10 @@ Critical pattern: **Repositories are transaction-aware**. All data access flows 
 
 Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
 
-- Migrations use `.cjs` extension: `src/core/database/migrations/TIMESTAMP-description.cjs`
+- **CRITICAL:** Migrations MUST use `.cjs` extension (not `.js`): `src/core/database/migrations/TIMESTAMP-description.cjs`
+- **CRITICAL:** Seeders MUST use `.cjs` extension (not `.js`): `src/core/database/seeders/TIMESTAMP-description.cjs`
 - Models in `src/core/database/models/` match migrations exactly
 - **Mappers** (`src/core/database/entities-mappers/`) convert between Sequelize models ↔ domain entities
-- Seeders also use `.cjs`: `src/core/database/seeders/TIMESTAMP-description.cjs`
 
 **Adding a new field workflow:**
 
@@ -35,6 +35,27 @@ Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
 3. Mapper transformations
 
 Example: `SellerWithPasswordSchema` extends `SellerSchema` and transforms password via `hashPassword()`.
+
+**Zod v4 Pattern in Use-Cases:**
+Always parse input at the start of `execute()` method:
+
+```typescript
+async execute(_input: InputType): Promise<{ data: OutputType }> {
+  const input = InputSchema.parse(_input);
+  // ... business logic
+}
+```
+
+**Type Usage Convention:**
+
+- Use `SellerType` (without password) as the default for repository method signatures and return types
+- Use `SellerWithPasswordSchemaType` ONLY for:
+  - Creating new sellers (where password is required)
+  - Authentication operations (where password comparison is needed)
+- Repository interfaces should accept `SellerType` or `Partial<SellerType>`, not the password variant
+
+**Import Awareness:**
+When changing types, schemas, or adding new functionality, ALWAYS update imports immediately. Check if the types/schemas/functions you're using are imported at the top of the file.
 
 ## Use-Case Pattern
 
@@ -57,6 +78,22 @@ Routes in `src/apps/api/routes/` are initialized with `SequelizeUnitOfWork`:
 - Use-cases access repositories via `uow.sellerRepository`, `uow.agendaPeriodsRepository`, etc.
 
 Routes use **fastify-type-provider-zod** for automatic request validation from Zod schemas.
+
+**Route Validation Pattern:**
+Always validate URL params, body, and query using Zod in the schema option:
+
+```typescript
+fastify.patch(
+  "/:id",
+  {
+    schema: {
+      params: z.object({ id: z.string().uuid() }),
+      body: UpdateSchema,
+    },
+  },
+  async function (request, reply) { ... }
+);
+```
 
 ## Key Dependencies
 

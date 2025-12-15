@@ -49,10 +49,10 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
     );
   }
 
-  get agendaPeriodsRepository() {
-    return this.createAndGetRepository<IAgendaPeriodsRepository>(
-      ,
-      "_agendaPeriodsRepository" as keyof this
-    );
-  }
+  // get agendaPeriodsRepository() {
+  //   return this.createAndGetRepository<IAgendaPeriodsRepository>(
+  //     ,
+  //     "_agendaPeriodsRepository" as keyof this
+  //   );
+  // }
 }
