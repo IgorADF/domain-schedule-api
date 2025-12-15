@@ -5,6 +5,7 @@ import { sequelizeConnection } from "../../database/connection.js";
 import { SellerRepository } from "../seller.repository.js";
 import { IUnitOfWork } from "../../../domain/repositories/uow/unit-of-work.js";
 import { IAgendaPeriodsRepository } from "../../../domain/repositories/agenda-periods.interface.js";
+import { AgendaPeriodsRepository } from "../agenda-periods.repository.js";
 
 export class SequelizeUnitOfWork implements IUnitOfWork {
   private transaction: SequelizeTransaction | null = null;
@@ -49,10 +50,10 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
     );
   }
 
-  // get agendaPeriodsRepository() {
-  //   return this.createAndGetRepository<IAgendaPeriodsRepository>(
-  //     ,
-  //     "_agendaPeriodsRepository" as keyof this
-  //   );
-  // }
+  get agendaPeriodsRepository() {
+    return this.createAndGetRepository<IAgendaPeriodsRepository>(
+      AgendaPeriodsRepository,
+      "_agendaPeriodsRepository" as keyof this
+    );
+  }
 }

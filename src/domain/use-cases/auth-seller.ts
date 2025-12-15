@@ -14,7 +14,8 @@ export class AuthSellerUseCase {
   constructor(private uow: IUnitOfWork) {}
 
   async execute({ email, password }: AuthSellerType) {
-    const existingSeller = await this.uow.sellerRepository.getSeller(email);
+    const existingSeller =
+      await this.uow.sellerRepository.getSellerWithPassword(email);
 
     if (!existingSeller) {
       throw new InvalidCredentials();

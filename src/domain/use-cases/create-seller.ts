@@ -9,9 +9,9 @@ import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
 import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 
 export const CreateSellerSchema = z.object({
-  name: z.string().min(1),
-  email: z.email().min(1),
-  password: z.string().min(6),
+  name: z.string().min(1).max(50),
+  email: z.email().min(1).max(50),
+  password: z.string().min(6).max(24),
 });
 
 export type CreateSellerType = z.infer<typeof CreateSellerSchema>;
@@ -22,7 +22,7 @@ export class CreateSellerUseCase {
   async execute(
     newSellerToCreate: CreateSellerType
   ): Promise<{ data: SellerType }> {
-    const existingSeller = await this.uow.sellerRepository.getSeller(
+    const existingSeller = await this.uow.sellerRepository.getSellerByEmail(
       newSellerToCreate.email
     );
 

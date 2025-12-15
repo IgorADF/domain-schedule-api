@@ -9,6 +9,8 @@ import {
   BelongsTo,
 } from "sequelize-typescript";
 import { SellerModel } from "./seller.js";
+import { AgendaDayOfWeekModel } from "./agenda-day-of-week.js";
+import { OverwriteDayModel } from "./overwrite-day.js";
 
 export type AgendaConfigsModelType = InferAttributes<AgendaConfigsModel>;
 export type AgendaConfigsModelCreationType =
@@ -23,13 +25,16 @@ export class AgendaConfigsModel extends Model<
   @Column({ allowNull: false, type: DataType.UUID, unique: true })
   sellerId!: string;
 
-  @Column({ allowNull: false, type: DataType.INTEGER })
+  @Column({
+    allowNull: false,
+    type: DataType.INTEGER,
+  })
   maxDaysOfAdvancedNotice!: number;
 
   @Column({ type: DataType.INTEGER })
-  minHoursOfAdvancedNotice!: number;
+  minHoursOfAdvancedNotice?: number;
 
-  @Column({ allowNull: false, type: DataType.STRING })
+  @Column({ allowNull: false, type: DataType.STRING(50) })
   timezone!: string;
 
   declare createdAt: Date;
@@ -38,5 +43,11 @@ export class AgendaConfigsModel extends Model<
   /* Associations */
 
   @BelongsTo(() => SellerModel)
-  seller!: SellerModel;
+  seller?: SellerModel;
+
+  @HasMany(() => AgendaDayOfWeekModel)
+  daysOfWeek?: AgendaDayOfWeekModel[];
+
+  @HasMany(() => OverwriteDayModel)
+  overwriteDays?: OverwriteDayModel[];
 }

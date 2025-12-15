@@ -16,8 +16,15 @@ Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
 
 - **CRITICAL:** Migrations MUST use `.cjs` extension (not `.js`): `src/core/database/migrations/TIMESTAMP-description.cjs`
 - **CRITICAL:** Seeders MUST use `.cjs` extension (not `.js`): `src/core/database/seeders/TIMESTAMP-description.cjs`
+- **CRITICAL:** All models MUST be imported and registered in `src/core/database/connection.ts` models array
 - Models in `src/core/database/models/` match migrations exactly
-- **Mappers** (`src/core/database/entities-mappers/`) convert between Sequelize models ↔ domain entities
+- **Mappers** (`src/core/database/entities-mappers/`) are the bridge between Sequelize models and domain entities:
+  - `toModel()` converts domain entity → Sequelize model (for database operations)
+  - `toEntity()` converts Sequelize model → domain entity (for business logic)
+  - Handle field name differences (e.g., `createAt` ↔ `createdAt`)
+  - Transform complex types (e.g., Day value object ↔ DATEONLY string)
+  - **Entities not necessary have 1-1 properties to models columns** - models may have additional fields (timestamps, associations) not present in entities
+- **CRITICAL:** When a model creates/updates/removes an association field, the related model MUST also be updated to reflect the bidirectional association. Example: if `AgendaDayOfWeekModel` has `@BelongsTo(() => AgendaConfigsModel)`, then `AgendaConfigsModel` must have `@HasMany(() => AgendaDayOfWeekModel)`
 
 **Adding a new field workflow:**
 
@@ -67,6 +74,44 @@ All business logic lives in `src/domain/use-cases/`. Each class:
 - Throws custom errors from `src/domain/use-cases/errors/`
 
 Example: `CreateSellerUseCase` validates email uniqueness, formats data, persists via UoW.
+
+## Repository Pattern
+
+**Creating a new repository requires 4 steps:**
+
+1. **Define interface** in `src/domain/repositories/[name].interface.ts`
+
+   - Define methods with domain types (e.g., `SellerType`, `AgendaPeriodType`)
+   - NEVER use model types or password variants in interfaces
+
+2. **Implement repository** in `src/core/repository/[name].repository.ts`
+
+   - Takes `SequelizeTransaction` in constructor
+   - Implements the domain interface
+   - Uses mappers to convert between models and entities
+   - Passes transaction to Sequelize operations
+   - **CRITICAL:** If creating a new model, you MUST create a migration (.cjs) for the table first
+
+3. **Update UoW interface** in `src/domain/repositories/uow/unit-of-work.ts`
+
+   - Add import for the new repository interface
+   - Add getter: `get [name]Repository(): I[Name]Repository;`
+
+4. **Update UoW implementation** in `src/core/repository/uow/sequelize-unit-of-work.ts`
+   - Add import for repository interface and implementation
+   - Add private property: `private _[name]Repository: I[Name]Repository | null = null;`
+   - Add getter using `createAndGetRepository` pattern
+
+Example pattern:
+
+```typescript
+get agendaPeriodsRepository() {
+  return this.createAndGetRepository<IAgendaPeriodsRepository>(
+    AgendaPeriodsRepository,
+    "_agendaPeriodsRepository" as keyof this
+  );
+}
+```
 
 ## API Routes & Transaction Handling
 

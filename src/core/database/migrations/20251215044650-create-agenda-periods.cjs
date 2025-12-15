@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("AgendaConfigs", [
+    await queryInterface.createTable("AgendaPeriods", [
       {
         field: "id",
         type: Sequelize.UUID,
@@ -12,27 +12,46 @@ module.exports = {
         unique: true,
       },
       {
-        field: "sellerId",
+        field: "agendaDayOfWeekId",
         type: Sequelize.UUID,
         allowNull: false,
-        unique: true,
         references: {
           key: "id",
-          model: "Sellers",
+          model: "AgendaDayOfWeek",
         },
       },
       {
-        field: "maxDaysOfAdvancedNotice",
+        field: "overwriteId",
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          key: "id",
+          model: "OverwriteDay",
+        },
+      },
+      {
+        field: "startTime",
+        type: Sequelize.TIME,
+        allowNull: false,
+      },
+      {
+        field: "endTime",
+        type: Sequelize.TIME,
+        allowNull: false,
+      },
+      {
+        field: "minutesOfService",
         type: Sequelize.INTEGER,
         allowNull: false,
       },
       {
-        field: "minHoursOfAdvancedNotice",
+        field: "minutesOfInterval",
         type: Sequelize.INTEGER,
+        allowNull: false,
       },
       {
-        field: "timezone",
-        type: Sequelize.STRING(50),
+        field: "order",
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       {
@@ -49,6 +68,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("AgendaConfigs");
+    await queryInterface.dropTable("AgendaPeriods");
   },
 };

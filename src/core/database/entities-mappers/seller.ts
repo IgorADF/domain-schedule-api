@@ -21,10 +21,13 @@ export class SellerMapper {
   static toEntity(_sup: SellerModel): SellerType {
     const sup = _sup.toJSON();
 
-    const map = {
+    const map: SellerType = {
       id: sup.id,
       name: sup.name,
       email: sup.email,
+      createAt: sup.createdAt,
+      updatedAt: sup.updatedAt,
+      deleteAt: sup.deletedAt,
     };
 
     const entity = SellerSchema.parse(map);
@@ -34,11 +37,14 @@ export class SellerMapper {
   static toEntityWithPassword(_sup: SellerModel): SellerWithPasswordSchemaType {
     const sup = _sup.toJSON();
 
-    const map = {
+    const map: SellerWithPasswordSchemaType = {
       id: sup.id,
       name: sup.name,
       email: sup.email,
       password: sup.password,
+      createAt: sup.createdAt,
+      updatedAt: sup.updatedAt,
+      deleteAt: sup.deletedAt,
     };
 
     const entity = SellerWithPasswordSchema.parse(map);

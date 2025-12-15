@@ -4,6 +4,9 @@ import config from "./config/config.js";
 import { SequelizeConfigType } from "./config/config-type.js";
 import { SellerModel } from "./models/seller.js";
 import { AgendaConfigsModel } from "./models/agenda-configs.js";
+import { AgendaDayOfWeekModel } from "./models/agenda-day-of-week.js";
+import { AgendaPeriodsModel } from "./models/agenda-periods.js";
+import { OverwriteDayModel } from "./models/overwrite-day.js";
 
 const connectionConfig: SequelizeConfigType | undefined = config[
   Envs.NODE_ENV
@@ -22,7 +25,13 @@ export const sequelizeConnection = new Sequelize({
   password,
   host,
   port,
-  models: [SellerModel, AgendaConfigsModel],
+  models: [
+    SellerModel,
+    AgendaConfigsModel,
+    AgendaDayOfWeekModel,
+    AgendaPeriodsModel,
+    OverwriteDayModel,
+  ],
   logging: true,
 });
 

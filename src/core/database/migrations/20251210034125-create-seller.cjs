@@ -13,13 +13,13 @@ module.exports = {
       },
       {
         field: "email",
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
         unique: true,
         allowNull: false,
       },
       {
         field: "password",
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(50),
         allowNull: false,
       },
       {

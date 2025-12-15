@@ -27,9 +27,8 @@ export class UpdateSellerUseCase {
     }
 
     if (sellerData.email && sellerData.email !== existingSeller.email) {
-      const sellerWithSameEmail = await this.uow.sellerRepository.getSeller(
-        sellerData.email
-      );
+      const sellerWithSameEmail =
+        await this.uow.sellerRepository.getSellerByEmail(sellerData.email);
 
       if (sellerWithSameEmail) {
         throw new EntityAlreadyExist();

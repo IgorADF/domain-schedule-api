@@ -20,7 +20,15 @@ export class SellerRepository implements ISellerRepository {
     return SellerMapper.toEntity(sup);
   }
 
-  async getSeller(email: string) {
+  async getSellerWithPassword(email: string) {
+    const sup = await SellerModel.findOne({
+      where: { email },
+      attributes: { include: ["password"] },
+    });
+    return sup ? SellerMapper.toEntityWithPassword(sup) : null;
+  }
+
+  async getSellerByEmail(email: string) {
     const sup = await SellerModel.findOne({ where: { email } });
     return sup ? SellerMapper.toEntity(sup) : null;
   }
