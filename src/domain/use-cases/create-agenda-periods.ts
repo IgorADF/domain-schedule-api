@@ -1,11 +1,5 @@
 import z from "zod";
 import { uuidv7 } from "uuidv7";
-import {
-  SellerType,
-  SellerWithPasswordSchema,
-  SellerWithPasswordSchemaType,
-} from "../entities/seller.js";
-import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
 import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import { TimeObj } from "../entities/value-objects/time.js";
 import {
@@ -64,6 +58,8 @@ export class CreateAgendaPeriodsUseCase {
       const parsedPeriod = AgendaPeriodSchema.parse(formattedPeriod);
       formattedPeriods.push(parsedPeriod);
     }
+
+    await this.uow.agendaPeriodsRepository.bulkCreate(formattedPeriods);
 
     return { data: formattedPeriods };
   }

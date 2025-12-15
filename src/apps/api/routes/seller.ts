@@ -15,12 +15,13 @@ import {
   UpdateSellerUseCase,
 } from "../../../domain/use-cases/update-seller.js";
 
-export function initSellerRoutes(uow: SequelizeUnitOfWork): FastityInitRoutes {
+export function initSellerRoutes(): FastityInitRoutes {
   return async (fastify: FastifyZodInstance) => {
     fastify.post(
       "/auth",
       { schema: { body: AuthSellerSchema } },
       async function (request, reply) {
+        const uow = new SequelizeUnitOfWork();
         const sup = new AuthSellerUseCase(uow);
         const useCase = await sup.execute(request.body);
         return { id: useCase.seller_id };
@@ -31,6 +32,7 @@ export function initSellerRoutes(uow: SequelizeUnitOfWork): FastityInitRoutes {
       "/",
       { schema: { body: CreateSellerSchema } },
       async function (request, reply) {
+        const uow = new SequelizeUnitOfWork();
         const sup = new CreateSellerUseCase(uow);
         const useCase = await sup.execute(request.body);
         return { data: useCase.data };
@@ -47,6 +49,7 @@ export function initSellerRoutes(uow: SequelizeUnitOfWork): FastityInitRoutes {
       },
       async function (request, reply) {
         const { id } = request.params;
+        const uow = new SequelizeUnitOfWork();
         const sup = new UpdateSellerUseCase(uow);
         const useCase = await sup.execute({ id, ...request.body });
         return { data: useCase.data };
