@@ -27,6 +27,9 @@ export class AgendaDayOfWeekModel extends Model<
   @Column({ allowNull: false, type: DataType.INTEGER })
   dayOfWeek!: number;
 
+  @Column({ allowNull: false, type: DataType.BOOLEAN })
+  cancelAllDay!: boolean;
+
   declare createdAt: Date;
   declare updatedAt: Date;
 

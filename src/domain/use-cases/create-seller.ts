@@ -7,11 +7,12 @@ import {
 } from "../entities/seller.js";
 import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
 import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import { hashPassword } from "../../core/utils/password.js";
 
-export const CreateSellerSchema = z.object({
-  name: z.string().min(1).max(50),
-  email: z.email().min(1).max(50),
-  password: z.string().min(6).max(24),
+export const CreateSellerSchema = SellerWithPasswordSchema.pick({
+  name: true,
+  email: true,
+  password: true,
 });
 
 export type CreateSellerType = z.infer<typeof CreateSellerSchema>;
@@ -41,6 +42,7 @@ export class CreateSellerUseCase {
 
     const formatNewSeller: SellerWithPasswordSchemaType = {
       ...newSeller,
+      password: hashPassword(newSeller.password),
 
       id: uuidv7(),
       createdAt: now,

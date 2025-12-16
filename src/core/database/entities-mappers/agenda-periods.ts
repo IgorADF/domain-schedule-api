@@ -15,7 +15,6 @@ export class AgendaPeriodsMapper {
     return new AgendaPeriodsModel({
       id: period.id,
       agendaDayOfWeekId: period.agendaDayOfWeekId,
-      overwriteId: period?.overwriteId,
       startTime,
       endTime,
       minutesOfService: period.minutesOfService,
@@ -32,7 +31,6 @@ export class AgendaPeriodsMapper {
     const map: AgendaPeriodType = {
       id: period.id,
       agendaDayOfWeekId: period.agendaDayOfWeekId,
-      overwriteId: period.overwriteId,
       startTime: {
         hour: period.startTime.getHours(),
         minute: period.startTime.getMinutes(),

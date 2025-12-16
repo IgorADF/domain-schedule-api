@@ -2,10 +2,11 @@ import z from "zod";
 import { InvalidCredentials } from "./errors/invalid-credentials.js";
 import { comparePasswords } from "../../core/utils/password.js";
 import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import { SellerWithPasswordSchema } from "../entities/seller.js";
 
-export const AuthSellerSchema = z.object({
-  email: z.email(),
-  password: z.string(),
+export const AuthSellerSchema = SellerWithPasswordSchema.pick({
+  email: true,
+  password: true,
 });
 
 export type AuthSellerType = z.infer<typeof AuthSellerSchema>;

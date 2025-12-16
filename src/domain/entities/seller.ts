@@ -1,6 +1,5 @@
 import z from "zod";
 import { IdObj } from "./value-objects/id.js";
-import { hashPassword } from "../../core/utils/password.js";
 import { ParanoidTimestamp } from "./value-objects/timestamp.js";
 
 export const SellerSchema = z
@@ -12,11 +11,7 @@ export const SellerSchema = z
   .extend(ParanoidTimestamp.shape);
 
 export const SellerWithPasswordSchema = SellerSchema.extend({
-  password: z
-    .string()
-    .min(6)
-    .max(50)
-    .transform((value) => hashPassword(value)),
+  password: z.string().min(6).max(50),
 });
 
 export type SellerType = z.infer<typeof SellerSchema>;

@@ -7,6 +7,7 @@ export const AgendaDayOfWeekSchema = z
     id: IdObj,
     agendaConfigId: IdObj,
     dayOfWeek: z.number().min(1).max(7),
+    cancelAllDay: z.boolean(),
   })
   .extend(Timestamp.shape);
 

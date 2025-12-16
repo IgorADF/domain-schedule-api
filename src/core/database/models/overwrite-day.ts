@@ -6,10 +6,8 @@ import {
   DataType,
   ForeignKey,
   BelongsTo,
-  HasMany,
 } from "sequelize-typescript";
 import { AgendaConfigsModel } from "./agenda-configs.js";
-import { AgendaPeriodsModel } from "./agenda-periods.js";
 
 export type OverwriteDayModelType = InferAttributes<OverwriteDayModel>;
 export type OverwriteDayModelCreationType =
@@ -34,7 +32,4 @@ export class OverwriteDayModel extends Model<
 
   @BelongsTo(() => AgendaConfigsModel)
   agenda?: AgendaConfigsModel;
-
-  @HasMany(() => AgendaPeriodsModel)
-  periods?: AgendaPeriodsModel[];
 }

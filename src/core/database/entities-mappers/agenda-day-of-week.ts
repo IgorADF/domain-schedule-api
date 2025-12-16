@@ -10,6 +10,7 @@ export class AgendaDayOfWeekMapper {
       id: dayOfWeek.id,
       agendaConfigId: dayOfWeek.agendaConfigId,
       dayOfWeek: dayOfWeek.dayOfWeek,
+      cancelAllDay: dayOfWeek.cancelAllDay,
       createdAt: dayOfWeek.createdAt,
       updatedAt: dayOfWeek.updatedAt,
     });
@@ -22,6 +23,7 @@ export class AgendaDayOfWeekMapper {
       id: dayOfWeek.id,
       agendaConfigId: dayOfWeek.agendaConfigId,
       dayOfWeek: dayOfWeek.dayOfWeek,
+      cancelAllDay: dayOfWeek.cancelAllDay,
       createdAt: dayOfWeek.createdAt,
       updatedAt: dayOfWeek.updatedAt,
     };

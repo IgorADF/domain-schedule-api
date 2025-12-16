@@ -239,7 +239,68 @@ Value objects in `src/domain/entities/value-objects/`: `Id`, `Day`, `Time` provi
 
 ## Testing
 
-Tests colocate with routes: `src/apps/api/routes/tests/`. Use **vitest** for unit/integration testing with Fastify test utilities.
+Tests colocate with routes: `src/apps/api/routes/tests/`. Use **vitest** and **supertest** for unit/integration testing with Fastify.
+
+**Test File Pattern:**
+
+**CRITICAL:** Every time a route is created or changed, you MUST add or update tests in `src/apps/api/routes/tests/`.
+
+Each test file follows this structure:
+
+1. **Import testing utilities** - Import `describe`, `it`, `expect`, `beforeAll`, `afterAll` from vitest
+2. **Import supertest** - Import `request` from supertest for HTTP testing
+3. **Import server** - Import `fastifyInstance` from `server-config.js`
+4. **Setup/Teardown** - Use `beforeAll()` to ready the server, `afterAll()` to close it
+5. **Test structure** - Group tests by route using nested `describe()` blocks
+
+Example pattern from [seller.test.ts](src/apps/api/routes/tests/seller.test.ts):
+
+```typescript
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import request from "supertest";
+import { fastifyInstance } from "../../server-config.js";
+
+describe("Seller Routes", () => {
+  beforeAll(async () => {
+    await fastifyInstance.ready();
+  });
+
+  afterAll(async () => {
+    await fastifyInstance.close();
+  });
+
+  describe("POST /sellers", () => {
+    it("should create a new seller with valid data", async () => {
+      const response = await request(fastifyInstance.server)
+        .post("/sellers")
+        .send({
+          name: "Test Seller",
+          email: "test@example.com",
+          password: "password123",
+        });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("data");
+    });
+
+    it("should fail with invalid data", async () => {
+      const response = await request(fastifyInstance.server)
+        .post("/sellers")
+        .send({ invalid: "data" });
+
+      expect(response.status).toBe(400);
+    });
+  });
+});
+```
+
+**Test Coverage Guidelines:**
+
+- Test happy path (valid data)
+- Test validation errors (missing fields, invalid formats, out-of-range values)
+- Test business logic errors (duplicates, not found, unauthorized)
+- Test edge cases (optional fields, boundary values)
+- Use descriptive test names starting with "should"
 
 ## Error Handling
 

@@ -8,8 +8,8 @@ export const ScheduleSchema = z
   .object({
     id: IdObj,
     sellerId: IdObj,
-    clientName: z.string().min(1),
-    clientPhoneNumber: z.string().min(1),
+    clientName: z.string().min(1).max(50),
+    clientPhoneNumber: z.string().min(1).max(50),
     day: DayObj,
     startTime: TimeObj,
     endTime: TimeObj,

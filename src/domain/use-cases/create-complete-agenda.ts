@@ -2,43 +2,62 @@ import z from "zod";
 import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import {
   CreateAgendaConfigSchema,
+  CreateAgendaConfigType,
   CreateAgendaConfigUseCase,
 } from "./create-agenda-config.js";
-import { CreateAgendaDayOfWeekUseCase } from "./create-agenda-day-of-week.js";
+import {
+  CreateAgendaDayOfWeekSchema,
+  CreateAgendaDayOfWeekUseCase,
+} from "./create-agenda-day-of-week.js";
 import {
   CreateAgendaPeriodsSchema,
-  CreateAgendaPeriodsType,
   CreateAgendaPeriodsUseCase,
 } from "./create-agenda-periods.js";
 import { AgendaConfigType } from "../entities/agenda-config.js";
 import { AgendaDayOfWeekType } from "../entities/agenda-day-of-week.js";
-import { AgendaPeriodType } from "../entities/agenda-periods.js";
 import { InvalidCreantionData } from "./errors/invalid-creation-data.js";
+import { AgendaPeriodType } from "../entities/agenda-periods.js";
+
+const qtDaysOfWeek = 7;
 
 export const CreateCompleteAgendaSchema = z.object({
   sellerId: z.uuid(),
-  maxDaysOfAdvancedNotice: z
-    .number()
-    .max(365 * 2)
-    .positive(),
-  minHoursOfAdvancedNotice: z.number().min(1).max(9999).positive().optional(),
-  timezone: z.string().max(50),
+  agendaConfig: CreateAgendaConfigSchema.pick({
+    maxDaysOfAdvancedNotice: true,
+    minHoursOfAdvancedNotice: true,
+    timezone: true,
+  }),
   daysOfWeek: z
     .array(
       z.object({
-        dayOfWeek: z.number().min(1).max(7),
-        periods: z
-          .array(
-            CreateAgendaPeriodsSchema.element.omit({
-              agendaDayOfWeekId: true,
-              overwriteId: true,
-            })
-          )
-          .length(7),
+        dayOfWeek: CreateAgendaDayOfWeekSchema.pick({
+          dayOfWeek: true,
+          cancelAllDay: true,
+        }),
+        periods: z.array(
+          CreateAgendaPeriodsSchema.element.pick({
+            endTime: true,
+            startTime: true,
+            minutesOfService: true,
+            minutesOfInterval: true,
+          })
+        ),
       })
     )
-    .length(7),
+    .length(qtDaysOfWeek),
 });
+
+type _AgendaConfigType = z.infer<
+  typeof CreateCompleteAgendaSchema.shape.agendaConfig
+>;
+
+type _DaysOfWeekType = z.infer<
+  typeof CreateCompleteAgendaSchema.shape.daysOfWeek
+>;
+
+type _PeriodsType = z.infer<
+  typeof CreateCompleteAgendaSchema.shape.daysOfWeek.element.shape.periods
+>;
 
 export type CreateCompleteAgendaType = z.infer<
   typeof CreateCompleteAgendaSchema
@@ -47,21 +66,20 @@ export type CreateCompleteAgendaType = z.infer<
 export class CreateCompleteAgendaUseCase {
   constructor(private uow: IUnitOfWork) {}
 
-  async execute(input: CreateCompleteAgendaType): Promise<void> {
+  async execute({
+    sellerId,
+    daysOfWeek,
+    agendaConfig,
+  }: CreateCompleteAgendaType): Promise<void> {
     try {
-      const { daysOfWeek, ...agendaConfig } = input;
-
       await this.uow.beginTransaction();
 
-      const createdConfig = await this.createAgendaConfig(agendaConfig);
-
-      const _daysOfWeek = daysOfWeek.map((e) => ({ dayOfWeek: e.dayOfWeek }));
-      const createdDaysOfWeek = await this.createDaysOfWeek(
-        createdConfig.data.id,
-        _daysOfWeek
+      const createdConfig = await this.createAgendaConfig(
+        agendaConfig,
+        sellerId
       );
 
-      await this.createPeriodsForDays(createdDaysOfWeek.data, daysOfWeek);
+      await this.createDaysOfWeek(createdConfig.data.id, daysOfWeek);
 
       await this.uow.commitTransaction();
     } catch (error) {
@@ -71,49 +89,91 @@ export class CreateCompleteAgendaUseCase {
   }
 
   private async createAgendaConfig(
-    input: Omit<CreateCompleteAgendaType, "daysOfWeek">
+    input: _AgendaConfigType,
+    sellerId: string
   ): Promise<{ data: AgendaConfigType }> {
-    const createConfigUseCase = new CreateAgendaConfigUseCase(this.uow);
-    return await createConfigUseCase.execute({
-      sellerId: input.sellerId,
+    const useCaseData = {
+      sellerId: sellerId,
       maxDaysOfAdvancedNotice: input.maxDaysOfAdvancedNotice,
       minHoursOfAdvancedNotice: input.minHoursOfAdvancedNotice,
       timezone: input.timezone,
-    });
+    };
+
+    const parsedUseCaseData = CreateAgendaConfigSchema.parse(useCaseData);
+
+    const createConfigUseCase = new CreateAgendaConfigUseCase(this.uow);
+    return await createConfigUseCase.execute(parsedUseCaseData);
   }
 
   private async createDaysOfWeek(
     agendaConfigId: string,
-    daysInput: Array<{ dayOfWeek: number }>
-  ): Promise<{ data: AgendaDayOfWeekType[] }> {
-    const formattedDays = daysInput.map((day) => ({
-      agendaConfigId: agendaConfigId,
-      dayOfWeek: day.dayOfWeek,
-    }));
+    daysOfWeek: _DaysOfWeekType
+  ): Promise<void> {
+    if (daysOfWeek.length !== qtDaysOfWeek) {
+      throw new InvalidCreantionData();
+    }
 
-    const createDayOfWeekUseCase = new CreateAgendaDayOfWeekUseCase(this.uow);
-    return await createDayOfWeekUseCase.execute(formattedDays);
+    const daysOfWeekToCreate: AgendaDayOfWeekType[] = [];
+    const periodsOfWeekToCreate: AgendaPeriodType[] = [];
+
+    for (let iDaysOfWeek = 0; iDaysOfWeek < daysOfWeek.length; iDaysOfWeek++) {
+      const dayOfWeekToCreate = {
+        ...daysOfWeek[iDaysOfWeek].dayOfWeek,
+
+        agendaConfigId: agendaConfigId,
+      };
+
+      const parsedDayOfWeekToCreate =
+        CreateAgendaDayOfWeekSchema.parse(dayOfWeekToCreate);
+
+      const createAgendaDayOfWeekUseCase = new CreateAgendaDayOfWeekUseCase(
+        this.uow
+      );
+
+      const { data: createdDayOfWeek } =
+        await createAgendaDayOfWeekUseCase.execute(
+          parsedDayOfWeekToCreate,
+          false
+        );
+
+      const createdPeriods = await this.createPeriodsForDays(
+        createdDayOfWeek.id,
+        daysOfWeek[iDaysOfWeek].periods
+      );
+
+      daysOfWeekToCreate.push(createdDayOfWeek);
+      periodsOfWeekToCreate.push(...createdPeriods);
+    }
+
+    await CreateAgendaDayOfWeekUseCase.bulkPersist(
+      daysOfWeekToCreate,
+      this.uow
+    );
+
+    await CreateAgendaPeriodsUseCase.bulkPersist(
+      periodsOfWeekToCreate,
+      this.uow
+    );
   }
 
   private async createPeriodsForDays(
-    createdDays: AgendaDayOfWeekType[],
-    daysInput: CreateCompleteAgendaType["daysOfWeek"]
-  ): Promise<void> {
-    const allPeriodsFormatted = [];
+    daysOfWeekId: string,
+    periodsOfDays: _PeriodsType
+  ): Promise<AgendaPeriodType[]> {
+    const periodsToCreate = periodsOfDays.map((period) => ({
+      ...period,
+      agendaDayOfWeekId: daysOfWeekId,
+    }));
 
-    for (let i = 0; i < createdDays.length; i++) {
-      const day = createdDays[i];
-      const inputDay = daysInput[i];
-
-      const periodsForDay = inputDay.periods.map((period) => ({
-        agendaDayOfWeekId: day.id,
-        ...period,
-      }));
-
-      allPeriodsFormatted.push(...periodsForDay);
-    }
+    const parsedPeriodsToCreate =
+      CreateAgendaPeriodsSchema.parse(periodsToCreate);
 
     const createPeriodsUseCase = new CreateAgendaPeriodsUseCase(this.uow);
-    await createPeriodsUseCase.execute(allPeriodsFormatted);
+    const createdPeriods = await createPeriodsUseCase.execute(
+      parsedPeriodsToCreate,
+      false
+    );
+
+    return createdPeriods.data;
   }
 }

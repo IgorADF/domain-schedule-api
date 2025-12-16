@@ -1,21 +1,18 @@
 import z from "zod";
 import { uuidv7 } from "uuidv7";
 import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
-import { TimeObj } from "../entities/value-objects/time.js";
 import {
   AgendaPeriodSchema,
   AgendaPeriodType,
 } from "../entities/agenda-periods.js";
-import { IdObj } from "../entities/value-objects/id.js";
 
 export const CreateAgendaPeriodsSchema = z.array(
-  z.object({
-    agendaDayOfWeekId: IdObj,
-    overwriteId: IdObj.optional(),
-    startTime: TimeObj,
-    endTime: TimeObj,
-    minutesOfService: z.number(),
-    minutesOfInterval: z.number().positive().min(1).optional(),
+  AgendaPeriodSchema.pick({
+    agendaDayOfWeekId: true,
+    startTime: true,
+    endTime: true,
+    minutesOfService: true,
+    minutesOfInterval: true,
   })
 );
 
@@ -25,7 +22,8 @@ export class CreateAgendaPeriodsUseCase {
   constructor(private uow: IUnitOfWork) {}
 
   async execute(
-    input: CreateAgendaPeriodsType
+    input: CreateAgendaPeriodsType,
+    persistData: boolean
   ): Promise<{ data: AgendaPeriodType[] }> {
     const formattedPeriods: AgendaPeriodType[] = [];
 
@@ -47,8 +45,14 @@ export class CreateAgendaPeriodsUseCase {
       formattedPeriods.push(parsedPeriod);
     }
 
-    await this.uow.agendaPeriodsRepository.bulkCreate(formattedPeriods);
+    if (persistData) {
+      await CreateAgendaPeriodsUseCase.bulkPersist(formattedPeriods, this.uow);
+    }
 
     return { data: formattedPeriods };
+  }
+
+  static async bulkPersist(data: AgendaPeriodType[], uow: IUnitOfWork) {
+    await uow.agendaPeriodsRepository.bulkCreate(data);
   }
 }

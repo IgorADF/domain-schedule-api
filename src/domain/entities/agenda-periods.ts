@@ -7,11 +7,10 @@ export const AgendaPeriodSchema = z
   .object({
     id: IdObj,
     agendaDayOfWeekId: IdObj,
-    overwriteId: IdObj.optional(),
     startTime: TimeObj,
     endTime: TimeObj,
-    minutesOfService: z.number().positive().min(5),
-    minutesOfInterval: z.number().positive().min(5).optional(),
+    minutesOfService: z.number().positive().min(5).max(9999),
+    minutesOfInterval: z.number().positive().min(5).max(9999).optional(),
     order: z.number().positive().min(1).max(5),
   })
   .extend(Timestamp.shape);

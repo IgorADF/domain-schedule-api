@@ -6,12 +6,11 @@ import {
   AgendaDayOfWeekType,
 } from "../entities/agenda-day-of-week.js";
 
-export const CreateAgendaDayOfWeekSchema = z.array(
-  z.object({
-    agendaConfigId: z.uuid(),
-    dayOfWeek: z.number().min(1).max(7),
-  })
-);
+export const CreateAgendaDayOfWeekSchema = AgendaDayOfWeekSchema.pick({
+  agendaConfigId: true,
+  dayOfWeek: true,
+  cancelAllDay: true,
+});
 
 export type CreateAgendaDayOfWeekType = z.infer<
   typeof CreateAgendaDayOfWeekSchema
@@ -21,30 +20,33 @@ export class CreateAgendaDayOfWeekUseCase {
   constructor(private uow: IUnitOfWork) {}
 
   async execute(
-    input: CreateAgendaDayOfWeekType
-  ): Promise<{ data: AgendaDayOfWeekType[] }> {
-    const formattedDays: AgendaDayOfWeekType[] = [];
+    input: CreateAgendaDayOfWeekType,
+    persistData: boolean = true
+  ): Promise<{ data: AgendaDayOfWeekType }> {
     const now = new Date();
 
-    for (const dayOfWeekInput of input) {
-      const agendaDayOfWeekId = uuidv7();
+    const agendaDayOfWeek: AgendaDayOfWeekType = {
+      ...input,
 
-      const agendaDayOfWeek: AgendaDayOfWeekType = {
-        id: agendaDayOfWeekId,
-        agendaConfigId: dayOfWeekInput.agendaConfigId,
-        dayOfWeek: dayOfWeekInput.dayOfWeek,
-        createdAt: now,
-        updatedAt: now,
-      };
+      id: uuidv7(),
+      createdAt: now,
+      updatedAt: now,
+    };
 
-      const parsedDayOfWeek = AgendaDayOfWeekSchema.parse(agendaDayOfWeek);
-      formattedDays.push(parsedDayOfWeek);
+    const parsedDayOfWeek = AgendaDayOfWeekSchema.parse(agendaDayOfWeek);
+
+    if (persistData) {
+      await CreateAgendaDayOfWeekUseCase.persist(parsedDayOfWeek, this.uow);
     }
 
-    const createdDays = await this.uow.agendaDayOfWeekRepository.bulkCreate(
-      formattedDays
-    );
+    return { data: parsedDayOfWeek };
+  }
 
-    return { data: createdDays };
+  static async persist(data: AgendaDayOfWeekType, uow: IUnitOfWork) {
+    await uow.agendaDayOfWeekRepository.create(data);
+  }
+
+  static async bulkPersist(data: AgendaDayOfWeekType[], uow: IUnitOfWork) {
+    await uow.agendaDayOfWeekRepository.bulkCreate(data);
   }
 }

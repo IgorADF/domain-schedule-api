@@ -1,8 +1,8 @@
 import z from "zod";
 import {
-  CreateAgendaPeriodsSchema,
-  CreateAgendaPeriodsUseCase,
-} from "../../../domain/use-cases/create-agenda-periods.js";
+  CreateCompleteAgendaSchema,
+  CreateCompleteAgendaUseCase,
+} from "../../../domain/use-cases/create-complete-agenda.js";
 import { FastifyZodInstance } from "../@types/fastity-instance.js";
 import { SequelizeUnitOfWork } from "../../../core/repository/uow/sequelize-unit-of-work.js";
 import { FastityInitRoutes } from "../@types/init-routes.js";
@@ -10,13 +10,13 @@ import { FastityInitRoutes } from "../@types/init-routes.js";
 export function initAgendaRoutes(): FastityInitRoutes {
   return async (fastify: FastifyZodInstance) => {
     fastify.post(
-      "/periods",
-      { schema: { body: CreateAgendaPeriodsSchema } },
+      "/",
+      { schema: { body: CreateCompleteAgendaSchema } },
       async function (request, reply) {
         const uow = new SequelizeUnitOfWork();
-        const sup = new CreateAgendaPeriodsUseCase(uow);
-        const useCase = await sup.execute(request.body);
-        return { data: useCase.data };
+        const useCase = new CreateCompleteAgendaUseCase(uow);
+        await useCase.execute(request.body);
+        return { success: true };
       }
     );
   };

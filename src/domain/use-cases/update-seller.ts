@@ -1,13 +1,13 @@
 import z from "zod";
-import { SellerType } from "../entities/seller.js";
+import { SellerType, SellerWithPasswordSchema } from "../entities/seller.js";
 import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import { EntityNotFound } from "./errors/entity-not-found.js";
 import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
 
-export const UpdateSellerSchema = z.object({
-  id: z.uuid(),
-  email: z.email().min(1).optional(),
-  name: z.string().min(1).optional(),
+export const UpdateSellerSchema = SellerWithPasswordSchema.pick({
+  id: true,
+  email: true,
+  name: true,
 });
 
 export type UpdateSellerType = z.infer<typeof UpdateSellerSchema>;
