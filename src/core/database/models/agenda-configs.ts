@@ -11,6 +11,7 @@ import {
 import { SellerModel } from "./seller.js";
 import { AgendaDayOfWeekModel } from "./agenda-day-of-week.js";
 import { OverwriteDayModel } from "./overwrite-day.js";
+import { AgendaEventModel } from "./agenda-event.js";
 
 export type AgendaConfigsModelType = InferAttributes<AgendaConfigsModel>;
 export type AgendaConfigsModelCreationType =
@@ -50,4 +51,7 @@ export class AgendaConfigsModel extends Model<
 
   @HasMany(() => OverwriteDayModel)
   overwriteDays?: OverwriteDayModel[];
+
+  @HasMany(() => AgendaEventModel)
+  events?: AgendaEventModel[];
 }

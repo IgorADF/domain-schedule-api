@@ -7,6 +7,7 @@ import { AgendaConfigsModel } from "./models/agenda-configs.js";
 import { AgendaDayOfWeekModel } from "./models/agenda-day-of-week.js";
 import { AgendaPeriodsModel } from "./models/agenda-periods.js";
 import { OverwriteDayModel } from "./models/overwrite-day.js";
+import { AgendaEventModel } from "./models/agenda-event.js";
 
 const connectionConfig: SequelizeConfigType | undefined = config[
   Envs.NODE_ENV
@@ -31,6 +32,7 @@ export const sequelizeConnection = new Sequelize({
     AgendaDayOfWeekModel,
     AgendaPeriodsModel,
     OverwriteDayModel,
+    AgendaEventModel,
   ],
   logging: true,
 });

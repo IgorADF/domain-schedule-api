@@ -18,12 +18,58 @@ Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
 - **CRITICAL:** Seeders MUST use `.cjs` extension (not `.js`): `src/core/database/seeders/TIMESTAMP-description.cjs`
 - **CRITICAL:** All models MUST be imported and registered in `src/core/database/connection.ts` models array
 - Models in `src/core/database/models/` match migrations exactly
+
+**Sequelize Model Pattern:**
+
+Each model file follows this structure:
+
+1. **Import types and decorators** - Import from `sequelize` and `sequelize-typescript`
+2. **Define type exports** - Export `ModelType` and `ModelCreationType` using `InferAttributes` and `InferCreationAttributes`
+3. **Table decorator** - Configure table name, paranoid mode, timestamps:
+   ```typescript
+   @Table({
+     tableName: "Sellers",
+     paranoid: true,  // For soft deletes (adds deletedAt)
+     timestamps: false,  // We manage timestamps manually
+     defaultScope: { attributes: { exclude: ["password"] } },  // Hide sensitive fields
+   })
+   ```
+4. **Column decorators** - Define columns with constraints matching migrations:
+   - Use `DataType.STRING(50)` to match VARCHAR(50)
+   - Use `DataType.UUID` for ID fields
+   - Use `DataType.TIME` for time-only fields
+   - Use `DataType.DATE` for timestamps
+   - Set `allowNull`, `unique`, `primaryKey` as needed
+5. **Declare timestamps** - Always declare managed timestamp fields:
+   ```typescript
+   declare createdAt: Date;
+   declare updatedAt: Date;
+   declare deletedAt?: Date;  // Only for paranoid tables
+   ```
+6. **Association decorators** - Define relationships matching foreign keys:
+   - `@BelongsTo(() => ParentModel)` for many-to-one
+   - `@HasMany(() => ChildModel)` for one-to-many
+   - `@HasOne(() => ChildModel)` for one-to-one
+   - Always add `@ForeignKey()` on the column that holds the foreign key
+
 - **Mappers** (`src/core/database/entities-mappers/`) are the bridge between Sequelize models and domain entities:
   - `toModel()` converts domain entity → Sequelize model (for database operations)
   - `toEntity()` converts Sequelize model → domain entity (for business logic)
   - Handle field name differences (e.g., `createdAt` in both domain and database)
   - Transform complex types (e.g., Day value object ↔ DATEONLY string)
   - **Entities not necessary have 1-1 properties to models columns** - models may have additional fields (timestamps, associations) not present in entities
+  - **CRITICAL:** When mapping `TimeObj` value objects, create Date instances and use `.setHours()` to set time:
+    ```typescript
+    const startTime = new Date();
+    startTime.setHours(period.startTime.hour, period.startTime.minute, 0, 0);
+    ```
+  - **CRITICAL:** When mapping from Date to `TimeObj`, use `.getHours()` and `.getMinutes()`:
+    ```typescript
+    startTime: {
+      hour: period.startTime.getHours(),
+      minute: period.startTime.getMinutes(),
+    }
+    ```
 - **CRITICAL:** When a model creates/updates/removes an association field, the related model MUST also be updated to reflect the bidirectional association. Example: if `AgendaDayOfWeekModel` has `@BelongsTo(() => AgendaConfigsModel)`, then `AgendaConfigsModel` must have `@HasMany(() => AgendaDayOfWeekModel)`
 
 **Adding a new field workflow:**
@@ -53,13 +99,49 @@ async execute(input: InputType): Promise<{ data: OutputType }> {
 }
 ```
 
-**Type Usage Convention:\*\***
+**Zod Validation Patterns:**
+
+- **String constraints:** Always use `.min(1)` for required strings, `.max(N)` for database field limits
+
+  - Example: `z.string().min(1).max(50)` for name fields
+  - Email fields: `z.email().min(1).max(50)`
+  - Password fields: `z.string().min(6).max(50)` (minimum 6 characters)
+
+- **Number constraints:** Use `.positive()` for positive-only numbers, `.min()` and `.max()` for range validation
+  - Example: `z.number().positive().min(5).max(9999)` for minutes/durations
+  - Day of week: `z.number().min(1).max(7)` (1-7 range)
+  - Order/sequence: `z.number().positive().min(1).max(5)`
+- **Optional fields:** Chain `.optional()` at the END of the validation chain
+
+  - Example: `z.number().positive().min(5).max(9999).optional()`
+  - NEVER place `.optional()` before other validators
+
+- **Value Objects:** Use value objects for domain primitives:
+  - `IdObj` - UUID v7 validation: `z.uuidv7().min(1)`
+  - `TimeObj` - Hour/minute validation: `z.object({ hour: z.number().min(0).max(23), minute: z.number().min(0).max(59) })`
+  - `DayObj` - Year/month/day validation: `z.object({ year: z.number().min(1970), month: z.number().min(1).max(12), day: z.number().min(1).max(31) })`
+  - `Timestamp` - Created/updated dates: `z.object({ createdAt: z.date(), updatedAt: z.date() })`
+  - `ParanoidTimestamp` - Extends Timestamp with soft delete: adds `deletedAt: z.date().optional()`
+
+**Type Usage Convention:**
 
 - Use `SellerType` (without password) as the default for repository method signatures and return types
 - Use `SellerWithPasswordSchemaType` ONLY for:
   - Creating new sellers (where password is required)
   - Authentication operations (where password comparison is needed)
 - Repository interfaces should accept `SellerType` or `Partial<SellerType>`, not the password variant
+
+**Schema Extension Pattern:**
+
+When creating use-case input schemas, use Zod's `.pick()` to select only needed fields from entity schemas:
+
+```typescript
+export const CreateSellerSchema = SellerWithPasswordSchema.pick({
+  name: true,
+  email: true,
+  password: true,
+});
+```
 
 **Import Awareness:**
 When changing types, schemas, or adding new functionality, ALWAYS update imports immediately. Check if the types/schemas/functions you're using are imported at the top of the file.
@@ -80,6 +162,77 @@ All business logic lives in `src/domain/use-cases/`. Each class:
 - Throws custom errors from `src/domain/use-cases/errors/`
 - **CRITICAL:** When creating multiple entities, format all data in a loop first, then call a bulk repository method. NEVER call repository methods inside loops - use `bulkCreate` instead
 - **CRITICAL:** The `execute()` method must always exist as the entry point. You can create private helper methods for better code organization
+
+**Use-Case Structure Pattern:**
+
+1. **Constructor** - Takes `IUnitOfWork` as dependency
+2. **execute() method** - Main entry point, returns `Promise<{ data: T }>` for queries or `Promise<void>` for commands
+3. **Private helper methods** - Extract complex logic into private methods (e.g., `formatNewSeller()`, `createPeriodsForDays()`)
+4. **Static persist methods** - For bulk operations shared across use-cases (e.g., `static async bulkPersist()`)
+
+**Use-Case Return Pattern:**
+
+- **Query operations (read):** Return `Promise<{ data: EntityType }>` or `Promise<{ data: EntityType[] }>`
+  - Example: `Promise<{ data: SellerType }>`
+- **Command operations (write without returning entity):** Return `Promise<void>`
+  - Example: `CreateCompleteAgendaUseCase.execute()` returns `Promise<void>`
+- **ID-only returns:** For auth/special cases, return minimal data
+  - Example: `Promise<{ seller_id: string }>`
+
+**Formatting Data Pattern:**
+
+Always create formatting helper methods when preparing data for persistence:
+
+```typescript
+formatNewSeller(newSeller: CreateSellerType): SellerWithPasswordSchemaType {
+  const now = new Date();
+
+  const formatNewSeller: SellerWithPasswordSchemaType = {
+    ...newSeller,
+    password: hashPassword(newSeller.password),
+
+    id: uuidv7(),
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  const parsedNewSeller = SellerWithPasswordSchema.parse(formatNewSeller);
+  return parsedNewSeller;
+}
+```
+
+**Bulk Operations Pattern:**
+
+When creating multiple entities, use the following pattern:
+
+1. Loop through input data and format each item (no DB calls in loop)
+2. Collect formatted items in an array
+3. Call static `bulkPersist()` method once with the array
+
+```typescript
+// ✅ CORRECT - Format first, then bulk create
+const itemsToCreate: EntityType[] = [];
+
+for (const input of inputs) {
+  const formatted = await this.formatItem(input);
+  itemsToCreate.push(formatted);
+}
+
+await UseCase.bulkPersist(itemsToCreate, this.uow);
+
+// ❌ WRONG - Don't call repository inside loops
+for (const input of inputs) {
+  await this.uow.repository.create(input); // NEVER DO THIS
+}
+```
+
+**Error Handling in Use-Cases:**
+
+Use-cases should throw custom errors for business rule violations:
+
+- Check business rules BEFORE persistence
+- Throw specific error types from `src/domain/use-cases/errors/`
+- Let routes catch and convert to HTTP responses
 
 Example: `CreateSellerUseCase` validates email uniqueness, formats data, persists via UoW.
 
@@ -103,6 +256,14 @@ Example: `CreateSellerUseCase` validates email uniqueness, formats data, persist
    - **CRITICAL:** Repositories MUST NOT throw errors. Single-object queries should return `null` when not found. Let use-cases handle business logic errors
    - **CRITICAL:** If creating a new model, you MUST create a migration (.cjs) for the table first
    - **CRITICAL:** When creating Sequelize models, pass the model instance directly to `Model.create()`, do NOT use `.toJSON()`. Example: `await Model.create(model, { transaction })` not `await Model.create(model.toJSON(), { transaction })`
+   - **BulkCreate Pattern:** For bulk operations, map entities to models first, then use `Model.bulkCreate()`:
+     ```typescript
+     async bulkCreate(data: EntityType[]) {
+       const modelInstances = data.map((item) => Mapper.toModel(item));
+       const created = await Model.bulkCreate(modelInstances, { transaction: this.transaction });
+       return created.map((item) => Mapper.toEntity(item));
+     }
+     ```
 
 3. **Update UoW interface** in `src/domain/repositories/uow/unit-of-work.ts`
 
@@ -130,11 +291,38 @@ get agendaPeriodsRepository() {
 Routes in `src/apps/api/routes/` are initialized with `SequelizeUnitOfWork`:
 
 - Each route handler creates a new UoW instance
-- Call `uow.beginTransaction()` before use-cases
-- Call `uow.commitTransaction()` on success or `uow.rollbackTransaction()` on errors
+- **CRITICAL:** Routes NEVER manually manage transactions - UoW handles this internally
 - Use-cases access repositories via `uow.sellerRepository`, `uow.agendaPeriodsRepository`, etc.
+- Routes use **fastify-type-provider-zod** for automatic request validation from Zod schemas
 
-Routes use **fastify-type-provider-zod** for automatic request validation from Zod schemas.
+**Transaction Pattern:**
+
+The UoW manages transactions automatically. Routes should NOT call `beginTransaction()`, `commitTransaction()`, or `rollbackTransaction()`. These are handled internally by the UoW implementation.
+
+```typescript
+// ✅ CORRECT - Let UoW manage transactions
+async function (request, reply) {
+  const uow = new SequelizeUnitOfWork();
+  const useCase = new CreateSellerUseCase(uow);
+  const result = await useCase.execute(request.body);
+  return { data: result.data };
+}
+
+// ❌ WRONG - Don't manually manage transactions in routes
+async function (request, reply) {
+  const uow = new SequelizeUnitOfWork();
+  await uow.beginTransaction(); // DON'T DO THIS
+  // ...
+  await uow.commitTransaction(); // DON'T DO THIS
+}
+```
+
+**Route Error Handling:**
+
+- Routes rely on Fastify's automatic error handling
+- Custom errors from use-cases are automatically caught by Fastify
+- No try-catch blocks needed in route handlers (Fastify handles this)
+- Validation errors from Zod are automatically converted to 400 responses
 
 **Route File Pattern:**
 
@@ -307,8 +495,9 @@ describe("Seller Routes", () => {
 Custom error classes in `src/domain/use-cases/errors/`:
 
 - `EntityAlreadyExist` - Duplicate creation attempts
-- `InvalidCreationData` - Zod validation fails
+- `EntityNotFound` - Entity not found in database
+- `InvalidCreationData` - Invalid creation data (business logic validation fails)
 - `InvalidCredentials` - Auth failures
-- `_default` - Extend for domain-specific errors
+- `_default` - Base class to extend for domain-specific errors
 
 Always throw from use-cases; routes catch and convert to HTTP responses.

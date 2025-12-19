@@ -10,6 +10,8 @@ import { IAgendaDayOfWeekRepository } from "../../../domain/repositories/agenda-
 import { AgendaDayOfWeekRepository } from "../agenda-day-of-week.repository.js";
 import { IAgendaConfigsRepository } from "../../../domain/repositories/agenda-configs.interface.js";
 import { AgendaConfigsRepository } from "../agenda-configs.repository.js";
+import { IAgendaEventRepository } from "../../../domain/repositories/agenda-event.interface.js";
+import { AgendaEventRepository } from "../agenda-event.repository.js";
 
 export class SequelizeUnitOfWork implements IUnitOfWork {
   private transaction: SequelizeTransaction | null = null;
@@ -18,6 +20,7 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
   private _agendaPeriodsRepository: IAgendaPeriodsRepository | null = null;
   private _agendaDayOfWeekRepository: IAgendaDayOfWeekRepository | null = null;
   private _agendaConfigsRepository: IAgendaConfigsRepository | null = null;
+  private _agendaEventRepository: IAgendaEventRepository | null = null;
 
   resetTransaction() {
     this.transaction = null;
@@ -74,6 +77,13 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
     return this.createAndGetRepository<IAgendaConfigsRepository>(
       AgendaConfigsRepository,
       "_agendaConfigsRepository" as keyof this
+    );
+  }
+
+  get agendaEventRepository() {
+    return this.createAndGetRepository<IAgendaEventRepository>(
+      AgendaEventRepository,
+      "_agendaEventRepository" as keyof this
     );
   }
 }
