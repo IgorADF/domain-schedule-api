@@ -1,35 +1,35 @@
-import { InferAttributes, InferCreationAttributes } from "sequelize";
+import type { InferAttributes, InferCreationAttributes } from "sequelize";
 import {
-  Table,
-  Column,
-  Model,
-  DataType,
-  ForeignKey,
-  BelongsTo,
+	BelongsTo,
+	Column,
+	DataType,
+	ForeignKey,
+	Model,
+	Table,
 } from "sequelize-typescript";
 import { AgendaConfigsModel } from "./agenda-configs.js";
 
 export type OverwriteDayModelType = InferAttributes<OverwriteDayModel>;
 export type OverwriteDayModelCreationType =
-  InferCreationAttributes<OverwriteDayModel>;
+	InferCreationAttributes<OverwriteDayModel>;
 
 @Table({ tableName: "OverwriteDay", timestamps: false })
 export class OverwriteDayModel extends Model<
-  OverwriteDayModelType,
-  OverwriteDayModelCreationType
+	OverwriteDayModelType,
+	OverwriteDayModelCreationType
 > {
-  @ForeignKey(() => AgendaConfigsModel)
-  @Column({ allowNull: false, type: DataType.UUID })
-  agendaId!: string;
+	@ForeignKey(() => AgendaConfigsModel)
+	@Column({ allowNull: false, type: DataType.UUID })
+	agendaId!: string;
 
-  @Column({ allowNull: false, type: DataType.DATEONLY })
-  day!: Date;
+	@Column({ allowNull: false, type: DataType.DATEONLY })
+	day!: Date;
 
-  @Column({ allowNull: false, type: DataType.BOOLEAN })
-  cancelAllDay!: boolean;
+	@Column({ allowNull: false, type: DataType.BOOLEAN })
+	cancelAllDay!: boolean;
 
-  /* Associations */
+	/* Associations */
 
-  @BelongsTo(() => AgendaConfigsModel)
-  agenda?: AgendaConfigsModel;
+	@BelongsTo(() => AgendaConfigsModel)
+	agenda?: AgendaConfigsModel;
 }

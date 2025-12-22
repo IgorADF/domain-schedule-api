@@ -1,4 +1,4 @@
-import z from "zod";
-import { EnvsSchema } from "./envs.js";
+import type z from "zod";
+import type { EnvsSchema } from "./envs.js";
 
 export type EnvsType = z.infer<typeof EnvsSchema>;

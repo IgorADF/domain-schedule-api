@@ -1,51 +1,54 @@
-import z from "zod";
-import { SellerType, SellerWithPasswordSchema } from "../entities/seller.js";
-import { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
-import { EntityNotFound } from "./errors/entity-not-found.js";
+import type z from "zod";
+import {
+	type SellerType,
+	SellerWithPasswordSchema,
+} from "../entities/seller.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
+import { EntityNotFound } from "./errors/entity-not-found.js";
 
 export const UpdateSellerSchema = SellerWithPasswordSchema.pick({
-  id: true,
-  email: true,
-  name: true,
+	id: true,
+	email: true,
+	name: true,
 });
 
 export type UpdateSellerType = z.infer<typeof UpdateSellerSchema>;
 
 export class UpdateSellerUseCase {
-  constructor(private uow: IUnitOfWork) {}
+	constructor(private uow: IUnitOfWork) {}
 
-  async execute(sellerData: UpdateSellerType): Promise<{ data: SellerType }> {
-    const existingSeller = await this.uow.sellerRepository.getSellerById(
-      sellerData.id
-    );
+	async execute(sellerData: UpdateSellerType): Promise<{ data: SellerType }> {
+		const existingSeller = await this.uow.sellerRepository.getSellerById(
+			sellerData.id,
+		);
 
-    if (!existingSeller) {
-      throw new EntityNotFound();
-    }
+		if (!existingSeller) {
+			throw new EntityNotFound();
+		}
 
-    if (sellerData.email && sellerData.email !== existingSeller.email) {
-      const sellerWithSameEmail =
-        await this.uow.sellerRepository.getSellerByEmail(sellerData.email);
+		if (sellerData.email && sellerData.email !== existingSeller.email) {
+			const sellerWithSameEmail =
+				await this.uow.sellerRepository.getSellerByEmail(sellerData.email);
 
-      if (sellerWithSameEmail) {
-        throw new EntityAlreadyExist();
-      }
-    }
+			if (sellerWithSameEmail) {
+				throw new EntityAlreadyExist();
+			}
+		}
 
-    const updateData: Partial<SellerType> = {};
-    if (sellerData.email !== undefined) {
-      updateData.email = sellerData.email;
-    }
-    if (sellerData.name !== undefined) {
-      updateData.name = sellerData.name;
-    }
+		const updateData: Partial<SellerType> = {};
+		if (sellerData.email !== undefined) {
+			updateData.email = sellerData.email;
+		}
+		if (sellerData.name !== undefined) {
+			updateData.name = sellerData.name;
+		}
 
-    const updatedSeller = await this.uow.sellerRepository.updateSeller(
-      sellerData.id,
-      updateData
-    );
+		const updatedSeller = await this.uow.sellerRepository.updateSeller(
+			sellerData.id,
+			updateData,
+		);
 
-    return { data: updatedSeller };
-  }
+		return { data: updatedSeller };
+	}
 }

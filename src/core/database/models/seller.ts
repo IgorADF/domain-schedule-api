@@ -1,11 +1,11 @@
-import { InferAttributes, InferCreationAttributes } from "sequelize";
+import type { InferAttributes, InferCreationAttributes } from "sequelize";
 import {
-  Table,
-  Column,
-  Model,
-  HasMany,
-  DataType,
-  HasOne,
+	Column,
+	DataType,
+	HasMany,
+	HasOne,
+	Model,
+	Table,
 } from "sequelize-typescript";
 import { AgendaConfigsModel } from "./agenda-configs.js";
 
@@ -13,30 +13,30 @@ export type SellerModelType = InferAttributes<SellerModel>;
 export type SellerModelCreationType = InferCreationAttributes<SellerModel>;
 
 @Table({
-  tableName: "Sellers",
-  paranoid: true,
-  timestamps: false,
-  defaultScope: { attributes: { exclude: ["password"] } },
+	tableName: "Sellers",
+	paranoid: true,
+	timestamps: false,
+	defaultScope: { attributes: { exclude: ["password"] } },
 })
 export class SellerModel extends Model<
-  SellerModelType,
-  SellerModelCreationType
+	SellerModelType,
+	SellerModelCreationType
 > {
-  @Column({ allowNull: false, type: DataType.STRING(50) })
-  name!: string;
+	@Column({ allowNull: false, type: DataType.STRING(50) })
+	name!: string;
 
-  @Column({ allowNull: false, type: DataType.STRING(50), unique: true })
-  email!: string;
+	@Column({ allowNull: false, type: DataType.STRING(50), unique: true })
+	email!: string;
 
-  @Column({ allowNull: false, type: DataType.STRING(50) })
-  password!: string;
+	@Column({ allowNull: false, type: DataType.STRING(50) })
+	password!: string;
 
-  declare createdAt: Date;
-  declare updatedAt: Date;
-  declare deletedAt?: Date;
+	declare createdAt: Date;
+	declare updatedAt: Date;
+	declare deletedAt?: Date;
 
-  /* Associations */
+	/* Associations */
 
-  @HasOne(() => AgendaConfigsModel)
-  agendaConfig?: AgendaConfigsModel;
+	@HasOne(() => AgendaConfigsModel)
+	agendaConfig?: AgendaConfigsModel;
 }

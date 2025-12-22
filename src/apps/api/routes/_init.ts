@@ -1,8 +1,8 @@
-import { initSellerRoutes } from "./seller.js";
+import type { FastifyZodInstance } from "../@types/fastity-instance.js";
 import { initAgendaRoutes } from "./agenda.js";
-import { FastifyZodInstance } from "../@types/fastity-instance.js";
+import { initSellerRoutes } from "./seller.js";
 
 export async function initRoutes(fastify: FastifyZodInstance) {
-  fastify.register(initSellerRoutes(), { prefix: "sellers" });
-  fastify.register(initAgendaRoutes(), { prefix: "agendas" });
+	fastify.register(initSellerRoutes(), { prefix: "sellers" });
+	fastify.register(initAgendaRoutes(), { prefix: "agendas" });
 }

@@ -1,11 +1,11 @@
-import { type Dialect } from "sequelize";
+import type { Dialect } from "sequelize";
 
 export type SequelizeConfigType = {
-  username: string;
-  password: string;
-  database: string;
-  host: string;
-  port: number;
-  dialect: Dialect;
-  seederStorage: string;
+	username: string;
+	password: string;
+	database: string;
+	host: string;
+	port: number;
+	dialect: Dialect;
+	seederStorage: string;
 };

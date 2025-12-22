@@ -1,5 +1,5 @@
-import { AgendaPeriodType } from "../entities/agenda-periods.js";
+import type { AgendaPeriodType } from "../entities/agenda-periods.js";
 
 export interface IAgendaPeriodsRepository {
-  bulkCreate(data: AgendaPeriodType[]): Promise<AgendaPeriodType[]>;
+	bulkCreate(data: AgendaPeriodType[]): Promise<AgendaPeriodType[]>;
 }
