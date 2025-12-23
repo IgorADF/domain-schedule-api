@@ -288,27 +288,69 @@ get agendaPeriodsRepository() {
 
 ## API Routes & Transaction Handling
 
-Routes in `src/apps/api/routes/` are initialized with `SequelizeUnitOfWork`:
+Routes in `src/apps/api/routes/` use **factory functions** to instantiate use-cases with UoW:
 
-- Each route handler creates a new UoW instance
-- **CRITICAL:** Routes NEVER manually manage transactions - UoW handles this internally
-- Use-cases access repositories via `uow.sellerRepository`, `uow.agendaPeriodsRepository`, etc.
+- **CRITICAL:** Routes NEVER directly instantiate `SequelizeUnitOfWork` or use-cases - they use factory functions from `src/core/use-cases/factories/`
+- Each factory creates a new UoW instance and use-case instance
+- Routes destructure `{ useCase }` from the factory
+- UoW manages transactions automatically - routes never call transaction methods
 - Routes use **fastify-type-provider-zod** for automatic request validation from Zod schemas
+
+**Factory Pattern:**
+
+Every use-case MUST have a corresponding factory function in `src/core/use-cases/factories/[use-case-name].ts`:
+
+```typescript
+import { CreateSellerUseCase } from "../../../domain/use-cases/create-seller.js";
+import type { CreateFactoryFunction } from "../../@types/create-factory.js";
+import { SequelizeUnitOfWork } from "../../repository/uow/sequelize-unit-of-work.js";
+
+export const createSellerFactory: CreateFactoryFunction<
+  CreateSellerUseCase
+> = () => {
+  const uow = new SequelizeUnitOfWork();
+  const useCase = new CreateSellerUseCase(uow);
+
+  return {
+    uow,
+    useCase,
+  };
+};
+```
+
+**Factory Type Definition:**
+
+The `CreateFactoryFunction<T>` type is defined in `src/core/@types/create-factory.ts`:
+
+```typescript
+import type { SequelizeUnitOfWork } from "../repository/uow/sequelize-unit-of-work.js";
+
+export type CreateFactoryFunction<T> = () => {
+  useCase: T;
+  uow: SequelizeUnitOfWork;
+};
+```
 
 **Transaction Pattern:**
 
 The UoW manages transactions automatically. Routes should NOT call `beginTransaction()`, `commitTransaction()`, or `rollbackTransaction()`. These are handled internally by the UoW implementation.
 
 ```typescript
-// ✅ CORRECT - Let UoW manage transactions
+// ✅ CORRECT - Use factory to get use-case
 async function (request, reply) {
-  const uow = new SequelizeUnitOfWork();
-  const useCase = new CreateSellerUseCase(uow);
+  const { useCase } = createSellerFactory();
   const result = await useCase.execute(request.body);
   return { data: result.data };
 }
 
-// ❌ WRONG - Don't manually manage transactions in routes
+// ❌ WRONG - Don't manually instantiate UoW or use-cases
+async function (request, reply) {
+  const uow = new SequelizeUnitOfWork();
+  const useCase = new CreateSellerUseCase(uow);
+  // ...
+}
+
+// ❌ WRONG - Don't manually manage transactions
 async function (request, reply) {
   const uow = new SequelizeUnitOfWork();
   await uow.beginTransaction(); // DON'T DO THIS
@@ -328,22 +370,23 @@ async function (request, reply) {
 
 Each route file in `src/apps/api/routes/` follows this structure:
 
-1. **Import use-cases and schemas** - Import specific use-case classes and their Zod schemas
-2. **Import types** - Import `FastifyZodInstance` and `FastityInitRoutes` types
-3. **Import UoW** - Import `SequelizeUnitOfWork` for transaction management
+1. **Import factories** - Import factory functions from `src/core/use-cases/factories/`
+2. **Import schemas** - Import Zod schemas from use-cases (for validation only, not use-case classes)
+3. **Import types** - Import `FastifyZodInstance` and `FastityInitRoutes` types
 4. **Export init function** - Export a function named `init[Entity]Routes()` that returns `FastityInitRoutes`
 
 Example pattern from [seller.ts](src/apps/api/routes/seller.ts):
 
 ```typescript
 import z from "zod";
-import {
-  CreateSellerSchema,
-  CreateSellerUseCase,
-} from "../../../domain/use-cases/create-seller.js";
-import { FastifyZodInstance } from "../@types/fastity-instance.js";
-import { SequelizeUnitOfWork } from "../../../core/repository/uow/sequelize-unit-of-work.js";
-import { FastityInitRoutes } from "../@types/init-routes.js";
+import { authSellerFactory } from "../../../core/use-cases/factories/auth-seller.js";
+import { createSellerFactory } from "../../../core/use-cases/factories/create-seller.js";
+import { updateSellerFactory } from "../../../core/use-cases/factories/update-seller.js";
+import { AuthSellerSchema } from "../../../domain/use-cases/auth-seller.js";
+import { CreateSellerSchema } from "../../../domain/use-cases/create-seller.js";
+import { UpdateSellerSchema } from "../../../domain/use-cases/update-seller.js";
+import type { FastifyZodInstance } from "../@types/fastity-instance.js";
+import type { FastityInitRoutes } from "../@types/init-routes.js";
 
 export function initSellerRoutes(): FastityInitRoutes {
   return async (fastify: FastifyZodInstance) => {
@@ -351,10 +394,9 @@ export function initSellerRoutes(): FastityInitRoutes {
       "/",
       { schema: { body: CreateSellerSchema } },
       async function (request, reply) {
-        const uow = new SequelizeUnitOfWork();
-        const sup = new CreateSellerUseCase(uow);
-        const useCase = await sup.execute(request.body);
-        return { data: useCase.data };
+        const { useCase } = createSellerFactory();
+        const result = await useCase.execute(request.body);
+        return { data: result.data };
       }
     );
   };
