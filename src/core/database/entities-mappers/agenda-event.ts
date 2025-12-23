@@ -1,7 +1,7 @@
 import {
 	AgendaEventSchema,
 	type AgendaEventType,
-} from "../../../domain/entities/agenda-event.js";
+} from "@domain/entities/agenda-event.js";
 import { AgendaEventModel } from "../models/agenda-event.js";
 
 export class AgendaEventMapper {

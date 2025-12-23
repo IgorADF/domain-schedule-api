@@ -1,7 +1,7 @@
 import {
 	AgendaConfigSchema,
 	type AgendaConfigType,
-} from "../../../domain/entities/agenda-config.js";
+} from "@domain/entities/agenda-config.js";
 import { AgendaConfigsModel } from "../models/agenda-configs.js";
 
 export class AgendaConfigsMapper {

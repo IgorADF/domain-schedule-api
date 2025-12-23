@@ -1,5 +1,5 @@
 import type z from "zod";
-import { comparePasswords } from "../../core/utils/password.js";
+import { comparePasswords } from "@core/utils/password.js";
 import { SellerWithPasswordSchema } from "../entities/seller.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import { InvalidCredentials } from "./errors/invalid-credentials.js";

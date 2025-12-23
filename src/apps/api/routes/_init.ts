@@ -1,4 +1,4 @@
-import type { FastifyZodInstance } from "../@types/fastity-instance.js";
+import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import { initAgendaRoutes } from "./agenda.js";
 import { initSellerRoutes } from "./seller.js";
 

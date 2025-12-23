@@ -1,7 +1,7 @@
 import {
 	OverwriteDaySchema,
 	type OverwriteDayType,
-} from "../../../domain/entities/overwrite-day.js";
+} from "@domain/entities/overwrite-day.js";
 import { OverwriteDayModel } from "../models/overwrite-day.js";
 
 export class OverwriteDayMapper {

@@ -1,7 +1,16 @@
 import { defineConfig } from "vitest/config";
+import { resolve } from "node:path";
 
 export default defineConfig({
   test: {
     testTimeout: 50_000,
+  },
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "./src"),
+      "@domain": resolve(__dirname, "./src/domain"),
+      "@core": resolve(__dirname, "./src/core"),
+      "@api": resolve(__dirname, "./src/apps/api"),
+    },
   },
 });

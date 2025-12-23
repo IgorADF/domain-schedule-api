@@ -1,7 +1,7 @@
 import {
 	AgendaDayOfWeekSchema,
 	type AgendaDayOfWeekType,
-} from "../../../domain/entities/agenda-day-of-week.js";
+} from "@domain/entities/agenda-day-of-week.js";
 import { AgendaDayOfWeekModel } from "../models/agenda-day-of-week.js";
 
 export class AgendaDayOfWeekMapper {

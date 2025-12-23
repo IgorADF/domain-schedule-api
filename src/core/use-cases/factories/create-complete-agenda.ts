@@ -1,6 +1,6 @@
-import { CreateCompleteAgendaUseCase } from "../../../domain/use-cases/create-complete-agenda.js";
-import type { CreateFactoryFunction } from "../../@types/create-factory.js";
-import { SequelizeUnitOfWork } from "../../repository/uow/sequelize-unit-of-work.js";
+import { CreateCompleteAgendaUseCase } from "@domain/use-cases/create-complete-agenda.js";
+import type { CreateFactoryFunction } from "@core/@types/create-factory.js";
+import { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
 
 export const createCompleteAgendaFactory: CreateFactoryFunction<
   CreateCompleteAgendaUseCase

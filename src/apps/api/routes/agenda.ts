@@ -1,8 +1,7 @@
-import z from "zod";
-import { createCompleteAgendaFactory } from "../../../core/use-cases/factories/create-complete-agenda.js";
-import { CreateCompleteAgendaSchema } from "../../../domain/use-cases/create-complete-agenda.js";
-import type { FastifyZodInstance } from "../@types/fastity-instance.js";
-import type { FastityInitRoutes } from "../@types/init-routes.js";
+import { createCompleteAgendaFactory } from "@core/use-cases/factories/create-complete-agenda.js";
+import { CreateCompleteAgendaSchema } from "@domain/use-cases/create-complete-agenda.js";
+import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
+import type { FastityInitRoutes } from "@api/@types/init-routes.js";
 
 export function initAgendaRoutes(): FastityInitRoutes {
   return async (fastify: FastifyZodInstance) => {

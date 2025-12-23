@@ -10,6 +10,38 @@ This is a **Domain-Driven Design (DDD)** TypeScript/Fastify API for managing sel
 
 Critical pattern: **Repositories are transaction-aware**. All data access flows through `SequelizeUnitOfWork` which manages a single Sequelize transaction per request.
 
+## Path Aliases
+
+**CRITICAL:** Always use path aliases for imports. NEVER use relative paths like `../../../domain/`.
+
+Configured path aliases in `tsconfig.json` and `vite.config.ts`:
+
+- `@/*` → `./src/*`
+- `@domain/*` → `./src/domain/*`
+- `@core/*` → `./src/core/*`
+- `@api/*` → `./src/apps/api/*`
+
+**Examples:**
+
+```typescript
+// ✅ CORRECT - Use path aliases
+import { CreateSellerUseCase } from "@domain/use-cases/create-seller.js";
+import { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
+import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
+
+// ❌ WRONG - Don't use relative paths
+import { CreateSellerUseCase } from "../../../domain/use-cases/create-seller.js";
+import { SequelizeUnitOfWork } from "../../core/repository/uow/sequelize-unit-of-work.js";
+```
+
+**Pattern by file location:**
+
+- **Routes** (`src/apps/api/routes/`): Use `@domain/*`, `@core/*`, `@api/*`
+- **Use-cases** (`src/domain/use-cases/`): Use `@core/*` for utilities, relative imports for domain entities
+- **Repositories** (`src/core/repository/`): Use `@domain/*` for entities/interfaces, relative for mappers/models
+- **Mappers** (`src/core/database/entities-mappers/`): Use `@domain/*` for entities, relative for models
+- **Factories** (`src/core/use-cases/factories/`): Use `@domain/*` and `@core/*`
+
 ## Database & Migrations
 
 Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
@@ -301,9 +333,9 @@ Routes in `src/apps/api/routes/` use **factory functions** to instantiate use-ca
 Every use-case MUST have a corresponding factory function in `src/core/use-cases/factories/[use-case-name].ts`:
 
 ```typescript
-import { CreateSellerUseCase } from "../../../domain/use-cases/create-seller.js";
-import type { CreateFactoryFunction } from "../../@types/create-factory.js";
-import { SequelizeUnitOfWork } from "../../repository/uow/sequelize-unit-of-work.js";
+import { CreateSellerUseCase } from "@domain/use-cases/create-seller.js";
+import type { CreateFactoryFunction } from "@core/@types/create-factory.js";
+import { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
 
 export const createSellerFactory: CreateFactoryFunction<
   CreateSellerUseCase
@@ -323,7 +355,7 @@ export const createSellerFactory: CreateFactoryFunction<
 The `CreateFactoryFunction<T>` type is defined in `src/core/@types/create-factory.ts`:
 
 ```typescript
-import type { SequelizeUnitOfWork } from "../repository/uow/sequelize-unit-of-work.js";
+import type { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
 
 export type CreateFactoryFunction<T> = () => {
   useCase: T;
@@ -379,14 +411,14 @@ Example pattern from [seller.ts](src/apps/api/routes/seller.ts):
 
 ```typescript
 import z from "zod";
-import { authSellerFactory } from "../../../core/use-cases/factories/auth-seller.js";
-import { createSellerFactory } from "../../../core/use-cases/factories/create-seller.js";
-import { updateSellerFactory } from "../../../core/use-cases/factories/update-seller.js";
-import { AuthSellerSchema } from "../../../domain/use-cases/auth-seller.js";
-import { CreateSellerSchema } from "../../../domain/use-cases/create-seller.js";
-import { UpdateSellerSchema } from "../../../domain/use-cases/update-seller.js";
-import type { FastifyZodInstance } from "../@types/fastity-instance.js";
-import type { FastityInitRoutes } from "../@types/init-routes.js";
+import { authSellerFactory } from "@core/use-cases/factories/auth-seller.js";
+import { createSellerFactory } from "@core/use-cases/factories/create-seller.js";
+import { updateSellerFactory } from "@core/use-cases/factories/update-seller.js";
+import { AuthSellerSchema } from "@domain/use-cases/auth-seller.js";
+import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
+import { UpdateSellerSchema } from "@domain/use-cases/update-seller.js";
+import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
+import type { FastityInitRoutes } from "@api/@types/init-routes.js";
 
 export function initSellerRoutes(): FastityInitRoutes {
   return async (fastify: FastifyZodInstance) => {

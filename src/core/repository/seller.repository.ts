@@ -2,8 +2,8 @@ import type { Transaction as SequelizeTransaction } from "sequelize";
 import type {
 	SellerType,
 	SellerWithPasswordSchemaType,
-} from "../../domain/entities/seller.js";
-import type { ISellerRepository } from "../../domain/repositories/seller.interface.js";
+} from "@domain/entities/seller.js";
+import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
 import { SellerMapper } from "../database/entities-mappers/seller.js";
 import { SellerModel } from "../database/models/seller.js";
 

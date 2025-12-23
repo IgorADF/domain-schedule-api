@@ -1,6 +1,5 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { SequelizeUnitOfWork } from "../../../../core/repository/uow/sequelize-unit-of-work.js";
 import { fastifyInstance } from "../../server-config.js";
 
 describe("Seller Routes", () => {

@@ -1,4 +1,4 @@
-import type { SequelizeUnitOfWork } from "../repository/uow/sequelize-unit-of-work.js";
+import type { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
 
 export type CreateFactoryFunction<T> = () => {
   useCase: T;

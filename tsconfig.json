@@ -8,7 +8,15 @@
     "emitDecoratorMetadata": true,
     "outDir": "./dist",
 
-    "allowJs": true
+    "allowJs": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@domain/*": ["./src/domain/*"],
+      "@core/*": ["./src/core/*"],
+      "@api/*": ["./src/apps/api/*"]
+    }
   },
   "exclude": ["src/**/*.js", "src/**/*.cjs"]
 }

@@ -3,7 +3,7 @@ import {
 	type SellerType,
 	SellerWithPasswordSchema,
 	type SellerWithPasswordSchemaType,
-} from "../../../domain/entities/seller.js";
+} from "@domain/entities/seller.js";
 import { SellerModel } from "../models/seller.js";
 
 export class SellerMapper {

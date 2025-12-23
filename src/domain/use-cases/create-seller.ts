@@ -1,6 +1,6 @@
 import { uuidv7 } from "uuidv7";
 import type z from "zod";
-import { hashPassword } from "../../core/utils/password.js";
+import { hashPassword } from "@core/utils/password.js";
 import {
 	type SellerType,
 	SellerWithPasswordSchema,

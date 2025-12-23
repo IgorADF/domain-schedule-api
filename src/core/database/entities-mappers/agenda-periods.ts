@@ -1,7 +1,7 @@
 import {
 	AgendaPeriodSchema,
 	type AgendaPeriodType,
-} from "../../../domain/entities/agenda-periods.js";
+} from "@domain/entities/agenda-periods.js";
 import { AgendaPeriodsModel } from "../models/agenda-periods.js";
 
 export class AgendaPeriodsMapper {

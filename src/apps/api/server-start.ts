@@ -1,5 +1,5 @@
-import { authenticateDbConnection } from "../../core/database/connection.js";
-import { Envs } from "../../core/envs/envs.js";
+import { authenticateDbConnection } from "@core/database/connection.js";
+import { Envs } from "@core/envs/envs.js";
 import { fastifyInstance } from "./server-config.js";
 
 try {

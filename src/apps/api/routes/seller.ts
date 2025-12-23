@@ -1,12 +1,12 @@
 import z from "zod";
-import { authSellerFactory } from "../../../core/use-cases/factories/auth-seller.js";
-import { createSellerFactory } from "../../../core/use-cases/factories/create-seller.js";
-import { updateSellerFactory } from "../../../core/use-cases/factories/update-seller.js";
-import { AuthSellerSchema } from "../../../domain/use-cases/auth-seller.js";
-import { CreateSellerSchema } from "../../../domain/use-cases/create-seller.js";
-import { UpdateSellerSchema } from "../../../domain/use-cases/update-seller.js";
-import type { FastifyZodInstance } from "../@types/fastity-instance.js";
-import type { FastityInitRoutes } from "../@types/init-routes.js";
+import { authSellerFactory } from "@core/use-cases/factories/auth-seller.js";
+import { createSellerFactory } from "@core/use-cases/factories/create-seller.js";
+import { updateSellerFactory } from "@core/use-cases/factories/update-seller.js";
+import { AuthSellerSchema } from "@domain/use-cases/auth-seller.js";
+import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
+import { UpdateSellerSchema } from "@domain/use-cases/update-seller.js";
+import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
+import type { FastityInitRoutes } from "@api/@types/init-routes.js";
 
 export function initSellerRoutes(): FastityInitRoutes {
   return async (fastify: FastifyZodInstance) => {

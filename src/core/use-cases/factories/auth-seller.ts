@@ -1,6 +1,6 @@
-import { AuthSellerUseCase } from "../../../domain/use-cases/auth-seller.js";
-import type { CreateFactoryFunction } from "../../@types/create-factory.js";
-import { SequelizeUnitOfWork } from "../../repository/uow/sequelize-unit-of-work.js";
+import { AuthSellerUseCase } from "@domain/use-cases/auth-seller.js";
+import type { CreateFactoryFunction } from "@core/@types/create-factory.js";
+import { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
 
 export const authSellerFactory: CreateFactoryFunction<
   AuthSellerUseCase
