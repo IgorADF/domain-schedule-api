@@ -5,29 +5,29 @@ import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import { InvalidCredentials } from "./errors/invalid-credentials.js";
 
 export const AuthSellerSchema = SellerWithPasswordSchema.pick({
-	email: true,
-	password: true,
+  email: true,
+  password: true,
 });
 
 export type AuthSellerType = z.infer<typeof AuthSellerSchema>;
 
 export class AuthSellerUseCase {
-	constructor(private uow: IUnitOfWork) {}
+  constructor(private uow: IUnitOfWork) {}
 
-	async execute({ email, password }: AuthSellerType) {
-		const existingSeller =
-			await this.uow.sellerRepository.getSellerWithPassword(email);
+  async execute({ email, password }: AuthSellerType) {
+    const existingSeller =
+      await this.uow.sellerRepository.getSellerWithPassword(email);
 
-		if (!existingSeller) {
-			throw new InvalidCredentials();
-		}
+    if (!existingSeller) {
+      throw new InvalidCredentials();
+    }
 
-		const isSamePassword = comparePasswords(password, existingSeller.password);
+    const isSamePassword = comparePasswords(password, existingSeller.password);
 
-		if (!isSamePassword) {
-			throw new InvalidCredentials();
-		}
+    if (!isSamePassword) {
+      throw new InvalidCredentials();
+    }
 
-		return { seller_id: existingSeller.id, email: existingSeller.email };
-	}
+    return { seller_id: existingSeller.id, email: existingSeller.email };
+  }
 }

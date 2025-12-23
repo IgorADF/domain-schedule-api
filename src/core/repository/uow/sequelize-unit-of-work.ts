@@ -14,76 +14,76 @@ import { AgendaPeriodsRepository } from "../agenda-periods.repository.js";
 import { SellerRepository } from "../seller.repository.js";
 
 export class SequelizeUnitOfWork implements IUnitOfWork {
-	private transaction: SequelizeTransaction | null = null;
+  private transaction: SequelizeTransaction | null = null;
 
-	private _sellerRepository: ISellerRepository | null = null;
-	private _agendaPeriodsRepository: IAgendaPeriodsRepository | null = null;
-	private _agendaDayOfWeekRepository: IAgendaDayOfWeekRepository | null = null;
-	private _agendaConfigsRepository: IAgendaConfigsRepository | null = null;
-	private _agendaEventRepository: IAgendaEventRepository | null = null;
+  private _sellerRepository: ISellerRepository | null = null;
+  private _agendaPeriodsRepository: IAgendaPeriodsRepository | null = null;
+  private _agendaDayOfWeekRepository: IAgendaDayOfWeekRepository | null = null;
+  private _agendaConfigsRepository: IAgendaConfigsRepository | null = null;
+  private _agendaEventRepository: IAgendaEventRepository | null = null;
 
-	resetTransaction() {
-		this.transaction = null;
-	}
+  resetTransaction() {
+    this.transaction = null;
+  }
 
-	async beginTransaction() {
-		this.transaction = await sequelizeConnection.transaction();
-	}
+  async beginTransaction() {
+    this.transaction = await sequelizeConnection.transaction();
+  }
 
-	async commitTransaction() {
-		if (!this.transaction) return;
+  async commitTransaction() {
+    if (!this.transaction) return;
 
-		await this.transaction.commit();
-		this.resetTransaction();
-	}
+    await this.transaction.commit();
+    this.resetTransaction();
+  }
 
-	async rollbackTransaction() {
-		if (!this.transaction) return;
+  async rollbackTransaction() {
+    if (!this.transaction) return;
 
-		await this.transaction.rollback();
-		this.resetTransaction();
-	}
+    await this.transaction.rollback();
+    this.resetTransaction();
+  }
 
-	private createAndGetRepository<T>(ClassDef: Class, propName: keyof this) {
-		if (!this[propName as keyof this]) {
-			this[propName as keyof this] = new ClassDef(this.transaction);
-		}
+  private createAndGetRepository<T>(ClassDef: Class, propName: keyof this) {
+    if (!this[propName as keyof this]) {
+      this[propName as keyof this] = new ClassDef(this.transaction);
+    }
 
-		return this[propName as keyof this] as T;
-	}
+    return this[propName as keyof this] as T;
+  }
 
-	get sellerRepository() {
-		return this.createAndGetRepository<ISellerRepository>(
-			SellerRepository,
-			"_sellerRepository" as keyof this,
-		);
-	}
+  get sellerRepository() {
+    return this.createAndGetRepository<ISellerRepository>(
+      SellerRepository,
+      "_sellerRepository" as keyof this
+    );
+  }
 
-	get agendaPeriodsRepository() {
-		return this.createAndGetRepository<IAgendaPeriodsRepository>(
-			AgendaPeriodsRepository,
-			"_agendaPeriodsRepository" as keyof this,
-		);
-	}
+  get agendaPeriodsRepository() {
+    return this.createAndGetRepository<IAgendaPeriodsRepository>(
+      AgendaPeriodsRepository,
+      "_agendaPeriodsRepository" as keyof this
+    );
+  }
 
-	get agendaDayOfWeekRepository() {
-		return this.createAndGetRepository<IAgendaDayOfWeekRepository>(
-			AgendaDayOfWeekRepository,
-			"_agendaDayOfWeekRepository" as keyof this,
-		);
-	}
+  get agendaDayOfWeekRepository() {
+    return this.createAndGetRepository<IAgendaDayOfWeekRepository>(
+      AgendaDayOfWeekRepository,
+      "_agendaDayOfWeekRepository" as keyof this
+    );
+  }
 
-	get agendaConfigsRepository() {
-		return this.createAndGetRepository<IAgendaConfigsRepository>(
-			AgendaConfigsRepository,
-			"_agendaConfigsRepository" as keyof this,
-		);
-	}
+  get agendaConfigsRepository() {
+    return this.createAndGetRepository<IAgendaConfigsRepository>(
+      AgendaConfigsRepository,
+      "_agendaConfigsRepository" as keyof this
+    );
+  }
 
-	get agendaEventRepository() {
-		return this.createAndGetRepository<IAgendaEventRepository>(
-			AgendaEventRepository,
-			"_agendaEventRepository" as keyof this,
-		);
-	}
+  get agendaEventRepository() {
+    return this.createAndGetRepository<IAgendaEventRepository>(
+      AgendaEventRepository,
+      "_agendaEventRepository" as keyof this
+    );
+  }
 }
