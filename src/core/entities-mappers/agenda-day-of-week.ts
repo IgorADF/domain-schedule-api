@@ -2,7 +2,7 @@ import {
 	AgendaDayOfWeekSchema,
 	type AgendaDayOfWeekType,
 } from "@domain/entities/agenda-day-of-week.js";
-import { AgendaDayOfWeekModel } from "../models/agenda-day-of-week.js";
+import { AgendaDayOfWeekModel } from "../database/models/agenda-day-of-week.js";
 
 export function toModel(dayOfWeek: AgendaDayOfWeekType): AgendaDayOfWeekModel {
 	return new AgendaDayOfWeekModel({

@@ -2,7 +2,7 @@ import {
 	AgendaConfigSchema,
 	type AgendaConfigType,
 } from "@domain/entities/agenda-config.js";
-import { AgendaConfigsModel } from "../models/agenda-configs.js";
+import { AgendaConfigsModel } from "../database/models/agenda-configs.js";
 
 export function toModel(agendaConfig: AgendaConfigType): AgendaConfigsModel {
 	return new AgendaConfigsModel({

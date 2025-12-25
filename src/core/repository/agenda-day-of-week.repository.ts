@@ -1,8 +1,8 @@
 import type { AgendaDayOfWeekType } from "@domain/entities/agenda-day-of-week.js";
 import type { IAgendaDayOfWeekRepository } from "@domain/repositories/agenda-day-of-week.interface.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
-import * as AgendaDayOfWeekMapper from "../database/entities-mappers/agenda-day-of-week.js";
 import { AgendaDayOfWeekModel } from "../database/models/agenda-day-of-week.js";
+import * as AgendaDayOfWeekMapper from "../entities-mappers/agenda-day-of-week.js";
 
 export class AgendaDayOfWeekRepository implements IAgendaDayOfWeekRepository {
 	constructor(private transaction: SequelizeTransaction | null) {}

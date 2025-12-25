@@ -1,8 +1,8 @@
 import type { AgendaEventType } from "@domain/entities/agenda-event.js";
 import type { IAgendaEventRepository } from "@domain/repositories/agenda-event.interface.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
-import * as AgendaEventMapper from "../database/entities-mappers/agenda-event.js";
 import { AgendaEventModel } from "../database/models/agenda-event.js";
+import * as AgendaEventMapper from "../entities-mappers/agenda-event.js";
 
 export class AgendaEventRepository implements IAgendaEventRepository {
 	private transaction: SequelizeTransaction;

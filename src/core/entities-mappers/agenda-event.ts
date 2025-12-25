@@ -2,7 +2,7 @@ import {
 	AgendaEventSchema,
 	type AgendaEventType,
 } from "@domain/entities/agenda-event.js";
-import { AgendaEventModel } from "../models/agenda-event.js";
+import { AgendaEventModel } from "../database/models/agenda-event.js";
 
 export function toModel(event: AgendaEventType): AgendaEventModel {
 	return new AgendaEventModel({
