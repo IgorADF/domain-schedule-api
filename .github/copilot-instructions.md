@@ -84,9 +84,10 @@ Each model file follows this structure:
    - `@HasOne(() => ChildModel)` for one-to-one
    - Always add `@ForeignKey()` on the column that holds the foreign key
 
-- **Mappers** (`src/core/database/entities-mappers/`) are the bridge between Sequelize models and domain entities:
-  - `toModel()` converts domain entity → Sequelize model (for database operations)
-  - `toEntity()` converts Sequelize model → domain entity (for business logic)
+- **Mappers** (`src/core/database/entities-mappers/`) are plain exported functions (not classes) that bridge Sequelize models and domain entities:
+  - `toModel()` function converts domain entity → Sequelize model (for database operations)
+  - `toEntity()` function converts Sequelize model → domain entity (for business logic)
+  - **Import pattern:** Repositories use namespace imports: `import * as MapperName from "../database/entities-mappers/mapper-name.js";` to maintain `MapperName.toModel()` syntax
   - Handle field name differences (e.g., `createdAt` in both domain and database)
   - Transform complex types (e.g., Day value object ↔ DATEONLY string)
   - **Entities not necessary have 1-1 properties to models columns** - models may have additional fields (timestamps, associations) not present in entities
@@ -282,7 +283,8 @@ Example: `CreateSellerUseCase` validates email uniqueness, formats data, persist
 
    - Takes `SequelizeTransaction` in constructor
    - Implements the domain interface
-   - Uses mappers to convert between models and entities
+   - Uses namespace imports for mappers: `import * as MapperName from "../database/entities-mappers/mapper-name.js";`
+   - Uses mapper functions to convert between models and entities (e.g., `MapperName.toModel()`, `MapperName.toEntity()`)
    - Passes transaction to Sequelize operations
    - **CRITICAL:** Methods returning arrays must return `[]` when empty, never `null`
    - **CRITICAL:** Repositories MUST NOT throw errors. Single-object queries should return `null` when not found. Let use-cases handle business logic errors
