@@ -2,7 +2,7 @@ import {
 	OverwriteDaySchema,
 	type OverwriteDayType,
 } from "@domain/entities/overwrite-day.js";
-import { OverwriteDayModel } from "../database/models/overwrite-day.js";
+import { OverwriteDayModel } from "../../database/models/overwrite-day.js";
 
 export function toModel(overwriteDay: OverwriteDayType): OverwriteDayModel {
 	const { year, month, day } = overwriteDay.day;

@@ -2,7 +2,7 @@ import type { AgendaPeriodType } from "@domain/entities/agenda-periods.js";
 import type { IAgendaPeriodsRepository } from "@domain/repositories/agenda-periods.interface.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
 import { AgendaPeriodsModel } from "../database/models/agenda-periods.js";
-import * as AgendaPeriodsMapper from "../entities-mappers/agenda-periods.js";
+import * as AgendaPeriodsMapper from "../entities/mappers/agenda-periods.js";
 
 export class AgendaPeriodsRepository implements IAgendaPeriodsRepository {
 	private transaction: SequelizeTransaction;

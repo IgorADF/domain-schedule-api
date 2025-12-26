@@ -2,7 +2,7 @@ import type { AgendaConfigType } from "@domain/entities/agenda-config.js";
 import type { IAgendaConfigsRepository } from "@domain/repositories/agenda-configs.interface.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
 import { AgendaConfigsModel } from "../database/models/agenda-configs.js";
-import * as AgendaConfigsMapper from "../entities-mappers/agenda-configs.js";
+import * as AgendaConfigsMapper from "../entities/mappers/agenda-configs.js";
 
 export class AgendaConfigsRepository implements IAgendaConfigsRepository {
 	constructor(private transaction: SequelizeTransaction | null) {}

@@ -5,7 +5,7 @@ import type {
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
 import { SellerModel } from "../database/models/seller.js";
-import * as SellerMapper from "../entities-mappers/seller.js";
+import * as SellerMapper from "../entities/mappers/seller.js";
 
 export class SellerRepository implements ISellerRepository {
 	private transaction: SequelizeTransaction;

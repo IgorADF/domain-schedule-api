@@ -2,7 +2,7 @@ import {
 	AgendaPeriodSchema,
 	type AgendaPeriodType,
 } from "@domain/entities/agenda-periods.js";
-import { AgendaPeriodsModel } from "../database/models/agenda-periods.js";
+import { AgendaPeriodsModel } from "../../database/models/agenda-periods.js";
 
 export function toModel(period: AgendaPeriodType): AgendaPeriodsModel {
 	const startTime = new Date();
