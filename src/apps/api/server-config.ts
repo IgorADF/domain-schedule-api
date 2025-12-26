@@ -5,6 +5,7 @@ import {
 	type ZodTypeProvider,
 } from "fastify-type-provider-zod";
 import { initRoutes } from "./routes/_init.js";
+import { errorHandler } from "./handlers/errors.js";
 
 const fastifyInstance = Fastify({
 	logger: true,
@@ -12,6 +13,8 @@ const fastifyInstance = Fastify({
 
 fastifyInstance.setValidatorCompiler(validatorCompiler);
 fastifyInstance.setSerializerCompiler(serializerCompiler);
+
+fastifyInstance.setErrorHandler(errorHandler);
 
 fastifyInstance.register(initRoutes);
 

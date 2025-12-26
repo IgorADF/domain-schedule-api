@@ -1,5 +1,16 @@
 # Copilot Instructions
 
+## Code Formatting
+
+**CRITICAL:** All code MUST follow the Biome configuration defined in `biome.json`:
+
+- **Indentation:** Use tabs (not spaces) - `indentStyle: "tab"`
+- **Quotes:** Use double quotes for strings - `quoteStyle: "double"`
+- **Import organization:** Imports must be organized automatically - `organizeImports: "on"`
+- **Linting:** Follow recommended Biome linting rules
+
+Always ensure code adheres to these standards when creating or updating files.
+
 ## Architecture Overview
 
 This is a **Domain-Driven Design (DDD)** TypeScript/Fastify API for managing seller schedules and agendas. The project follows strict layering:
