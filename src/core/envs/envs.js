@@ -5,6 +5,7 @@ export const EnvsSchema = z.object({
 	// General
 	NODE_ENV: z.enum(["development", "production", "test"]),
 	API_PORT: z.string().transform(Number),
+	API_JWT_SECRET: z.string(),
 
 	// DB
 	DB_NAME: z.string(),

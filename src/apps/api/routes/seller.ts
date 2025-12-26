@@ -16,7 +16,13 @@ export function initSellerRoutes(): FastityInitRoutes {
 			async (request, reply) => {
 				const { useCase } = authSellerFactory();
 				const result = await useCase.execute(request.body);
-				return { id: result.seller_id };
+
+				const token = fastify.jwt.sign({
+					id: result.sellerId, 
+					email: result.email 
+				});
+
+				return { token };
 			},
 		);
 

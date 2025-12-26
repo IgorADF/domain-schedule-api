@@ -7,6 +7,6 @@ export const Timestamp = z.object({
 
 export const ParanoidTimestamp = z
 	.object({
-		deletedAt: z.date().optional(),
+		deletedAt: z.date().nullish(),
 	})
 	.extend(Timestamp.shape);

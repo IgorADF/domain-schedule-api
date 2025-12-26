@@ -28,6 +28,6 @@ export class AuthSellerUseCase {
 			throw new InvalidCredentials();
 		}
 
-		return { seller_id: existingSeller.id, email: existingSeller.email };
+		return { sellerId: existingSeller.id, email: existingSeller.email };
 	}
 }

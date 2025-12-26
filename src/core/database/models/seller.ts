@@ -15,7 +15,7 @@ export type SellerModelCreationType = InferCreationAttributes<SellerModel>;
 @Table({
 	tableName: "Sellers",
 	paranoid: true,
-	timestamps: false,
+	timestamps: true,
 	defaultScope: { attributes: { exclude: ["password"] } },
 })
 export class SellerModel extends Model<

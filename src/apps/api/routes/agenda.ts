@@ -7,10 +7,16 @@ export function initAgendaRoutes(): FastityInitRoutes {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.post(
 			"/",
-			{ schema: { body: CreateCompleteAgendaSchema } },
+			{
+				schema: { body: CreateCompleteAgendaSchema.omit({ sellerId: true }) },
+				onRequest: [fastify.authenticate],
+			},
 			async (request, reply) => {
 				const { useCase } = createCompleteAgendaFactory();
-				await useCase.execute(request.body);
+
+				const sellerId = request.authSeller!.id;
+				await useCase.execute({ ...request.body, sellerId });
+
 				return { success: true };
 			},
 		);

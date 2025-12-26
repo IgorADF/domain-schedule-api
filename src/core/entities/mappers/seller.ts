@@ -4,17 +4,17 @@ import {
 	SellerWithPasswordSchema,
 	type SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
-import { SellerModel } from "../../database/models/seller.js";
+import { SellerModel, SellerModelType } from "../../database/models/seller.js";
 
-export function toModel(sup: SellerWithPasswordSchemaType): SellerModel {
-	return new SellerModel({
+export function toModel(sup: SellerWithPasswordSchemaType): SellerModelType {
+	return {
 		id: sup.id,
 		name: sup.name,
 		email: sup.email,
 		password: sup.password,
 		createdAt: sup.createdAt,
 		updatedAt: sup.updatedAt,
-	});
+	};
 }
 
 export function toEntity(_sup: SellerModel): SellerType {

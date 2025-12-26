@@ -2,16 +2,16 @@ import {
 	AgendaPeriodSchema,
 	type AgendaPeriodType,
 } from "@domain/entities/agenda-periods.js";
-import { AgendaPeriodsModel } from "../../database/models/agenda-periods.js";
+import { AgendaPeriodsModel, AgendaPeriodsModelType } from "../../database/models/agenda-periods.js";
 
-export function toModel(period: AgendaPeriodType): AgendaPeriodsModel {
+export function toModel(period: AgendaPeriodType): AgendaPeriodsModelType {
 	const startTime = new Date();
 	startTime.setHours(period.startTime.hour, period.startTime.minute, 0, 0);
 
 	const endTime = new Date();
 	endTime.setHours(period.endTime.hour, period.endTime.minute, 0, 0);
 
-	return new AgendaPeriodsModel({
+	return {
 		id: period.id,
 		agendaDayOfWeekId: period.agendaDayOfWeekId,
 		startTime,
@@ -21,7 +21,7 @@ export function toModel(period: AgendaPeriodType): AgendaPeriodsModel {
 		order: period.order,
 		createdAt: period.createdAt,
 		updatedAt: period.updatedAt,
-	});
+	}
 }
 
 export function toEntity(_period: AgendaPeriodsModel): AgendaPeriodType {

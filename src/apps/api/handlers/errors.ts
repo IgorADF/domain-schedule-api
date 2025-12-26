@@ -19,12 +19,16 @@ export async function errorHandler(
 
 	// Handle Zod validation errors
 	if (error instanceof ZodError) {
+		const propErrors = Object.entries(z.treeifyError(error)!.properties);
+		const details = propErrors.map(([proName, errorsData]) => ({
+			message: errorsData.errors[0],
+			proName,
+		}));
+
 		return reply.status(400).send({
 			error: "Validation Error",
 			message: "Invalid request data",
-			details: z.treeifyError(error).errors.map((message) => ({
-				message: message,
-			})),
+			details,
 		});
 	}
 
