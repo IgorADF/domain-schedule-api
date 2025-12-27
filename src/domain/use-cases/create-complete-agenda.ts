@@ -95,8 +95,7 @@ export class CreateCompleteAgendaUseCase {
 			sellerId: sellerId,
 			maxDaysOfAdvancedNotice: input.maxDaysOfAdvancedNotice,
 			minHoursOfAdvancedNotice: input.minHoursOfAdvancedNotice,
-			// timezone: input.timezone,
-			timezone: 2,
+			timezone: input.timezone,
 		};
 
 		const parsedUseCaseData = CreateAgendaConfigSchema.parse(useCaseData);
