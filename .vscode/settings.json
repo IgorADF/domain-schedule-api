@@ -1,0 +1,24 @@
+{
+  "rest-client.environmentVariables": {
+    "$shared": {
+      "baseUrl": "http://localhost:3000",
+      "TOKEN": ""
+    },
+    "local": {
+      "baseUrl": "http://localhost:3000",
+      "TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAxOWI1ZGY3LTVhMzItNzk2OS1iMWU3LTMzZWE4MWVlMzJjMyIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NjY4MzkyMjAsImV4cCI6MTc2Njg0MjgyMH0.sy9WL37-MLYh8w6YaxIQO7xZxk7q6cgel4la7WnNisI"
+    },
+    "development": {
+      "baseUrl": "https://dev-api.yourdomain.com",
+      "TOKEN": ""
+    },
+    "production": {
+      "baseUrl": "https://api.yourdomain.com",
+      "TOKEN": ""
+    }
+  },
+  "rest-client.timeoutinmilliseconds": 30000,
+  "rest-client.followredirect": true,
+  "rest-client.showResponseInDifferentTab": true,
+  "rest-client.previewOption": "body"
+}

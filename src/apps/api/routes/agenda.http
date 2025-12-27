@@ -1,9 +1,5 @@
-@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAxOWI1ZGY3LTVhMzItNzk2OS1iMWU3LTMzZWE4MWVlMzJjMyIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NjY4MDgyMzYsImV4cCI6MTc2NjgxMTgzNn0.WFVbCsu4w97H4JKZwTrTEh6bBcd0aPKn96FTGYtaob0
-
-###
-#Wrong /agendas
-
-POST http://localhost:3000/agendas
+# @name CreateAgendaWrongBody
+POST {{baseUrl}}/agendas
 Content-Type: application/json
 Authorization: Bearer {{TOKEN}}
 
@@ -115,9 +111,9 @@ Authorization: Bearer {{TOKEN}}
 }
 
 ###
-#Correct /agendas
 
-POST http://localhost:3000/agendas
+# @name CreateAgendaCorrectBody
+POST {{baseUrl}}/agendas
 Content-Type: application/json
 Authorization: Bearer {{TOKEN}}
 
@@ -226,14 +222,4 @@ Authorization: Bearer {{TOKEN}}
             "periods": []
         }
     ]
-}
-
-###
-
-POST http://localhost:3000/sellers/auth
-Content-Type: application/json
-
-{
-  "email": "test@gmail.com",
-  "password": "123456"
 }

@@ -483,6 +483,67 @@ fastify.patch(
 );
 ```
 
+**HTTP Test File Pattern:**
+
+**CRITICAL:** Every route file MUST have a corresponding `.http` file with the same name in the same directory for manual testing and documentation.
+
+Pattern: `src/apps/api/routes/[entity].ts` → `src/apps/api/routes/[entity].http`
+
+Examples:
+
+- `seller.ts` → `seller.http`
+- `agenda.ts` → `agenda.http`
+
+**HTTP File Structure:**
+
+1. **Use `@name` for requests** - Name each request for response referencing
+2. **Include auth setup** - Duplicate auth request in each file for self-contained testing
+3. **Document test cases** - Include both valid and invalid examples
+4. **Use variables** - Reference `{{baseUrl}}` and `{{TOKEN}}` from workspace settings
+
+Example pattern from `seller.http`:
+
+```http
+# @name AuthSeller
+POST {{baseUrl}}/sellers/auth
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com",
+  "password": "123456"
+}
+
+###
+
+@TOKEN = {{AuthSeller.response.body.token}}
+
+###
+
+# @name CreateSeller
+POST {{baseUrl}}/sellers
+Content-Type: application/json
+
+{
+  "name": "Test Seller",
+  "email": "newseller@gmail.com",
+  "password": "123456"
+}
+```
+
+**HTTP File Purpose:**
+
+- Manual API testing during development
+- API documentation with request/response examples
+- Quick debugging of specific endpoints
+- Shareable examples for team collaboration
+
+**Workflow:**
+
+1. Create route file (e.g., `seller.ts`)
+2. Create corresponding HTTP file (e.g., `seller.http`)
+3. Add test cases covering happy path and error scenarios
+4. Use REST Client extension to test endpoints manually
+
 ## Key Dependencies
 
 - **fastify** v5.6+ - HTTP server with Zod type safety
