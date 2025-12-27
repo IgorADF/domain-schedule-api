@@ -50,7 +50,7 @@ import { SequelizeUnitOfWork } from "../../core/repository/uow/sequelize-unit-of
 - **Routes** (`src/apps/api/routes/`): Use `@domain/*`, `@core/*`, `@api/*`
 - **Use-cases** (`src/domain/use-cases/`): Use `@core/*` for utilities, relative imports for domain entities
 - **Repositories** (`src/core/repository/`): Use `@domain/*` for entities/interfaces, relative for mappers/models
-- **Mappers** (`src/core/database/entities-mappers/`): Use `@domain/*` for entities, relative for models
+- **Mappers** (`src/core/entities/mappers/`): Use `@domain/*` for entities, relative for models
 - **Factories** (`src/core/use-cases/factories/`): Use `@domain/*` and `@core/*`
 
 ## Database & Migrations
@@ -95,10 +95,10 @@ Each model file follows this structure:
    - `@HasOne(() => ChildModel)` for one-to-one
    - Always add `@ForeignKey()` on the column that holds the foreign key
 
-- **Mappers** (`src/core/database/entities-mappers/`) are plain exported functions (not classes) that bridge Sequelize models and domain entities:
+- **Mappers** (`src/core/entities/mappers/`) are plain exported functions (not classes) that bridge Sequelize models and domain entities:
   - `toModel()` function converts domain entity → Sequelize model (for database operations)
   - `toEntity()` function converts Sequelize model → domain entity (for business logic)
-  - **Import pattern:** Repositories use namespace imports: `import * as MapperName from "../database/entities-mappers/mapper-name.js";` to maintain `MapperName.toModel()` syntax
+  - **Import pattern:** Repositories use namespace imports: `import * as MapperName from "../entities/mappers/mapper-name.js";` to maintain `MapperName.toModel()` syntax
   - Handle field name differences (e.g., `createdAt` in both domain and database)
   - Transform complex types (e.g., Day value object ↔ DATEONLY string)
   - **Entities not necessary have 1-1 properties to models columns** - models may have additional fields (timestamps, associations) not present in entities
@@ -121,7 +121,7 @@ Each model file follows this structure:
 1. Create domain entity prop in `src/domain/entities/`
 2. Create `.cjs` migration in `src/core/database/migrations/`
 3. Add prop to Sequelize model in `src/core/database/models/`
-4. Update mapper functions in `src/core/database/entities-mappers/`
+4. Update mapper functions in `src/core/entities/mappers/`
 
 ## Validation & Type Safety
 
@@ -294,7 +294,7 @@ Example: `CreateSellerUseCase` validates email uniqueness, formats data, persist
 
    - Takes `SequelizeTransaction` in constructor
    - Implements the domain interface
-   - Uses namespace imports for mappers: `import * as MapperName from "../database/entities-mappers/mapper-name.js";`
+   - Uses namespace imports for mappers: `import * as MapperName from "../entities/mappers/mapper-name.js";`
    - Uses mapper functions to convert between models and entities (e.g., `MapperName.toModel()`, `MapperName.toEntity()`)
    - Passes transaction to Sequelize operations
    - **CRITICAL:** Methods returning arrays must return `[]` when empty, never `null`
@@ -378,31 +378,85 @@ export type CreateFactoryFunction<T> = () => {
 
 **Transaction Pattern:**
 
-The UoW manages transactions automatically. Routes should NOT call `beginTransaction()`, `commitTransaction()`, or `rollbackTransaction()`. These are handled internally by the UoW implementation.
+Transactions are managed INSIDE use-cases, NOT in routes. Routes should NOT call transaction methods directly.
+
+**Use-Case Transaction Pattern:**
 
 ```typescript
-// ✅ CORRECT - Use factory to get use-case
+// ✅ CORRECT - Use-case manages transaction
+async execute(input: InputType): Promise<{ data: OutputType }> {
+  try {
+    await this.uow.beginTransaction();
+
+    // ... business logic and repository calls ...
+
+    await this.uow.commitTransaction();
+    return { data: result };
+  } catch (err) {
+    await this.uow.rollbackTransaction();
+    throw err;
+  }
+}
+```
+
+**Route Pattern:**
+
+```typescript
+// ✅ CORRECT - Routes use factory and call use-case
 async function (request, reply) {
   const { useCase } = createSellerFactory();
   const result = await useCase.execute(request.body);
   return { data: result.data };
 }
 
-// ❌ WRONG - Don't manually instantiate UoW or use-cases
+// ❌ WRONG - Don't manually instantiate UoW or use-cases in routes
 async function (request, reply) {
   const uow = new SequelizeUnitOfWork();
   const useCase = new CreateSellerUseCase(uow);
   // ...
 }
 
-// ❌ WRONG - Don't manually manage transactions
+// ❌ WRONG - Don't manage transactions in routes
 async function (request, reply) {
   const uow = new SequelizeUnitOfWork();
-  await uow.beginTransaction(); // DON'T DO THIS
+  await uow.beginTransaction(); // DON'T DO THIS IN ROUTES
   // ...
-  await uow.commitTransaction(); // DON'T DO THIS
 }
 ```
+
+**Authentication Pattern:**
+
+Routes that require authentication use the `fastify.authenticate` decorator:
+
+```typescript
+fastify.post(
+  "/",
+  {
+    schema: { body: CreateAgendaSchema.omit({ sellerId: true }) },
+    onRequest: [fastify.authenticate], // Requires valid JWT
+  },
+  async (request) => {
+    const { useCase } = createAgendaFactory();
+
+    // Access authenticated seller from request
+    const sellerId = request.authSeller?.id as string;
+    await useCase.execute({ ...request.body, sellerId });
+
+    return { success: true };
+  }
+);
+```
+
+**Authentication Types** (`src/apps/api/@types/auth-seller.ts`):
+
+```typescript
+export type AuthSeller = {
+  id: string;
+  email: string;
+};
+```
+
+The `request.authSeller` property is available on authenticated routes and contains the decoded JWT payload.
 
 **Route Error Handling:**
 
@@ -564,14 +618,23 @@ Development: **vitest** for testing, **typescript** v5.9+
 
 ## Scheduling Domain (Agenda)
 
-Emerging pattern in codebase:
+**Domain Entities** (`src/domain/entities/`):
 
-- `AgendaConfig` - Top-level scheduling container per seller
-- `AgendaDayOfWeek` - Links day + periods, must be unique per agenda
-- `AgendaPeriods` - Start/end times, sequential within a slot
+- `Seller` - User account with authentication (email/password)
+- `AgendaConfig` - Top-level scheduling container per seller (timezone, advance notice settings)
+- `AgendaDayOfWeek` - Links day (1-7) + periods, must be unique per agenda config
+- `AgendaPeriods` - Time slots with start/end times, service duration, intervals
 - `OverwriteDay` - Exception overrides for specific dates
+- `AgendaEvent` - Event log entries (new_schedule, cancel_by_client, cancel_by_user, reschedule_by_user)
+- `Schedule` - Client booking with day, time, and contact info
 
-Value objects in `src/domain/entities/value-objects/`: `Id`, `Day`, `Time` provide type-safe domain primitives.
+**Value Objects** (`src/domain/entities/value-objects/`):
+
+- `IdObj` - UUID v7 validation
+- `DayObj` - Year/month/day date representation
+- `TimeObj` - Hour/minute time representation
+- `Timestamp` - createdAt/updatedAt timestamps
+- `ParanoidTimestamp` - Extends Timestamp with optional deletedAt for soft deletes
 
 ## Testing
 
@@ -640,12 +703,36 @@ describe("Seller Routes", () => {
 
 ## Error Handling
 
-Custom error classes in `src/domain/use-cases/errors/`:
+**Custom Error Classes** (`src/domain/use-cases/errors/`):
 
-- `EntityAlreadyExist` - Duplicate creation attempts
-- `EntityNotFound` - Entity not found in database
-- `InvalidCreationData` - Invalid creation data (business logic validation fails)
-- `InvalidCredentials` - Auth failures
-- `_default` - Base class to extend for domain-specific errors
+- `DefaultUseCaseError` (`_default.ts`) - Base class for all domain errors
+- `EntityAlreadyExist` - Duplicate creation attempts → HTTP 409 Conflict
+- `EntityNotFound` - Entity not found in database → HTTP 404 Not Found
+- `InvalidCreantionData` - Invalid creation data (business logic validation fails) → HTTP 400 Bad Request
+- `InvalidCredentials` - Auth failures → HTTP 401 Unauthorized
+
+**Creating New Error Types:**
+
+```typescript
+import { DefaultUseCaseError } from "./_default.js";
+
+export class CustomError extends DefaultUseCaseError {
+  constructor() {
+    super("Custom error message");
+  }
+}
+```
+
+**Global Error Handler** (`src/apps/api/handlers/errors.ts`):
+
+The global error handler automatically converts domain errors to HTTP responses:
+
+- `ZodError` → 400 with validation details
+- `EntityNotFound` → 404
+- `EntityAlreadyExist` → 409
+- `InvalidCredentials` → 401
+- `InvalidCreantionData` → 400
+
+**CRITICAL:** When adding new error types, update the error handler to map them to appropriate HTTP status codes.
 
 Always throw from use-cases; routes catch and convert to HTTP responses.
