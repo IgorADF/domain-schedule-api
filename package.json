@@ -11,7 +11,7 @@
     "db:seed": "npx sequelize-cli db:seed:all",
     "ts:check": "npx tsc --noEmit",
     "test": "vitest",
-    "lint": "npx @biomejs/biome lint --write ./src",
+    "lint": "npx @biomejs/biome lint --max-diagnostics 100",
     "format": "npx @biomejs/biome format --write ./src",
     "organize:all": "npx @biomejs/biome check --write ./src"
   },

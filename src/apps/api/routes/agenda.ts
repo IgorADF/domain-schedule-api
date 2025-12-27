@@ -11,10 +11,10 @@ export function initAgendaRoutes(): FastityInitRoutes {
 				schema: { body: CreateCompleteAgendaSchema.omit({ sellerId: true }) },
 				onRequest: [fastify.authenticate],
 			},
-			async (request, reply) => {
+			async (request) => {
 				const { useCase } = createCompleteAgendaFactory();
 
-				const sellerId = request.authSeller!.id;
+				const sellerId = request.authSeller?.id as string;
 				await useCase.execute({ ...request.body, sellerId });
 
 				return { success: true };

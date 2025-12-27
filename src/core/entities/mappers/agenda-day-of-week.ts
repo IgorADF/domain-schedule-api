@@ -2,9 +2,14 @@ import {
 	AgendaDayOfWeekSchema,
 	type AgendaDayOfWeekType,
 } from "@domain/entities/agenda-day-of-week.js";
-import { AgendaDayOfWeekModel, AgendaDayOfWeekModelType } from "../../database/models/agenda-day-of-week.js";
+import type {
+	AgendaDayOfWeekModel,
+	AgendaDayOfWeekModelType,
+} from "../../database/models/agenda-day-of-week.js";
 
-export function toModel(dayOfWeek: AgendaDayOfWeekType): AgendaDayOfWeekModelType {
+export function toModel(
+	dayOfWeek: AgendaDayOfWeekType,
+): AgendaDayOfWeekModelType {
 	return {
 		id: dayOfWeek.id,
 		agendaConfigId: dayOfWeek.agendaConfigId,
@@ -12,7 +17,7 @@ export function toModel(dayOfWeek: AgendaDayOfWeekType): AgendaDayOfWeekModelTyp
 		cancelAllDay: dayOfWeek.cancelAllDay,
 		createdAt: dayOfWeek.createdAt,
 		updatedAt: dayOfWeek.updatedAt,
-	}
+	};
 }
 
 export function toEntity(

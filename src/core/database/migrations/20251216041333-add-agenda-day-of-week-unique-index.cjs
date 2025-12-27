@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-	async up(queryInterface, Sequelize) {
+	async up(queryInterface) {
 		await queryInterface.addIndex("AgendaDayOfWeek", {
 			fields: ["agendaConfigId", "dayOfWeek"],
 			unique: true,
@@ -10,7 +10,7 @@ module.exports = {
 		});
 	},
 
-	async down(queryInterface, Sequelize) {
+	async down(queryInterface) {
 		await queryInterface.removeIndex(
 			"AgendaDayOfWeek",
 			"agenda_day_of_week_unique_index",

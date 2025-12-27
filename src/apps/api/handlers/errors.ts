@@ -1,9 +1,9 @@
-import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
-import z, { ZodError } from "zod";
 import { EntityAlreadyExist } from "@domain/use-cases/errors/entity-already-exist.js";
 import { EntityNotFound } from "@domain/use-cases/errors/entity-not-found.js";
 import { InvalidCreantionData } from "@domain/use-cases/errors/invalid-creation-data.js";
 import { InvalidCredentials } from "@domain/use-cases/errors/invalid-credentials.js";
+import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
+import z, { ZodError } from "zod";
 
 /**
  * Global error handler for Fastify API
@@ -19,11 +19,14 @@ export async function errorHandler(
 
 	// Handle Zod validation errors
 	if (error instanceof ZodError) {
-		const propErrors = Object.entries(z.treeifyError(error)!.properties);
-		const details = propErrors.map(([proName, errorsData]) => ({
-			message: errorsData.errors[0],
-			proName,
-		}));
+		const flattenedErrors = z.flattenError(error);
+
+		const details = Object.entries(flattenedErrors.fieldErrors).map(
+			([field, messages]) => ({
+				field,
+				message: (messages as string[])?.[0] || "Validation failed",
+			}),
+		);
 
 		return reply.status(400).send({
 			error: "Validation Error",
@@ -63,10 +66,16 @@ export async function errorHandler(
 
 	// Handle Fastify validation errors (from fastify-type-provider-zod)
 	if (error.validation) {
+		const details = error.validation.map((err) => ({
+			field: err.instancePath.replace(/^\//, "").replace(/\//g, "."),
+			message: err.message,
+			expected: err.params?.expected,
+		}));
+
 		return reply.status(400).send({
 			error: "Validation Error",
-			message: error.message,
-			details: error.validation,
+			message: `Invalid ${error.validationContext || "input"}`,
+			details,
 		});
 	}
 

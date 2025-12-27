@@ -1,4 +1,4 @@
-export  type AuthSeller = {
-            id: string;
-            email: string;
-        }
+export type AuthSeller = {
+	id: string;
+	email: string;
+};

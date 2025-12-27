@@ -13,13 +13,13 @@ export function initSellerRoutes(): FastityInitRoutes {
 		fastify.post(
 			"/auth",
 			{ schema: { body: AuthSellerSchema } },
-			async (request, reply) => {
+			async (request) => {
 				const { useCase } = authSellerFactory();
 				const result = await useCase.execute(request.body);
 
 				const token = fastify.jwt.sign({
-					id: result.sellerId, 
-					email: result.email 
+					id: result.sellerId,
+					email: result.email,
 				});
 
 				return { token };
@@ -29,7 +29,7 @@ export function initSellerRoutes(): FastityInitRoutes {
 		fastify.post(
 			"/",
 			{ schema: { body: CreateSellerSchema } },
-			async (request, reply) => {
+			async (request) => {
 				const { useCase } = createSellerFactory();
 				const result = await useCase.execute(request.body);
 				return { data: result.data };
@@ -44,7 +44,7 @@ export function initSellerRoutes(): FastityInitRoutes {
 					body: UpdateSellerSchema.omit({ id: true }),
 				},
 			},
-			async (request, reply) => {
+			async (request) => {
 				const { id } = request.params;
 				const { useCase } = updateSellerFactory();
 				const result = await useCase.execute({ id, ...request.body });

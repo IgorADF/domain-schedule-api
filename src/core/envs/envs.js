@@ -18,7 +18,7 @@ export const EnvsSchema = z.object({
 const { success, data, error } = EnvsSchema.safeParse(process.env);
 
 if (!success) {
-	throw new Error("❌ Invalid environment variables: " + z.treeifyError(error));
+	throw new Error(`❌ Invalid environment variables: ${z.treeifyError(error)}`);
 }
 
 export const Envs = data;

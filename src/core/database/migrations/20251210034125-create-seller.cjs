@@ -19,7 +19,7 @@ module.exports = {
 			},
 			{
 				field: "password",
-				type: Sequelize.STRING(50),
+				type: Sequelize.STRING(100),
 				allowNull: false,
 			},
 			{
@@ -39,7 +39,7 @@ module.exports = {
 		]);
 	},
 
-	async down(queryInterface, Sequelize) {
+	async down(queryInterface) {
 		await queryInterface.dropTable("Sellers");
 	},
 };

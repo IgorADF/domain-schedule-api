@@ -1,14 +1,14 @@
-import Fastify, { FastifyReply, FastifyRequest } from "fastify";
+import jwt from "@fastify/jwt";
+import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import {
 	serializerCompiler,
 	validatorCompiler,
 	type ZodTypeProvider,
 } from "fastify-type-provider-zod";
-import { initRoutes } from "./routes/_init.js";
-import { errorHandler } from "./handlers/errors.js";
-import jwt from "@fastify/jwt";
 import { Envs } from "@/core/envs/envs.js";
-import { AuthSeller } from "./@types/auth-seller.js";
+import type { AuthSeller } from "./@types/auth-seller.js";
+import { errorHandler } from "./handlers/errors.js";
+import { initRoutes } from "./routes/_init.js";
 
 const fastifyInstance = Fastify({
 	logger: {
@@ -30,16 +30,18 @@ fastifyInstance.register(jwt, {
 	},
 });
 
-fastifyInstance.decorateRequest('authSeller', null)
+fastifyInstance.decorateRequest("authSeller", null);
 
 fastifyInstance.decorate(
 	"authenticate",
-	async function (request: FastifyRequest, reply: FastifyReply) {
+	async (request: FastifyRequest, reply: FastifyReply) => {
 		try {
 			const decoded = await request.jwtDecode<AuthSeller>();
 			request.authSeller = decoded;
 		} catch (err: any) {
-			reply.status(401).send({ code: 'Unauthorized', error: err?.message || 'Invalid token' });
+			reply
+				.status(401)
+				.send({ code: "Unauthorized", error: err?.message || "Invalid token" });
 		}
 	},
 );

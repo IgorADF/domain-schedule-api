@@ -44,7 +44,9 @@ export class SellerRepository implements ISellerRepository {
 			throw new Error("Seller not found");
 		}
 
-		await seller.update(data, { transaction: this.transaction });
+		const modelData = SellerMapper.toPartialModel(data);
+
+		await seller.update(modelData, { transaction: this.transaction });
 		return SellerMapper.toEntity(seller);
 	}
 }

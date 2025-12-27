@@ -2,9 +2,14 @@ import {
 	AgendaConfigSchema,
 	type AgendaConfigType,
 } from "@domain/entities/agenda-config.js";
-import { AgendaConfigsModel, AgendaConfigsModelType } from "../../database/models/agenda-configs.js";
+import type {
+	AgendaConfigsModel,
+	AgendaConfigsModelType,
+} from "../../database/models/agenda-configs.js";
 
-export function toModel(agendaConfig: AgendaConfigType): AgendaConfigsModelType {
+export function toModel(
+	agendaConfig: AgendaConfigType,
+): AgendaConfigsModelType {
 	return {
 		id: agendaConfig.id,
 		sellerId: agendaConfig.sellerId,
@@ -13,7 +18,7 @@ export function toModel(agendaConfig: AgendaConfigType): AgendaConfigsModelType 
 		timezone: agendaConfig.timezone,
 		createdAt: agendaConfig.createdAt,
 		updatedAt: agendaConfig.updatedAt,
-	}
+	};
 }
 
 export function toEntity(_agendaConfig: AgendaConfigsModel): AgendaConfigType {

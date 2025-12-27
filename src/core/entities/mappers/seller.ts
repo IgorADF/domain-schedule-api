@@ -4,7 +4,10 @@ import {
 	SellerWithPasswordSchema,
 	type SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
-import { SellerModel, SellerModelType } from "../../database/models/seller.js";
+import type {
+	SellerModel,
+	SellerModelType,
+} from "../../database/models/seller.js";
 
 export function toModel(sup: SellerWithPasswordSchemaType): SellerModelType {
 	return {
@@ -14,6 +17,21 @@ export function toModel(sup: SellerWithPasswordSchemaType): SellerModelType {
 		password: sup.password,
 		createdAt: sup.createdAt,
 		updatedAt: sup.updatedAt,
+		deletedAt: sup.deletedAt ?? undefined,
+	};
+}
+
+export function toPartialModel(
+	sup: Partial<SellerWithPasswordSchemaType>,
+): Partial<SellerModelType> {
+	return {
+		id: sup.id,
+		name: sup.name,
+		email: sup.email,
+		password: sup.password,
+		createdAt: sup.createdAt,
+		updatedAt: sup.updatedAt,
+		deletedAt: sup.deletedAt ?? undefined,
 	};
 }
 

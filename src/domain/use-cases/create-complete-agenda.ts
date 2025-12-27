@@ -5,7 +5,6 @@ import type { AgendaPeriodType } from "../entities/agenda-periods.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import {
 	CreateAgendaConfigSchema,
-	CreateAgendaConfigType,
 	CreateAgendaConfigUseCase,
 } from "./create-agenda-config.js";
 import {
@@ -96,7 +95,8 @@ export class CreateCompleteAgendaUseCase {
 			sellerId: sellerId,
 			maxDaysOfAdvancedNotice: input.maxDaysOfAdvancedNotice,
 			minHoursOfAdvancedNotice: input.minHoursOfAdvancedNotice,
-			timezone: input.timezone,
+			// timezone: input.timezone,
+			timezone: 2,
 		};
 
 		const parsedUseCaseData = CreateAgendaConfigSchema.parse(useCaseData);

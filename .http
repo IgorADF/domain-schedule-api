@@ -1,0 +1,239 @@
+@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAxOWI1ZGY3LTVhMzItNzk2OS1iMWU3LTMzZWE4MWVlMzJjMyIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NjY4MDgyMzYsImV4cCI6MTc2NjgxMTgzNn0.WFVbCsu4w97H4JKZwTrTEh6bBcd0aPKn96FTGYtaob0
+
+###
+#Wrong /agendas
+
+POST http://localhost:3000/agendas
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+    "agendaConfig": {
+        "maxDaysOfAdvancedNotice": 100,
+        "minHoursOfAdvancedNotice": 24,
+        "timezone": "America/Sao_Paulo"
+    },
+    "daysOfWeek": [
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 1,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 9, "minute": 0 },
+                    "endTime": { "hour": 12, "minute": 0 },
+                    "minutesOfService": 60,
+                    "minutesOfInterval": 15
+                },
+                {
+                    "startTime": { "hour": 14, "minute": 0 },
+                    "endTime": { "hour": 18, "minute": 0 },
+                    "minutesOfService": 60,
+                    "minutesOfInterval": 15
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 2,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 9, "minute": 0 },
+                    "endTime": { "hour": 17, "minute": 0 },
+                    "minutesOfService": 45,
+                    "minutesOfInterval": 10
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 3,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 10, "minute": 0 },
+                    "endTime": { "hour": 16, "minute": 0 },
+                    "minutesOfService": 30,
+                    "minutesOfInterval": 5
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 4,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 8, "minute": 0 },
+                    "endTime": { "hour": 12, "minute": 0 },
+                    "minutesOfService": 90,
+                    "minutesOfInterval": 20
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 5,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 9, "minute": 30 },
+                    "endTime": { "hour": 18, "minute": 30 },
+                    "minutesOfService": 60,
+                    "minutesOfInterval": 15
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 6,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 10, "minute": 0 },
+                    "endTime": { "hour": 14, "minute": 0 },
+                    "minutesOfService": 45,
+                    "minutesOfInterval": 10
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 7,
+                "cancelAllDay": true
+            },
+            "periods": []
+        }
+    ]
+}
+
+###
+#Correct /agendas
+
+POST http://localhost:3000/agendas
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+    "agendaConfig": {
+        "maxDaysOfAdvancedNotice": 30,
+        "minHoursOfAdvancedNotice": 24,
+        "timezone": "America/Sao_Paulo"
+    },
+    "daysOfWeek": [
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 1,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 9, "minute": 0 },
+                    "endTime": { "hour": 12, "minute": 0 },
+                    "minutesOfService": 60,
+                    "minutesOfInterval": 15
+                },
+                {
+                    "startTime": { "hour": 14, "minute": 0 },
+                    "endTime": { "hour": 18, "minute": 0 },
+                    "minutesOfService": 60,
+                    "minutesOfInterval": 15
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 2,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 9, "minute": 0 },
+                    "endTime": { "hour": 17, "minute": 0 },
+                    "minutesOfService": 45,
+                    "minutesOfInterval": 10
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 3,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 10, "minute": 0 },
+                    "endTime": { "hour": 16, "minute": 0 },
+                    "minutesOfService": 30,
+                    "minutesOfInterval": 5
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 4,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 8, "minute": 0 },
+                    "endTime": { "hour": 12, "minute": 0 },
+                    "minutesOfService": 90,
+                    "minutesOfInterval": 20
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 5,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 9, "minute": 30 },
+                    "endTime": { "hour": 18, "minute": 30 },
+                    "minutesOfService": 60,
+                    "minutesOfInterval": 15
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 6,
+                "cancelAllDay": false
+            },
+            "periods": [
+                {
+                    "startTime": { "hour": 10, "minute": 0 },
+                    "endTime": { "hour": 14, "minute": 0 },
+                    "minutesOfService": 45,
+                    "minutesOfInterval": 10
+                }
+            ]
+        },
+        {
+            "dayOfWeek": {
+                "dayOfWeek": 7,
+                "cancelAllDay": true
+            },
+            "periods": []
+        }
+    ]
+}
+
+###
+
+POST http://localhost:3000/sellers/auth
+Content-Type: application/json
+
+{
+  "email": "test@gmail.com",
+  "password": "123456"
+}
