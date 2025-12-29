@@ -6,12 +6,27 @@ import type { IAgendaPeriodsRepository } from "@domain/repositories/agenda-perio
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
 import type { IUnitOfWork } from "@domain/repositories/uow/unit-of-work.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
+import { RedisCacheService } from "@/core/cache/service.js";
 import { sequelizeConnection } from "../../database/connection.js";
 import { AgendaConfigsRepository } from "../agenda-configs.repository.js";
 import { AgendaDayOfWeekRepository } from "../agenda-day-of-week.repository.js";
 import { AgendaEventRepository } from "../agenda-event.repository.js";
 import { AgendaPeriodsRepository } from "../agenda-periods.repository.js";
+import { CachedSellerRepository } from "../cache/seller.repository.js";
 import { SellerRepository } from "../seller.repository.js";
+
+const breakCharIndex = 1;
+
+type CacheRepositoryNames =
+	| "sellerRepository"
+	| "agendaPeriodsRepository"
+	| "agendaDayOfWeekRepository"
+	| "agendaConfigsRepository"
+	| "agendaEventRepository";
+
+type RepositoriesToCache = {
+	[K in CacheRepositoryNames]?: true;
+};
 
 export class SequelizeUnitOfWork implements IUnitOfWork {
 	private transaction: SequelizeTransaction | null = null;
@@ -21,6 +36,12 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 	private _agendaDayOfWeekRepository: IAgendaDayOfWeekRepository | null = null;
 	private _agendaConfigsRepository: IAgendaConfigsRepository | null = null;
 	private _agendaEventRepository: IAgendaEventRepository | null = null;
+
+	constructor(
+		private configs: { repositoriesToCache: RepositoriesToCache } = {
+			repositoriesToCache: {},
+		},
+	) {}
 
 	resetTransaction() {
 		this.transaction = null;
@@ -44,18 +65,35 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 		this.resetTransaction();
 	}
 
-	private createAndGetRepository<T>(ClassDef: Class, propName: keyof this) {
-		if (!this[propName as keyof this]) {
-			this[propName as keyof this] = new ClassDef(this.transaction);
+	private createAndGetRepository<T>(
+		ClassDef: Class,
+		propName: keyof this,
+		CachedClassDef?: Class,
+	) {
+		if (!this[propName]) {
+			const shouldCreateCacheRep =
+				this.configs.repositoriesToCache[
+					(propName as string).substring(breakCharIndex) as CacheRepositoryNames
+				] ?? false;
+
+			const classInstance = new ClassDef(this.transaction);
+
+			if (shouldCreateCacheRep && CachedClassDef) {
+				const cacheService = RedisCacheService.createInstance();
+				this[propName] = new CachedClassDef(classInstance, cacheService);
+			} else {
+				this[propName] = classInstance;
+			}
 		}
 
-		return this[propName as keyof this] as T;
+		return this[propName] as T;
 	}
 
 	get sellerRepository() {
 		return this.createAndGetRepository<ISellerRepository>(
 			SellerRepository,
 			"_sellerRepository" as keyof this,
+			CachedSellerRepository,
 		);
 	}
 

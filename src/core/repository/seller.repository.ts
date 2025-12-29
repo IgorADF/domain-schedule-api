@@ -3,17 +3,14 @@ import type {
 	SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
-import type { Transaction as SequelizeTransaction } from "sequelize";
 import { SellerModel } from "../database/models/seller.js";
 import * as SellerMapper from "../entities/mappers/seller.js";
+import { ClassRepository } from "./_default.js";
 
-export class SellerRepository implements ISellerRepository {
-	private transaction: SequelizeTransaction;
-
-	constructor(_transaction: SequelizeTransaction) {
-		this.transaction = _transaction;
-	}
-
+export class SellerRepository
+	extends ClassRepository
+	implements ISellerRepository
+{
 	async createSeller(data: SellerWithPasswordSchemaType) {
 		const modelInstance = SellerMapper.toModel(data);
 		const sup = await SellerModel.create(modelInstance);

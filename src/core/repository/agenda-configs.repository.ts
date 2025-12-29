@@ -1,12 +1,13 @@
 import type { AgendaConfigType } from "@domain/entities/agenda-config.js";
 import type { IAgendaConfigsRepository } from "@domain/repositories/agenda-configs.interface.js";
-import type { Transaction as SequelizeTransaction } from "sequelize";
+import { ClassRepository } from "@/core/repository/_default.js";
 import { AgendaConfigsModel } from "../database/models/agenda-configs.js";
 import * as AgendaConfigsMapper from "../entities/mappers/agenda-configs.js";
 
-export class AgendaConfigsRepository implements IAgendaConfigsRepository {
-	constructor(private transaction: SequelizeTransaction | null) {}
-
+export class AgendaConfigsRepository
+	extends ClassRepository
+	implements IAgendaConfigsRepository
+{
 	async create(data: AgendaConfigType): Promise<AgendaConfigType> {
 		const model = AgendaConfigsMapper.toModel(data);
 		const created = await AgendaConfigsModel.create(model, {

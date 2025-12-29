@@ -48,4 +48,8 @@ fastifyInstance.decorate(
 
 fastifyInstance.register(initRoutes);
 
-export { fastifyInstance };
+function logInfoOnServer(message: string) {
+	fastifyInstance.log.info(message);
+}
+
+export { fastifyInstance, logInfoOnServer };

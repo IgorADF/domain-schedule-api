@@ -1,4 +1,5 @@
 import { Sequelize } from "sequelize-typescript";
+import { logInfoOnServer } from "@/apps/api/server-config.js";
 import { Envs } from "../envs/envs.js";
 import config from "./config/config.js";
 import type { SequelizeConfigType } from "./config/config-type.js";
@@ -34,9 +35,12 @@ export const sequelizeConnection = new Sequelize({
 		OverwriteDayModel,
 		AgendaEventModel,
 	],
-	logging: true,
+	logging: (msg) => logInfoOnServer(msg),
 });
 
-export async function authenticateDbConnection() {
+export async function authenticateDbConnection(
+	logInfoCallback: (msg: string) => void,
+) {
 	await sequelizeConnection.authenticate();
+	logInfoCallback("Database connection has been established successfully.");
 }

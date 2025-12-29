@@ -220,8 +220,10 @@ All business logic lives in `src/domain/use-cases/`. Each class:
   - Example: `Promise<{ data: SellerType }>`
 - **Command operations (write without returning entity):** Return `Promise<void>`
   - Example: `CreateCompleteAgendaUseCase.execute()` returns `Promise<void>`
-- **ID-only returns:** For auth/special cases, return minimal data
-  - Example: `Promise<{ seller_id: string }>`
+- **Authentication operations:** Return minimal data, NEVER include sensitive fields
+  - Example: `Promise<{ sellerId: string, email: string }>` for `AuthSellerUseCase`
+  - NEVER return password or other sensitive data
+  - Throw same error for "user not found" and "wrong password" to prevent user enumeration
 
 **Formatting Data Pattern:**
 
@@ -331,6 +333,113 @@ get agendaPeriodsRepository() {
 }
 ```
 
+## Cache Repository Pattern
+
+**Cache Layer Structure:**
+
+```
+src/core/
+├── cache/
+│   ├── redis.ts              # Redis client instance
+│   └── service.ts            # RedisCacheService implementation
+└── repository/
+    └── cache/
+        ├── _default.ts       # Base ClassCacheRepository
+        └── seller.repository.ts  # Cached repository implementation
+```
+
+**Creating a cached repository:**
+
+1. **Base Class** (`src/core/repository/cache/_default.ts`):
+
+   ```typescript
+   import type { RedisCacheService } from "../../cache/service.js";
+
+   export class ClassCacheRepository<T> {
+     constructor(
+       protected readonly repository: T,
+       protected readonly cache: RedisCacheService
+     ) {}
+   }
+   ```
+
+2. **Cached Repository Implementation** (`src/core/repository/cache/[name].repository.ts`):
+
+   ```typescript
+   import type { SellerType } from "@domain/entities/seller.js";
+   import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
+   import { ClassCacheRepository } from "./_default.js";
+
+   export class CachedSellerRepository
+     extends ClassCacheRepository<ISellerRepository>
+     implements ISellerRepository
+   {
+     async getSellerByEmail(email: string) {
+       const cacheKey = `seller:${email}`;
+       const cached = await this.cache.get<SellerType>(cacheKey);
+
+       if (cached) return cached;
+
+       const entity = await this.repository.getSellerByEmail(email);
+
+       if (entity) {
+         await this.cache.set(cacheKey, entity, 3600); // 1 hour TTL
+       }
+
+       return entity;
+     }
+
+     async updateSeller(id: string, data: Partial<SellerType>) {
+       const result = await this.repository.updateSeller(id, data);
+
+       // Invalidate cache on write
+       await this.cache.delete(`seller:${id}`);
+
+       return result;
+     }
+   }
+   ```
+
+**Cache Strategy Guidelines:**
+
+**What to cache:**
+
+- ✅ Read-heavy entities (e.g., `AgendaConfig`, `AgendaDayOfWeek`)
+- ✅ Complex computed data (e.g., available time slots)
+- ✅ Configuration/settings
+- ✅ Data with low write frequency
+
+**What NOT to cache:**
+
+- ❌ Authentication queries (security risk - passwords should never be cached)
+- ❌ Real-time data (e.g., `Schedule` bookings)
+- ❌ Data that changes frequently
+- ❌ Data being read within a transaction (uncommitted data)
+
+**Cache Key Conventions:**
+
+- Use descriptive prefixes: `seller:${id}`, `agenda:${sellerId}`, `slots:${date}`
+- Include entity type and identifier
+- For composite keys: `agenda:day:${agendaId}:${dayOfWeek}`
+
+**Cache Invalidation:**
+
+- Invalidate on writes (`create`, `update`, `delete`)
+- Use appropriate TTLs (5-60 minutes depending on domain)
+- Consider cache-aside pattern (lazy loading)
+- Delete specific keys, avoid full cache flushes in production
+
+**Redis Cache Service** (`src/core/cache/service.ts`):
+
+```typescript
+export class RedisCacheService {
+  async get<T>(key: string): Promise<T | null>;
+  async set<T>(key: string, value: T, ttlSeconds = 3600): Promise<void>;
+  async delete(key: string): Promise<void>;
+  async clear(): Promise<void>; // Use only in tests
+}
+```
+
 ## API Routes & Transaction Handling
 
 Routes in `src/apps/api/routes/` use **factory functions** to instantiate use-cases with UoW:
@@ -383,7 +492,7 @@ Transactions are managed INSIDE use-cases, NOT in routes. Routes should NOT call
 **Use-Case Transaction Pattern:**
 
 ```typescript
-// ✅ CORRECT - Use-case manages transaction
+// ✅ CORRECT - Write use-cases manage transactions
 async execute(input: InputType): Promise<{ data: OutputType }> {
   try {
     await this.uow.beginTransaction();
@@ -397,7 +506,23 @@ async execute(input: InputType): Promise<{ data: OutputType }> {
     throw err;
   }
 }
+
+// ✅ CORRECT - Read-only use-cases don't need transactions
+async execute(input: InputType): Promise<OutputType> {
+  // No transaction needed for queries
+  const entity = await this.uow.repository.getById(input.id);
+  return { data: entity };
+}
 ```
+
+**Transaction Guidelines:**
+
+- **Write operations** (create, update, delete) MUST use transactions
+- **Read-only operations** (simple queries, authentication) typically do NOT need transactions
+- **CRITICAL:** Queries that read uncommitted data (data created/updated in the same use-case) MUST use transactions
+  - Example: Creating `AgendaConfig`, then querying it in the same use-case
+  - The query needs the transaction to see uncommitted changes
+- **Mixed operations** (read + write) MUST use transactions
 
 **Route Pattern:**
 

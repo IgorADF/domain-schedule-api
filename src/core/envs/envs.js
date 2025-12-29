@@ -13,12 +13,17 @@ export const EnvsSchema = z.object({
 	DB_PASSWORD: z.string(),
 	DB_HOST: z.string(),
 	DB_PORT: z.string().transform(Number),
+
+	REDIS_HOST: z.string(),
+	REDIS_PORT: z.string().transform(Number),
 });
 
 const { success, data, error } = EnvsSchema.safeParse(process.env);
 
 if (!success) {
-	throw new Error(`❌ Invalid environment variables: ${z.treeifyError(error)}`);
+	throw new Error(
+		`❌ Invalid environment variables: ${JSON.stringify(z.treeifyError(error))}`,
+	);
 }
 
 export const Envs = data;
