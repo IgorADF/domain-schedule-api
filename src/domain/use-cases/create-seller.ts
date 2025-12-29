@@ -8,7 +8,7 @@ import {
 	type SellerWithPasswordSchemaType,
 } from "../entities/seller.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
-import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
+import { EntityAlreadyExist } from "../shared/errors/entity-already-exist.js";
 
 export const CreateSellerSchema = SellerWithPasswordSchema.pick({
 	name: true,

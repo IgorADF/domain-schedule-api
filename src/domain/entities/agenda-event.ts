@@ -1,6 +1,6 @@
 import z from "zod";
-import { IdObj } from "./value-objects/id.js";
-import { Timestamp } from "./value-objects/timestamp.js";
+import { IdObj } from "../shared/value-objects/id.js";
+import { Timestamp } from "../shared/value-objects/timestamp.js";
 
 export const AgendaEventTypeEnum = z.enum([
 	"new_schedule",

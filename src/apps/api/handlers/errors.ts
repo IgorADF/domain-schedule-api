@@ -1,7 +1,7 @@
-import { EntityAlreadyExist } from "@domain/use-cases/errors/entity-already-exist.js";
-import { EntityNotFound } from "@domain/use-cases/errors/entity-not-found.js";
-import { InvalidCreantionData } from "@domain/use-cases/errors/invalid-creation-data.js";
-import { InvalidCredentials } from "@domain/use-cases/errors/invalid-credentials.js";
+import { EntityAlreadyExist } from "@/domain/shared/errors/entity-already-exist.js";
+import { EntityNotFound } from "@/domain/shared/errors/entity-not-found.js";
+import { InvalidCreantionData } from "@/domain/shared/errors/invalid-creation-data.js";
+import { InvalidCredentials } from "@/domain/shared/errors/invalid-credentials.js";
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 import z, { ZodError } from "zod";
 

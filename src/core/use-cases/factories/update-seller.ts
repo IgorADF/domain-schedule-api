@@ -1,6 +1,6 @@
-import type { CreateFactoryFunction } from "@core/@types/create-factory.js";
 import { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
 import { UpdateSellerUseCase } from "@domain/use-cases/update-seller.js";
+import type { CreateFactoryFunction } from "./_default.js";
 
 export const updateSellerFactory: CreateFactoryFunction<
 	UpdateSellerUseCase

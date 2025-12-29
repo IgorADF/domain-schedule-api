@@ -1,7 +1,7 @@
 import z from "zod";
-import { IdObj } from "./value-objects/id.js";
-import { TimeObj } from "./value-objects/time.js";
-import { Timestamp } from "./value-objects/timestamp.js";
+import { IdObj } from "../shared/value-objects/id.js";
+import { TimeObj } from "../shared/value-objects/time.js";
+import { Timestamp } from "../shared/value-objects/timestamp.js";
 
 export const AgendaPeriodSchema = z
 	.object({

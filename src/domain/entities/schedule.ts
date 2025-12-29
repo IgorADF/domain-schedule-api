@@ -1,8 +1,8 @@
 import z from "zod";
-import { DayObj } from "./value-objects/day.js";
-import { IdObj } from "./value-objects/id.js";
-import { TimeObj } from "./value-objects/time.js";
-import { Timestamp } from "./value-objects/timestamp.js";
+import { DayObj } from "../shared/value-objects/day.js";
+import { IdObj } from "../shared/value-objects/id.js";
+import { TimeObj } from "../shared/value-objects/time.js";
+import { Timestamp } from "../shared/value-objects/timestamp.js";
 
 export const ScheduleSchema = z
 	.object({

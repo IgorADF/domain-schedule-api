@@ -4,8 +4,8 @@ import {
 	SellerWithPasswordSchema,
 } from "../entities/seller.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
-import { EntityAlreadyExist } from "./errors/entity-already-exist.js";
-import { EntityNotFound } from "./errors/entity-not-found.js";
+import { EntityAlreadyExist } from "../shared/errors/entity-already-exist.js";
+import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 
 export const UpdateSellerSchema = SellerWithPasswordSchema.pick({
 	id: true,

@@ -1,4 +1,3 @@
-import type { Class } from "@core/@types/class.js";
 import type { IAgendaConfigsRepository } from "@domain/repositories/agenda-configs.interface.js";
 import type { IAgendaDayOfWeekRepository } from "@domain/repositories/agenda-day-of-week.interface.js";
 import type { IAgendaEventRepository } from "@domain/repositories/agenda-event.interface.js";
@@ -6,6 +5,7 @@ import type { IAgendaPeriodsRepository } from "@domain/repositories/agenda-perio
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
 import type { IUnitOfWork } from "@domain/repositories/uow/unit-of-work.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
+import type { Class } from "@/@types/class.js";
 import { RedisCacheService } from "@/core/cache/service.js";
 import { sequelizeConnection } from "../../database/connection.js";
 import { AgendaConfigsRepository } from "../agenda-configs.repository.js";

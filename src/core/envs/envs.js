@@ -1,5 +1,8 @@
-import "dotenv/config";
+// import "dotenv/config";
+import { loadEnvFile } from "node:process";
 import z from "zod";
+
+loadEnvFile();
 
 export const EnvsSchema = z.object({
 	// General

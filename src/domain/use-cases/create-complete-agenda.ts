@@ -15,7 +15,7 @@ import {
 	CreateAgendaPeriodsSchema,
 	CreateAgendaPeriodsUseCase,
 } from "./create-agenda-periods.js";
-import { InvalidCreantionData } from "./errors/invalid-creation-data.js";
+import { InvalidCreantionData } from "../shared/errors/invalid-creation-data.js";
 
 const qtDaysOfWeek = 7;
 
