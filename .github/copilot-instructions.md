@@ -861,3 +861,80 @@ The global error handler automatically converts domain errors to HTTP responses:
 **CRITICAL:** When adding new error types, update the error handler to map them to appropriate HTTP status codes.
 
 Always throw from use-cases; routes catch and convert to HTTP responses.
+
+## Folder Organization - Future Improvements
+
+As the project scales, consider these structural refinements:
+
+### 1. Consolidate Shared Types
+
+Currently `@types` folders are scattered across `src/apps/api/@types` and `src/core/@types`. Consider:
+
+```
+src/
+├── @types/           # Shared types (Class, Optional, CreateFactory, etc.)
+├── apps/
+│   └── api/
+│       └── @types/   # Keep API-specific types (AuthSeller, FastifyZodInstance, InitRoutes)
+```
+
+### 2. Message Queue Structure
+
+As `src/apps/message-queue` grows beyond the current basic consumer, mirror the API structure:
+
+```
+src/apps/message-queue/
+├── consumers/        # Queue message handlers (e.g., schedule-consumer.ts)
+├── publishers/       # Message publishing logic (e.g., schedule-publisher.ts)
+├── handlers/         # Business logic for queue messages
+├── queue-config.ts   # Connection setup (extract from start-queue.ts)
+└── start-queue.ts    # Entry point that wires everything together
+```
+
+### 3. Domain Shared Concerns
+
+Value objects and errors are used across multiple entities/use-cases. Consider extracting to a shared location:
+
+```
+src/domain/
+├── entities/
+├── repositories/
+├── use-cases/
+└── shared/              # Cross-cutting domain concerns
+    ├── value-objects/   # Move from entities/value-objects/
+    └── errors/          # Move from use-cases/errors/
+```
+
+This improves discoverability and clarifies that these are reusable domain primitives.
+
+### 4. External Service Integration Layer
+
+For non-repository external integrations (email, SMS, payment gateways):
+
+```
+src/core/
+├── cache/
+├── database/
+├── repository/
+├── services/            # External service integrations
+│   ├── email/
+│   ├── sms/
+│   └── payment/
+└── use-cases/
+```
+
+### 5. HTTP Test Files Separation
+
+Consider moving `.http` files out of route source files:
+
+```
+src/apps/api/
+├── routes/
+│   ├── seller.ts
+│   └── agenda.ts
+└── http/                # All .http test files
+    ├── seller.http
+    └── agenda.http
+```
+
+**Note:** These are optimization suggestions for when specific pain points arise. The current structure is production-ready and follows DDD best practices.

@@ -4,7 +4,8 @@
   "description": "",
   "main": "test.js",
   "scripts": {
-    "dev": "tsx watch ./src/apps/api/server-start.ts",
+    "dev:server": "tsx watch ./src/apps/api/server-start.ts",
+    "dev:queue": "tsx watch ./src/apps/message-queue/start-queue.ts",
     "db:create": "npx sequelize-cli db:create",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
@@ -22,6 +23,7 @@
   "dependencies": {
     "@fastify/jwt": "^10.0.0",
     "@fastify/one-line-logger": "^2.0.2",
+    "amqplib": "^0.10.9",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
     "fastify": "^5.6.2",
@@ -40,6 +42,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.3.10",
     "@tsconfig/node24": "^24.0.3",
+    "@types/amqplib": "^0.10.8",
     "@types/luxon": "^3.7.1",
     "@types/node": "^24.10.2",
     "@types/supertest": "^6.0.3",

@@ -16,6 +16,9 @@ export const EnvsSchema = z.object({
 
 	REDIS_HOST: z.string(),
 	REDIS_PORT: z.string().transform(Number),
+
+	// Queue
+	URL_AMQP: z.url(),
 });
 
 const { success, data, error } = EnvsSchema.safeParse(process.env);
