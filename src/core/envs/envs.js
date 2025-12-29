@@ -17,6 +17,7 @@ export const EnvsSchema = z.object({
 	DB_HOST: z.string(),
 	DB_PORT: z.string().transform(Number),
 
+	REDIS_ENABLE: z.string().transform((val) => val === "true"),
 	REDIS_HOST: z.string(),
 	REDIS_PORT: z.string().transform(Number),
 
