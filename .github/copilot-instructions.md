@@ -878,34 +878,49 @@ src/
 │       └── @types/   # Keep API-specific types (AuthSeller, FastifyZodInstance, InitRoutes)
 ```
 
-### 2. Message Queue Structure
+### 2. Message Queue Structure ✅ IMPLEMENTED
 
-As `src/apps/message-queue` grows beyond the current basic consumer, mirror the API structure:
+The message queue follows a structured pattern with separation of concerns:
 
 ```
 src/apps/message-queue/
-├── consumers/        # Queue message handlers (e.g., schedule-consumer.ts)
-├── publishers/       # Message publishing logic (e.g., schedule-publisher.ts)
-├── handlers/         # Business logic for queue messages
-├── queue-config.ts   # Connection setup (extract from start-queue.ts)
-└── start-queue.ts    # Entry point that wires everything together
+├── consumers/
+│   └── task-consumer.ts    # Queue message handlers with error handling (nack/requeue)
+├── publishers/
+│   └── task-publisher.ts   # Message publishing logic with persistent messages
+├── handlers/
+│   └── task-handler.ts     # Business logic for processing messages
+├── queue-config.ts         # Singleton connection/channel management
+└── start-queue.ts          # Entry point with graceful shutdown
 ```
 
-### 3. Domain Shared Concerns
+**Key patterns:**
 
-Value objects and errors are used across multiple entities/use-cases. Consider extracting to a shared location:
+- **Singleton connection** - `getConnection()` and `getChannel()` reuse existing connections
+- **Graceful shutdown** - `closeConnection()` properly closes channels and connections
+- **Error handling** - Consumers use `nack(msg, false, true)` to requeue failed messages
+- **Persistent messages** - Publishers set `persistent: true` for durability
+
+### 3. Domain Shared Concerns ✅ IMPLEMENTED
+
+Value objects and errors are extracted to a shared location:
 
 ```
 src/domain/
 ├── entities/
 ├── repositories/
 ├── use-cases/
-└── shared/              # Cross-cutting domain concerns
-    ├── value-objects/   # Move from entities/value-objects/
-    └── errors/          # Move from use-cases/errors/
+└── shared/
+    ├── value-objects/   # IdObj, TimeObj, DayObj, Timestamp, ParanoidTimestamp
+    └── errors/          # DefaultUseCaseError, EntityAlreadyExist, EntityNotFound, etc.
 ```
 
-This improves discoverability and clarifies that these are reusable domain primitives.
+**Import pattern:**
+
+```typescript
+import { EntityAlreadyExist } from "@domain/shared/errors/entity-already-exist.js";
+import { IdObj } from "@domain/shared/value-objects/id.js";
+```
 
 ### 4. External Service Integration Layer
 
@@ -923,15 +938,17 @@ src/core/
 └── use-cases/
 ```
 
-### 5. HTTP Test Files Separation
+### 5. HTTP Test Files Separation ✅ IMPLEMENTED
 
-Consider moving `.http` files out of route source files:
+HTTP test files are now in a dedicated folder:
 
 ```
 src/apps/api/
 ├── routes/
+│   ├── _init.ts
 │   ├── seller.ts
-│   └── agenda.ts
+│   ├── agenda.ts
+│   └── tests/
 └── http/                # All .http test files
     ├── seller.http
     └── agenda.http

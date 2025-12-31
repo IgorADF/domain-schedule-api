@@ -7,14 +7,14 @@ import {
 	Model,
 	Table,
 } from "sequelize-typescript";
-import { AgendaConfigsModel } from "./agenda-configs.js";
+import AgendaConfigsModel from "./agenda-configs.js";
 
 export type OverwriteDayModelType = InferAttributes<OverwriteDayModel>;
 export type OverwriteDayModelCreationType =
 	InferCreationAttributes<OverwriteDayModel>;
 
 @Table({ tableName: "OverwriteDay", timestamps: false })
-export class OverwriteDayModel extends Model<
+class OverwriteDayModel extends Model<
 	OverwriteDayModelType,
 	OverwriteDayModelCreationType
 > {
@@ -33,3 +33,5 @@ export class OverwriteDayModel extends Model<
 	@BelongsTo(() => AgendaConfigsModel)
 	agenda?: AgendaConfigsModel;
 }
+
+export default OverwriteDayModel;

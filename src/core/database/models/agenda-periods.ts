@@ -7,14 +7,14 @@ import {
 	Model,
 	Table,
 } from "sequelize-typescript";
-import { AgendaDayOfWeekModel } from "./agenda-day-of-week.js";
+import AgendaDayOfWeekModel from "./agenda-day-of-week.js";
 
 export type AgendaPeriodsModelType = InferAttributes<AgendaPeriodsModel>;
 export type AgendaPeriodsModelCreationType =
 	InferCreationAttributes<AgendaPeriodsModel>;
 
 @Table({ tableName: "AgendaPeriods", timestamps: false })
-export class AgendaPeriodsModel extends Model<
+class AgendaPeriodsModel extends Model<
 	AgendaPeriodsModelType,
 	AgendaPeriodsModelCreationType
 > {
@@ -54,3 +54,4 @@ export class AgendaPeriodsModel extends Model<
 	@BelongsTo(() => AgendaDayOfWeekModel)
 	agendaDayOfWeek?: AgendaDayOfWeekModel;
 }
+export default AgendaPeriodsModel;

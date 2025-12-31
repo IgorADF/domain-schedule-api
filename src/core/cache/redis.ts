@@ -5,6 +5,11 @@ export const redisClient = Envs.REDIS_ENABLE
 	? new Redis({
 			host: Envs.REDIS_HOST,
 			port: Envs.REDIS_PORT,
+			retryStrategy: (times) => {
+				// Reconnect every 5 seconds
+				return 5000;
+			},
+			maxRetriesPerRequest: null,
 		})
 	: null;
 

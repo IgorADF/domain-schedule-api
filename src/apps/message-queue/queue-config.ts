@@ -6,7 +6,13 @@ let channel: amqplib.Channel | null = null;
 
 export async function getConnection(): Promise<amqplib.ChannelModel> {
 	if (!connection) {
-		connection = await amqplib.connect(Envs.URL_AMQP);
+		connection = await amqplib.connect({
+			protocol: "amqp",
+			port: Envs.RABBITMQ_PORT,
+			hostname: Envs.RABBITMQ_HOST,
+			username: Envs.RABBITMQ_USER,
+			password: Envs.RABBITMQ_PASS,
+		});
 		console.log("✓ AMQP connection established");
 	}
 	return connection;

@@ -2,10 +2,8 @@ import {
 	AgendaPeriodSchema,
 	type AgendaPeriodType,
 } from "@domain/entities/agenda-periods.js";
-import type {
-	AgendaPeriodsModel,
-	AgendaPeriodsModelType,
-} from "../../database/models/agenda-periods.js";
+import type AgendaPeriodsModel from "../../database/models/agenda-periods.js";
+import type { AgendaPeriodsModelType } from "../../database/models/agenda-periods.js";
 
 export function toModel(period: AgendaPeriodType): AgendaPeriodsModelType {
 	const startTime = new Date();

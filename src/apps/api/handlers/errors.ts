@@ -1,9 +1,9 @@
+import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
+import z, { ZodError } from "zod";
 import { EntityAlreadyExist } from "@/domain/shared/errors/entity-already-exist.js";
 import { EntityNotFound } from "@/domain/shared/errors/entity-not-found.js";
 import { InvalidCreantionData } from "@/domain/shared/errors/invalid-creation-data.js";
 import { InvalidCredentials } from "@/domain/shared/errors/invalid-credentials.js";
-import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
-import z, { ZodError } from "zod";
 
 /**
  * Global error handler for Fastify API

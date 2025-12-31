@@ -9,6 +9,6 @@ export interface ISellerRepository {
 	): Promise<SellerWithPasswordSchemaType | null>;
 	getSellerByEmail(email: string): Promise<SellerType | null>;
 	getSellerById(id: string): Promise<SellerType | null>;
-	createSeller(_: SellerType): Promise<SellerType>;
+	create(_: SellerType): Promise<SellerType>;
 	updateSeller(id: string, data: Partial<SellerType>): Promise<SellerType>;
 }

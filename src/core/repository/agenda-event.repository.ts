@@ -1,6 +1,6 @@
 import type { AgendaEventType } from "@domain/entities/agenda-event.js";
 import type { IAgendaEventRepository } from "@domain/repositories/agenda-event.interface.js";
-import { AgendaEventModel } from "../database/models/agenda-event.js";
+import AgendaEventModel from "../database/models/agenda-event.js";
 import * as AgendaEventMapper from "../entities/mappers/agenda-event.js";
 import { ClassRepository } from "./_default.js";
 
@@ -8,9 +8,12 @@ export class AgendaEventRepository
 	extends ClassRepository
 	implements IAgendaEventRepository
 {
+	private sequelizeRepository =
+		this.sequelizeConnection.getRepository(AgendaEventModel);
+
 	async create(data: AgendaEventType): Promise<AgendaEventType> {
 		const modelInstance = AgendaEventMapper.toModel(data);
-		const created = await AgendaEventModel.create(modelInstance, {
+		const created = await this.sequelizeRepository.create(modelInstance, {
 			transaction: this.transaction,
 		});
 		return AgendaEventMapper.toEntity(created);
@@ -20,7 +23,7 @@ export class AgendaEventRepository
 		const modelInstances = data.map((event) =>
 			AgendaEventMapper.toModel(event),
 		);
-		const created = await AgendaEventModel.bulkCreate(modelInstances, {
+		const created = await this.sequelizeRepository.bulkCreate(modelInstances, {
 			transaction: this.transaction,
 		});
 		return created.map((event) => AgendaEventMapper.toEntity(event));
@@ -29,7 +32,7 @@ export class AgendaEventRepository
 	async findByAgendaConfigId(
 		agendaConfigId: string,
 	): Promise<AgendaEventType[]> {
-		const events = await AgendaEventModel.findAll({
+		const events = await this.sequelizeRepository.findAll({
 			where: { agendaConfigId },
 			transaction: this.transaction,
 		});

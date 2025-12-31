@@ -1,5 +1,6 @@
 import "fastify";
-import { AuthSeller } from "./auth-seller.ts";
+import type { AuthSeller } from "./auth-seller.ts";
+import type { SignOptions, SignPayloadType } from "@fastify/jwt";
 
 declare module "fastify" {
 	interface FastifyInstance {
@@ -7,6 +8,11 @@ declare module "fastify" {
 			request: FastifyRequest,
 			reply: FastifyReply,
 		) => Promise<void>;
+
+		jwtSign: (
+			payload: SignPayloadType,
+			options?: Partial<SignOptions>,
+		) => Promise<string>;
 	}
 
 	interface FastifyRequest {

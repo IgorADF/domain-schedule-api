@@ -9,8 +9,8 @@ export class CachedSellerRepository
 	extends ClassCacheRepository<ISellerRepository>
 	implements ISellerRepository
 {
-	async createSeller(data: SellerWithPasswordSchemaType) {
-		return await this.repository.createSeller(data);
+	async create(data: SellerWithPasswordSchemaType) {
+		return await this.repository.create(data);
 	}
 
 	async getSellerWithPassword(email: string) {

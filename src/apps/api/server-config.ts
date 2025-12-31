@@ -1,4 +1,4 @@
-import jwt from "@fastify/jwt";
+import jwt, { SignOptions, SignPayloadType } from "@fastify/jwt";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import {
 	serializerCompiler,
@@ -43,6 +43,14 @@ fastifyInstance.decorate(
 				.status(401)
 				.send({ code: "Unauthorized", error: err?.message || "Invalid token" });
 		}
+	},
+);
+
+fastifyInstance.decorate(
+	"jwtSign",
+	async (payload: SignPayloadType, options?: Partial<SignOptions>) => {
+		const token = fastifyInstance.jwt.sign(payload, options);
+		return token;
 	},
 );
 

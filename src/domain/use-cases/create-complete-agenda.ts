@@ -3,6 +3,7 @@ import type { AgendaConfigType } from "../entities/agenda-config.js";
 import type { AgendaDayOfWeekType } from "../entities/agenda-day-of-week.js";
 import type { AgendaPeriodType } from "../entities/agenda-periods.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import { InvalidCreantionData } from "../shared/errors/invalid-creation-data.js";
 import {
 	CreateAgendaConfigSchema,
 	CreateAgendaConfigUseCase,
@@ -15,7 +16,6 @@ import {
 	CreateAgendaPeriodsSchema,
 	CreateAgendaPeriodsUseCase,
 } from "./create-agenda-periods.js";
-import { InvalidCreantionData } from "../shared/errors/invalid-creation-data.js";
 
 const qtDaysOfWeek = 7;
 

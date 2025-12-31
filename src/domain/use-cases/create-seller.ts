@@ -39,7 +39,7 @@ export class CreateSellerUseCase {
 			await this.uow.beginTransaction();
 
 			const newSeller =
-				await this.uow.sellerRepository.createSeller(formattedNewSeller);
+				await this.uow.sellerRepository.create(formattedNewSeller);
 
 			await this.uow.commitTransaction();
 

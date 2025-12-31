@@ -3,12 +3,6 @@ import { logInfoOnServer } from "@/apps/api/server-config.js";
 import { Envs } from "../envs/envs.js";
 import config from "./config/config.js";
 import type { SequelizeConfigType } from "./config/config-type.js";
-import { AgendaConfigsModel } from "./models/agenda-configs.js";
-import { AgendaDayOfWeekModel } from "./models/agenda-day-of-week.js";
-import { AgendaEventModel } from "./models/agenda-event.js";
-import { AgendaPeriodsModel } from "./models/agenda-periods.js";
-import { OverwriteDayModel } from "./models/overwrite-day.js";
-import { SellerModel } from "./models/seller.js";
 
 const connectionConfig: SequelizeConfigType | undefined = config[
 	Envs.NODE_ENV
@@ -20,27 +14,31 @@ if (!connectionConfig) {
 
 const { dialect, database, username, password, host, port } = connectionConfig;
 
-export const sequelizeConnection = new Sequelize({
-	dialect,
-	database,
-	username,
-	password,
-	host,
-	port,
-	models: [
-		SellerModel,
-		AgendaConfigsModel,
-		AgendaDayOfWeekModel,
-		AgendaPeriodsModel,
-		OverwriteDayModel,
-		AgendaEventModel,
-	],
-	logging: (msg) => logInfoOnServer(msg),
-});
+export function createSequelizeConnection() {
+	const modelsPath = `${import.meta.dirname}/models`;
+
+	return new Sequelize({
+		dialect,
+		database,
+		username,
+		password,
+		host,
+		port,
+		models: [modelsPath],
+		logging: (msg) => logInfoOnServer(msg),
+		repositoryMode: true,
+	});
+}
+
+export const sequelizeConnection = createSequelizeConnection();
 
 export async function authenticateDbConnection(
 	logInfoCallback: (msg: string) => void,
 ) {
 	await sequelizeConnection.authenticate();
 	logInfoCallback("Database connection has been established successfully.");
+}
+
+export function closeDbConnection(connection: Sequelize) {
+	return connection.close();
 }

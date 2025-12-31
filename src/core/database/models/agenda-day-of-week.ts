@@ -8,15 +8,15 @@ import {
 	Model,
 	Table,
 } from "sequelize-typescript";
-import { AgendaConfigsModel } from "./agenda-configs.js";
-import { AgendaPeriodsModel } from "./agenda-periods.js";
+import AgendaConfigsModel from "./agenda-configs.js";
+import AgendaPeriodsModel from "./agenda-periods.js";
 
 export type AgendaDayOfWeekModelType = InferAttributes<AgendaDayOfWeekModel>;
 export type AgendaDayOfWeekModelCreationType =
 	InferCreationAttributes<AgendaDayOfWeekModel>;
 
 @Table({ tableName: "AgendaDayOfWeek", timestamps: false })
-export class AgendaDayOfWeekModel extends Model<
+class AgendaDayOfWeekModel extends Model<
 	AgendaDayOfWeekModelType,
 	AgendaDayOfWeekModelCreationType
 > {
@@ -41,3 +41,5 @@ export class AgendaDayOfWeekModel extends Model<
 	@HasMany(() => AgendaPeriodsModel)
 	periods?: AgendaPeriodsModel[];
 }
+
+export default AgendaDayOfWeekModel;

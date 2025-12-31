@@ -1,5 +1,5 @@
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
-import type { FastityInitRoutes } from "@api/@types/init-routes.js";
+import type { InitRoute } from "@api/@types/init-routes.js";
 import { authSellerFactory } from "@core/use-cases/factories/auth-seller.js";
 import { createSellerFactory } from "@core/use-cases/factories/create-seller.js";
 import { updateSellerFactory } from "@core/use-cases/factories/update-seller.js";
@@ -7,14 +7,18 @@ import { AuthSellerSchema } from "@domain/use-cases/auth-seller.js";
 import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
 import { UpdateSellerSchema } from "@domain/use-cases/update-seller.js";
 import z from "zod";
+import type { LogService } from "@/core/services/log.js";
+import { AskSellerResetPasswordSchema } from "@/domain/use-cases/ask-seller-reset-password.js";
+import { askSellerResetPasswordFactory } from "@/core/use-cases/factories/ask-seller-reset-password.js";
+import { Envs } from "@/core/envs/envs.js";
 
-export function initSellerRoutes(): FastityInitRoutes {
+export const initSellerRoutes: InitRoute = (logger: LogService) => {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.post(
 			"/auth",
 			{ schema: { body: AuthSellerSchema } },
 			async (request) => {
-				const { useCase } = authSellerFactory();
+				const { useCase } = authSellerFactory(logger);
 				const result = await useCase.execute(request.body);
 
 				const token = fastify.jwt.sign({
@@ -23,6 +27,25 @@ export function initSellerRoutes(): FastityInitRoutes {
 				});
 
 				return { token };
+			},
+		);
+
+		fastify.post(
+			"/ask-reset-password",
+			{ schema: { body: AskSellerResetPasswordSchema } },
+			async (request) => {
+				const { useCase } = askSellerResetPasswordFactory();
+
+				const jwtFunction = (payload: { id: string; email: string }) => {
+					return fastify.jwtSign(payload, {
+						expiresIn: "15m",
+						key: Envs.API_JWT_RESET_SECRET,
+					});
+				};
+
+				await useCase.execute(request.body, jwtFunction);
+
+				return { success: true };
 			},
 		);
 
@@ -52,4 +75,4 @@ export function initSellerRoutes(): FastityInitRoutes {
 			},
 		);
 	};
-}
+};

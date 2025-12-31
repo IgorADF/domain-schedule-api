@@ -7,14 +7,14 @@ import {
 	Model,
 	Table,
 } from "sequelize-typescript";
-import { AgendaConfigsModel } from "./agenda-configs.js";
+import AgendaConfigsModel from "./agenda-configs.js";
 
 export type AgendaEventModelType = InferAttributes<AgendaEventModel>;
 export type AgendaEventModelCreationType =
 	InferCreationAttributes<AgendaEventModel>;
 
 @Table({ tableName: "AgendaEvents", timestamps: false })
-export class AgendaEventModel extends Model<
+class AgendaEventModel extends Model<
 	AgendaEventModelType,
 	AgendaEventModelCreationType
 > {
@@ -47,3 +47,5 @@ export class AgendaEventModel extends Model<
 	@BelongsTo(() => AgendaConfigsModel)
 	agendaConfig?: AgendaConfigsModel;
 }
+
+export default AgendaEventModel;

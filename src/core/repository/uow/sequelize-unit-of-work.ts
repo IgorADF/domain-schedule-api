@@ -76,7 +76,7 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 					(propName as string).substring(breakCharIndex) as CacheRepositoryNames
 				] ?? false;
 
-			const classInstance = new ClassDef(this.transaction);
+			const classInstance = new ClassDef(this.transaction, sequelizeConnection);
 
 			if (shouldCreateCacheRep && CachedClassDef) {
 				const cacheService = RedisCacheService.createInstance();

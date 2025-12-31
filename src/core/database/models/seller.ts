@@ -1,6 +1,6 @@
 import type { InferAttributes, InferCreationAttributes } from "sequelize";
 import { Column, DataType, HasOne, Model, Table } from "sequelize-typescript";
-import { AgendaConfigsModel } from "./agenda-configs.js";
+import AgendaConfigsModel from "./agenda-configs.js";
 
 export type SellerModelType = InferAttributes<SellerModel>;
 export type SellerModelCreationType = InferCreationAttributes<SellerModel>;
@@ -11,10 +11,7 @@ export type SellerModelCreationType = InferCreationAttributes<SellerModel>;
 	timestamps: true,
 	defaultScope: { attributes: { exclude: ["password"] } },
 })
-export class SellerModel extends Model<
-	SellerModelType,
-	SellerModelCreationType
-> {
+class SellerModel extends Model<SellerModelType, SellerModelCreationType> {
 	@Column({ allowNull: false, type: DataType.STRING(50) })
 	name!: string;
 
@@ -33,3 +30,5 @@ export class SellerModel extends Model<
 	@HasOne(() => AgendaConfigsModel)
 	agendaConfig?: AgendaConfigsModel;
 }
+
+export default SellerModel;

@@ -3,7 +3,7 @@ import type {
 	SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
-import { SellerModel } from "../database/models/seller.js";
+import SellerModel from "../database/models/seller.js";
 import * as SellerMapper from "../entities/mappers/seller.js";
 import { ClassRepository } from "./_default.js";
 
@@ -11,14 +11,17 @@ export class SellerRepository
 	extends ClassRepository
 	implements ISellerRepository
 {
-	async createSeller(data: SellerWithPasswordSchemaType) {
+	private sequelizeRepository =
+		this.sequelizeConnection.getRepository(SellerModel);
+
+	async create(data: SellerWithPasswordSchemaType) {
 		const modelInstance = SellerMapper.toModel(data);
-		const sup = await SellerModel.create(modelInstance);
+		const sup = await this.sequelizeRepository.create(modelInstance);
 		return SellerMapper.toEntity(sup);
 	}
 
 	async getSellerWithPassword(email: string) {
-		const sup = await SellerModel.findOne({
+		const sup = await this.sequelizeRepository.findOne({
 			where: { email },
 			attributes: { include: ["password"] },
 		});
@@ -26,17 +29,17 @@ export class SellerRepository
 	}
 
 	async getSellerByEmail(email: string) {
-		const sup = await SellerModel.findOne({ where: { email } });
+		const sup = await this.sequelizeRepository.findOne({ where: { email } });
 		return sup ? SellerMapper.toEntity(sup) : null;
 	}
 
 	async getSellerById(id: string) {
-		const sup = await SellerModel.findByPk(id);
+		const sup = await this.sequelizeRepository.findByPk(id);
 		return sup ? SellerMapper.toEntity(sup) : null;
 	}
 
 	async updateSeller(id: string, data: Partial<SellerType>) {
-		const seller = await SellerModel.findByPk(id);
+		const seller = await this.sequelizeRepository.findByPk(id);
 		if (!seller) {
 			throw new Error("Seller not found");
 		}
