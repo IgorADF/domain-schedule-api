@@ -1,8 +1,8 @@
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
-import { createCompleteAgendaFactory } from "@/infra/use-cases/factories/create-complete-agenda.js";
 import { CreateCompleteAgendaSchema } from "@domain/use-cases/create-complete-agenda.js";
 import type { LogService } from "@/infra/services/log.js";
+import { createCompleteAgendaFactory } from "@/infra/use-cases/factories/create-complete-agenda.js";
 
 export const initAgendaRoutes: InitRoute = (logger: LogService) => {
 	return async (fastify: FastifyZodInstance) => {
