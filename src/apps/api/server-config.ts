@@ -12,8 +12,14 @@ import { initRoutes } from "./routes/_init.js";
 
 const fastifyInstance = Fastify({
 	logger: {
+		level: "info",
 		transport: {
-			target: "@fastify/one-line-logger",
+			target: "pino-pretty",
+			options: {
+				colorize: true,
+				translateTime: "SYS:standard",
+				ignore: "pid,hostname",
+			},
 		},
 	},
 }).withTypeProvider<ZodTypeProvider>();

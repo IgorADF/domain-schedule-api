@@ -4,9 +4,12 @@ import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import type { iQueueService } from "../services/queue.interface.js";
 import { InvalidCredentials } from "../shared/errors/invalid-credentials.js";
 import { SendEmailError } from "../shared/errors/send-email.js";
+import { SystemLanguages, SystemLanguagesType } from "../shared/value-objects/system-languages.js";
 
 export const AskSellerResetPasswordSchema = SellerSchema.pick({
 	email: true,
+}).extend({
+	language: SystemLanguages
 });
 
 export type AskSellerResetPasswordType = z.infer<
@@ -20,7 +23,7 @@ export class AskSellerResetPasswordUseCase {
 	) {}
 
 	async execute(
-		{ email }: AskSellerResetPasswordType,
+		{ email, language }: AskSellerResetPasswordType,
 		jwtFunction: (payload: { id: string; email: string }) => Promise<string>,
 	) {
 		const existingSeller =
@@ -35,11 +38,23 @@ export class AskSellerResetPasswordUseCase {
 			email: existingSeller.email,
 		});
 
-		const emailTemplate = this.createEmailTemplate(token);
+		const emailTemplate = this.createEmailTemplate(token, language);
 		await this.sendResetEmail(email, emailTemplate);
 	}
 
-	private createEmailTemplate(token: string) {
+	private createEmailTemplate(token: string, language: SystemLanguagesType) {
+		if (language === "pt") {
+			return `
+		<html>
+		  <body>
+			<h1>Solicitação de Redefinição de Senha</h1>
+			<p>Clique no link abaixo para redefinir sua senha:</p>
+			<a href="https://yourapp.com/reset-password?token=${token}">Redefinir Senha</a>
+		  </body>
+		</html>
+	  `;
+		}
+		
 		return `
 		<html>
 		  <body>
