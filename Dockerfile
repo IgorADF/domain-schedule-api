@@ -1,5 +1,5 @@
 # Base stage - install dependencies
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # Production dependencies stage
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 # API stage
-FROM node:20-alpine AS api
+FROM node:24-alpine AS api
 
 WORKDIR /app
 
@@ -46,7 +46,7 @@ EXPOSE 3000
 CMD ["npm", "run", "start:api"]
 
 # Queue consumer stage
-FROM node:20-alpine AS queue
+FROM node:24-alpine AS queue
 
 WORKDIR /app
 
@@ -66,7 +66,7 @@ USER nodejs
 CMD ["npm", "run", "start:queue"]
 
 # Jobs/Cron stage
-FROM node:20-alpine AS jobs
+FROM node:24-alpine AS jobs
 
 WORKDIR /app
 

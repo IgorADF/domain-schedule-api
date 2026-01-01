@@ -1,11 +1,11 @@
-import { TaskConsumer } from "./consumers/task-consumer.js";
+import { Consumer } from "./consumers/consumer.js";
 import { closeConnection } from "./queue-config.js";
 
 async function startQueue() {
 	try {
 		console.log("Starting message queue...");
 
-		const taskConsumer = new TaskConsumer();
+		const taskConsumer = new Consumer();
 		await taskConsumer.start();
 
 		console.log("✓ Message queue started successfully");

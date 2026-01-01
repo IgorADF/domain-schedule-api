@@ -27,7 +27,7 @@ export const EnvsSchema = z.object({
 	RABBITMQ_USER: z.string(),
 	RABBITMQ_PASS: z.string(),
 	RABBITMQ_MANAGEMENT_PORT: z.string().transform(Number),
-	
+
 	//Email
 	SMTP_HOST: z.string(),
 	SMTP_PORT: z.string().transform(Number),

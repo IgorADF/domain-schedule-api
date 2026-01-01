@@ -1,9 +1,8 @@
-import { comparePasswords } from "@core/utils/password.js";
 import type z from "zod";
 import { SellerSchema } from "../entities/seller.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
-import type { IEmailService } from "../services/email.interace.js";
 import { InvalidCredentials } from "../shared/errors/invalid-credentials.js";
+import type { iQueueService } from "../services/queue.interface.js";
 import { SendEmailError } from "../shared/errors/send-email.js";
 
 export const AskSellerResetPasswordSchema = SellerSchema.pick({
@@ -17,7 +16,7 @@ export type AskSellerResetPasswordType = z.infer<
 export class AskSellerResetPasswordUseCase {
 	constructor(
 		private readonly uow: IUnitOfWork,
-		private readonly emailService: IEmailService,
+		private readonly queueService: iQueueService,
 	) {}
 
 	async execute(
@@ -53,13 +52,13 @@ export class AskSellerResetPasswordUseCase {
 	}
 
 	private async sendResetEmail(email: string, template: string) {
-		const { success } = await this.emailService.send(
-			email,
-			"Password Reset Request",
-			template,
-		);
-
-		if (!success) {
+		try {
+			await this.queueService.sendEmail({
+				to: email,
+				subject: "Password Reset Request",
+				html: template,
+			});
+		} catch {
 			throw new SendEmailError();
 		}
 	}

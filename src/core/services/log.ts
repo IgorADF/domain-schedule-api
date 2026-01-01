@@ -1,26 +1,26 @@
 import type { ILogService } from "@/domain/services/log.interface.js";
 
-type LoggerType = {
+export type LogFunctionType = {
 	info: (msg: string) => void;
 	warn: (msg: string) => void;
 	error: (msg: string) => void;
 };
 
 export class LogService implements ILogService {
-	constructor(private readonly logger: LoggerType) {}
+	constructor(private readonly logFunction: LogFunctionType) {}
 	print(message: string, level: "info" | "warn" | "error") {
-		this.logger[level](message);
+		this.logFunction[level](message);
 	}
 
 	info(message: string): void {
-		this.logger.info(message);
+		this.logFunction.info(message);
 	}
 
 	warn(message: string): void {
-		this.logger.warn(message);
+		this.logFunction.warn(message);
 	}
 
 	error(message: string): void {
-		this.logger.error(message);
+		this.logFunction.error(message);
 	}
 }

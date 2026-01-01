@@ -1,4 +1,4 @@
-import jwt, { SignOptions, SignPayloadType } from "@fastify/jwt";
+import jwt, { type SignOptions, type SignPayloadType } from "@fastify/jwt";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import {
 	serializerCompiler,

@@ -1,12 +1,15 @@
-import { TaskHandler, type TaskMessage } from "../handlers/task-handler.js";
+import { EmailHandler } from "../handlers/email-handler.js";
+import { MainHandler } from "../handlers/_main.js";
 import { getChannel } from "../queue-config.js";
+import { MessageSchema } from "../message.js";
 
-export class TaskConsumer {
-	private readonly queueName = "tasks";
-	private handler: TaskHandler;
+export class Consumer {
+	private readonly queueName = "messages";
+	private handler: MainHandler;
 
 	constructor() {
-		this.handler = new TaskHandler();
+		const emailHandler = new EmailHandler();
+		this.handler = new MainHandler(emailHandler);
 	}
 
 	async start(): Promise<void> {
@@ -18,7 +21,8 @@ export class TaskConsumer {
 		channel.consume(this.queueName, async (msg) => {
 			if (msg !== null) {
 				try {
-					const message = JSON.parse(msg.content.toString()) as TaskMessage;
+					const stringMessage = JSON.parse(msg.content.toString());
+					const message = MessageSchema.parse(stringMessage);
 					await this.handler.handle(message);
 					channel.ack(msg);
 				} catch (error) {

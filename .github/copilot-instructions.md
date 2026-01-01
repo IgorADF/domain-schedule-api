@@ -15,9 +15,24 @@ Always ensure code adheres to these standards when creating or updating files.
 
 This is a **Domain-Driven Design (DDD)** TypeScript/Fastify API for managing seller schedules and agendas. The project follows strict layering:
 
-- **`src/domain/`** - Pure business logic (entities, use-cases, repository interfaces)
-- **`src/core/`** - Infrastructure (database models, mappers, repositories, utilities)
-- **`src/apps/api/`** - Fastify HTTP layer (routes, server config)
+- **`src/domain/`** - Pure business logic (entities, use-cases, repository interfaces, service interfaces)
+- **`src/core/`** - Implementation layer (database models, mappers, repositories, services, utilities, environment config, use-case factories, service factories)
+- **`src/apps/`** - Application entry points:
+  - **`api/`** - Fastify HTTP layer (routes, server config)
+  - **`message-queue/`** - RabbitMQ consumer/publisher (queue processing)
+  - **`jobs/`** - Scheduled tasks with node-cron
+
+**IMPORTANT:** `core/` is NOT just infrastructure - it contains:
+
+- `cache/` - Redis client and service
+- `database/` - Sequelize connection, models, migrations, seeders
+- `entities/mappers/` - Domain ↔ Model mappers
+- `envs/` - Environment variable configuration
+- `repository/` - Repository implementations
+- `services/` - External service implementations (email, log, queue)
+- `services/factories/` - Service factory functions
+- `use-cases/factories/` - Use-case factory functions
+- `utils/` - Utility functions (password hashing, etc.)
 
 Critical pattern: **Repositories are transaction-aware**. All data access flows through `SequelizeUnitOfWork` which manages a single Sequelize transaction per request.
 
@@ -723,6 +738,149 @@ Content-Type: application/json
 3. Add test cases covering happy path and error scenarios
 4. Use REST Client extension to test endpoints manually
 
+## Services Layer
+
+Services in `src/core/services/` provide integrations with external systems. Each service has a corresponding domain interface.
+
+**Service Structure:**
+
+```
+src/core/services/
+├── email.ts           # EmailService - Nodemailer integration
+├── log.ts             # LogService - Logging abstraction
+├── queue.ts           # QueueService - RabbitMQ integration
+└── factories/
+    ├── _default.ts    # CreateServiceFactoryFunction type
+    ├── email.ts       # createEmailService factory
+    ├── log.ts         # createLogService factory
+    └── queue.ts       # createQueueService factory
+```
+
+**Service Factory Pattern:**
+
+Every service SHOULD have a corresponding factory function:
+
+```typescript
+// src/core/services/factories/_default.ts
+import type { ILogService } from "@/domain/services/log.interface.js";
+
+export type CreateServiceFactoryReturn<T> = {
+  service: T;
+};
+
+export type CreateServiceFactoryFunction<T> = (
+  logService?: ILogService
+) => CreateServiceFactoryReturn<T>;
+```
+
+```typescript
+// src/core/services/factories/email.ts
+import { EmailService } from "../email.js";
+import type { CreateServiceFactoryFunction } from "./_default.js";
+
+export const createEmailService: CreateServiceFactoryFunction<
+  EmailService
+> = () => {
+  return {
+    service: new EmailService(),
+  };
+};
+```
+
+**EmailService Pattern:**
+
+```typescript
+export class EmailService {
+  private readonly transporter: nodemailer.Transporter;
+
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      host: Envs.SMTP_HOST,
+      port: Envs.SMTP_PORT,
+      secure: false,
+      auth: {
+        user: Envs.SMTP_USER,
+        pass: Envs.SMTP_PASS,
+      },
+    });
+  }
+
+  async send(
+    to: string,
+    subject: string,
+    html: string
+  ): Promise<{ success: boolean; error: any }> {
+    try {
+      await this.transporter.sendMail({
+        from: Envs.EMAIL_FROM,
+        to,
+        subject,
+        html,
+      });
+      return { success: true, error: null };
+    } catch (error) {
+      return { success: false, error };
+    }
+  }
+}
+```
+
+**LogService Pattern (Dependency Injection):**
+
+```typescript
+export type LogFunctionType = {
+  info: (msg: string) => void;
+  warn: (msg: string) => void;
+  error: (msg: string) => void;
+};
+
+export class LogService implements ILogService {
+  constructor(private readonly logFunction: LogFunctionType) {}
+
+  print(message: string, level: "info" | "warn" | "error") {
+    this.logFunction[level](message);
+  }
+
+  info(message: string): void {
+    this.logFunction.info(message);
+  }
+  warn(message: string): void {
+    this.logFunction.warn(message);
+  }
+  error(message: string): void {
+    this.logFunction.error(message);
+  }
+}
+```
+
+**QueueService Pattern:**
+
+```typescript
+export class QueueService implements iQueueService {
+  private readonly queuePublisher: Publisher = new Publisher();
+
+  async sendEmail(data: { to: string; subject: string; html: string }) {
+    await this.queuePublisher.publish({
+      id: randomUUID(),
+      type: "send_email",
+      data,
+    });
+  }
+}
+```
+
+**Domain Service Interfaces** (`src/domain/services/`):
+
+- `ILogService` - Logging interface with print, info, warn, error methods
+- `iQueueService` - Queue operations interface (sendEmail, etc.)
+
+**Adding a New Service:**
+
+1. Create domain interface in `src/domain/services/[name].interface.ts`
+2. Create implementation in `src/core/services/[name].ts`
+3. Create factory in `src/core/services/factories/[name].ts`
+4. Use factory to instantiate service where needed
+
 ## Key Dependencies
 
 - **fastify** v5.6+ - HTTP server with Zod type safety
@@ -732,14 +890,86 @@ Content-Type: application/json
 - **uuidv7** - ID generation
 - **luxon** - Date/time handling (for scheduling features)
 - **tsx** - TypeScript execution
+- **nodemailer** - Email sending (SMTP)
+- **amqplib** - RabbitMQ client
+- **ioredis** - Redis client with reconnection support
+- **node-cron** - Scheduled task execution
 
 Development: **vitest** for testing, **typescript** v5.9+
 
 ## Dev Workflow
 
-- **`npm run dev`** - Start server with tsx watch (file changes auto-reload)
-- Migrations: `npx sequelize-cli migration:generate --name=description`
-- Seeders: `npx sequelize-cli seed:generate --name=description`
+**Development Commands:**
+
+- **`npm run dev:server`** - Start API server with tsx watch (auto-reload on file changes)
+- **`npm run dev:queue`** - Start message queue consumer with tsx watch
+- **`npm run dev:jobs`** - Start scheduled jobs with tsx watch
+
+**Production Commands:**
+
+- **`npm run build`** - Compile TypeScript to JavaScript
+- **`npm run start:api`** - Run compiled API server
+- **`npm run start:queue`** - Run compiled queue consumer
+- **`npm run start:jobs`** - Run compiled scheduled jobs
+
+**Database Commands:**
+
+- **`npm run db:migrate`** - Run pending migrations
+- **`npm run db:migrate:undo`** - Rollback last migration
+- **`npm run db:seed`** - Run all seeders
+- **Migrations:** `npx sequelize-cli migration:generate --name=description`
+- **Seeders:** `npx sequelize-cli seed:generate --name=description`
+
+**Code Quality:**
+
+- **`npm run lint`** - Run Biome linter
+- **`npm run format`** - Format code with Biome
+- **`npm run organize:all`** - Run all Biome checks with auto-fix
+- **`npm run ts:check`** - TypeScript type checking without emit
+- **`npm run test`** - Run tests with Vitest
+
+## Docker
+
+**Multi-target Dockerfile** supports three application targets:
+
+- **`api`** - Fastify HTTP server (exposes port 3000)
+- **`queue`** - RabbitMQ message consumer
+- **`jobs`** - Scheduled tasks with node-cron
+
+**Docker Compose** (`docker-compose.yaml`) includes:
+
+- **postgres** - PostgreSQL database with health check
+- **redis** - Redis cache with AOF persistence
+- **rabbitmq** - RabbitMQ with management UI (port 15672)
+- **api** - API service (depends on postgres, redis, rabbitmq)
+- **queue** - Queue consumer service
+- **jobs** - Scheduled jobs service
+
+**Running with Docker:**
+
+```bash
+# Start all infrastructure services
+docker-compose up -d postgres redis rabbitmq
+
+# Start all application services
+docker-compose up -d api queue jobs
+
+# Start everything
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+```
+
+**Environment Variables:**
+
+Docker Compose uses `.env` file with fallback defaults using `${VAR:-default}` syntax:
+
+- Database: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`
+- Redis: `REDIS_HOST`, `REDIS_PORT`
+- RabbitMQ: `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USER`, `RABBITMQ_PASS`
+- API: `API_PORT`, `API_JWT_SECRET`, `API_JWT_RESET_SECRET`
+- Email: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`
 
 ## Scheduling Domain (Agenda)
 
@@ -885,13 +1115,87 @@ The message queue follows a structured pattern with separation of concerns:
 ```
 src/apps/message-queue/
 ├── consumers/
-│   └── task-consumer.ts    # Queue message handlers with error handling (nack/requeue)
+│   └── consumer.ts         # Queue consumer with MainHandler injection
 ├── publishers/
-│   └── task-publisher.ts   # Message publishing logic with persistent messages
+│   └── publisher.ts        # Message publishing with persistent flag
 ├── handlers/
-│   └── task-handler.ts     # Business logic for processing messages
+│   ├── _main.ts            # MainHandler routes messages to specific handlers
+│   └── email-handler.ts    # Email-specific handler with EmailHandlerSchema
+├── message.ts              # MessageSchema definition (id, type, data)
 ├── queue-config.ts         # Singleton connection/channel management
 └── start-queue.ts          # Entry point with graceful shutdown
+```
+
+**Message Schema** (`message.ts`):
+
+```typescript
+export const MessageSchema = z.object({
+  id: z.uuid(),
+  type: z.enum(["send_email"]).nullable(), // Add new types here
+  data: z.unknown(),
+});
+```
+
+**MainHandler Pattern** (`handlers/_main.ts`):
+
+The `MainHandler` class routes messages to specific handlers based on `message.type`:
+
+```typescript
+export class MainHandler {
+  constructor(private readonly emailHandler: EmailHandler) {}
+
+  async handle(message: MessageType): Promise<void> {
+    switch (message.type) {
+      case "send_email": {
+        const data = EmailHandlerSchema.parse(message.data);
+        await this.emailHandler.handle(data);
+        break;
+      }
+      default:
+        console.warn(`Unknown message type: ${message.type}`);
+    }
+  }
+}
+```
+
+**Adding a New Message Handler:**
+
+1. Add new type to `MessageSchema.type` enum in `message.ts`
+2. Create handler class in `handlers/[name]-handler.ts` with schema and `handle()` method
+3. Add case to `MainHandler.handle()` switch statement
+4. Inject handler in `Consumer` constructor and pass to `MainHandler`
+
+**Consumer Pattern** (`consumers/consumer.ts`):
+
+```typescript
+export class Consumer {
+  private readonly queueName = "messages";
+  private handler: MainHandler;
+
+  constructor() {
+    const emailHandler = new EmailHandler();
+    this.handler = new MainHandler(emailHandler);
+  }
+
+  async start(): Promise<void> {
+    const channel = await getChannel();
+    await channel.assertQueue(this.queueName);
+
+    channel.consume(this.queueName, async (msg) => {
+      if (msg !== null) {
+        try {
+          const message = MessageSchema.parse(
+            JSON.parse(msg.content.toString())
+          );
+          await this.handler.handle(message);
+          channel.ack(msg); // Success: acknowledge message
+        } catch (error) {
+          channel.nack(msg, false, true); // Error: requeue message
+        }
+      }
+    });
+  }
+}
 ```
 
 **Key patterns:**
@@ -900,6 +1204,7 @@ src/apps/message-queue/
 - **Graceful shutdown** - `closeConnection()` properly closes channels and connections
 - **Error handling** - Consumers use `nack(msg, false, true)` to requeue failed messages
 - **Persistent messages** - Publishers set `persistent: true` for durability
+- **Handler injection** - Specific handlers are injected into `MainHandler` via constructor
 
 ### 3. Domain Shared Concerns ✅ IMPLEMENTED
 

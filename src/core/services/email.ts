@@ -1,14 +1,13 @@
 import nodemailer from "nodemailer";
-import type { IEmailService } from "@domain/services/email.interace.js";
 import { Envs } from "../envs/envs.js";
 
-export class EmailService implements IEmailService {
-	private transporter: nodemailer.Transporter;
+export class EmailService {
+	private readonly transporter: nodemailer.Transporter;
 
 	constructor() {
 		this.transporter = nodemailer.createTransport({
-			host: Envs.SMTP_HOST ?? "smtp.gmail.com",
-			port: Number(Envs.SMTP_PORT) ?? 587,
+			host: Envs.SMTP_HOST,
+			port: Envs.SMTP_PORT,
 			secure: false,
 			auth: {
 				user: Envs.SMTP_USER,
@@ -24,7 +23,7 @@ export class EmailService implements IEmailService {
 	): Promise<{ success: boolean; error: any }> {
 		try {
 			await this.transporter.sendMail({
-				from: Envs.EMAIL_FROM ?? "noreply@yourapp.com",
+				from: Envs.EMAIL_FROM,
 				to,
 				subject,
 				html,

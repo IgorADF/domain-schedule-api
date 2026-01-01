@@ -1,15 +1,10 @@
+import type { MessageType } from "../message.js";
 import { getChannel } from "../queue-config.js";
 
-export type PublishTaskData = {
-	id: string;
-	type: string;
-	data: unknown;
-};
+export class Publisher {
+	private readonly queueName = "messages";
 
-export class TaskPublisher {
-	private readonly queueName = "tasks";
-
-	async publish(task: PublishTaskData): Promise<void> {
+	async publish(task: MessageType): Promise<void> {
 		const channel = await getChannel();
 		await channel.assertQueue(this.queueName);
 

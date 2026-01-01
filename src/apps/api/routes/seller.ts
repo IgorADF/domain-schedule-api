@@ -7,10 +7,10 @@ import { AuthSellerSchema } from "@domain/use-cases/auth-seller.js";
 import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
 import { UpdateSellerSchema } from "@domain/use-cases/update-seller.js";
 import z from "zod";
-import type { LogService } from "@/core/services/log.js";
-import { AskSellerResetPasswordSchema } from "@/domain/use-cases/ask-seller-reset-password.js";
-import { askSellerResetPasswordFactory } from "@/core/use-cases/factories/ask-seller-reset-password.js";
 import { Envs } from "@/core/envs/envs.js";
+import type { LogService } from "@/core/services/log.js";
+import { askSellerResetPasswordFactory } from "@/core/use-cases/factories/ask-seller-reset-password.js";
+import { AskSellerResetPasswordSchema } from "@/domain/use-cases/ask-seller-reset-password.js";
 
 export const initSellerRoutes: InitRoute = (logger: LogService) => {
 	return async (fastify: FastifyZodInstance) => {
