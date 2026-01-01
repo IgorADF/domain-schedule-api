@@ -1,12 +1,12 @@
-import { Consumer } from "./consumers/consumer.js";
-import { closeConnection } from "./queue-config.js";
+import { QueueConsumer } from "./consumers/consumer.js";
+import { closeConnection } from "../../infra/queue/queue-config.js";
 
 async function startQueue() {
 	try {
 		console.log("Starting message queue...");
 
-		const taskConsumer = new Consumer();
-		await taskConsumer.start();
+		const consumer = new QueueConsumer();
+		await consumer.start();
 
 		console.log("✓ Message queue started successfully");
 	} catch (error) {

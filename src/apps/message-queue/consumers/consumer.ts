@@ -1,9 +1,9 @@
 import { MainHandler } from "../handlers/_main.js";
 import { EmailHandler } from "../handlers/email-handler.js";
-import { MessageSchema } from "../message.js";
-import { getChannel } from "../queue-config.js";
+import { MessageSchema } from "../../../infra/queue/message.js";
+import { getChannel } from "../../../infra/queue/queue-config.js";
 
-export class Consumer {
+export class QueueConsumer {
 	private readonly queueName = "messages";
 	private handler: MainHandler;
 

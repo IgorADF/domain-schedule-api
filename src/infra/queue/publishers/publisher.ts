@@ -1,7 +1,7 @@
 import type { MessageType } from "../message.js";
 import { getChannel } from "../queue-config.js";
 
-export class Publisher {
+export class QueuePublisher {
 	private readonly queueName = "messages";
 
 	async publish(task: MessageType): Promise<void> {

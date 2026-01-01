@@ -1,4 +1,4 @@
-import type { MessageType } from "../message.js";
+import type { MessageType } from "../../../infra/queue/message.js";
 import { type EmailHandler, EmailHandlerSchema } from "./email-handler.js";
 
 export class MainHandler {
