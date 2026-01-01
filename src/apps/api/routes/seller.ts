@@ -1,15 +1,15 @@
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
-import { authSellerFactory } from "@core/use-cases/factories/auth-seller.js";
-import { createSellerFactory } from "@core/use-cases/factories/create-seller.js";
-import { updateSellerFactory } from "@core/use-cases/factories/update-seller.js";
+import { authSellerFactory } from "@/infra/use-cases/factories/auth-seller.js";
+import { createSellerFactory } from "@/infra/use-cases/factories/create-seller.js";
+import { updateSellerFactory } from "@/infra/use-cases/factories/update-seller.js";
 import { AuthSellerSchema } from "@domain/use-cases/auth-seller.js";
 import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
 import { UpdateSellerSchema } from "@domain/use-cases/update-seller.js";
 import z from "zod";
-import { Envs } from "@/core/envs/envs.js";
-import type { LogService } from "@/core/services/log.js";
-import { askSellerResetPasswordFactory } from "@/core/use-cases/factories/ask-seller-reset-password.js";
+import { Envs } from "@/infra/envs/envs.js";
+import type { LogService } from "@/infra/services/log.js";
+import { askSellerResetPasswordFactory } from "@/infra/use-cases/factories/ask-seller-reset-password.js";
 import { AskSellerResetPasswordSchema } from "@/domain/use-cases/ask-seller-reset-password.js";
 
 export const initSellerRoutes: InitRoute = (logger: LogService) => {

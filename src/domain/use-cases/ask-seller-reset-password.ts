@@ -1,8 +1,8 @@
 import type z from "zod";
 import { SellerSchema } from "../entities/seller.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
-import { InvalidCredentials } from "../shared/errors/invalid-credentials.js";
 import type { iQueueService } from "../services/queue.interface.js";
+import { InvalidCredentials } from "../shared/errors/invalid-credentials.js";
 import { SendEmailError } from "../shared/errors/send-email.js";
 
 export const AskSellerResetPasswordSchema = SellerSchema.pick({

@@ -1,5 +1,5 @@
-import { createEmailService } from "@/core/services/factories/email.js";
 import z from "zod";
+import { createEmailService } from "@/infra/services/factories/email.js";
 
 export const EmailHandlerSchema = z.object({
 	to: z.email(),

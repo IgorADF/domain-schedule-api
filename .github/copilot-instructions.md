@@ -16,13 +16,13 @@ Always ensure code adheres to these standards when creating or updating files.
 This is a **Domain-Driven Design (DDD)** TypeScript/Fastify API for managing seller schedules and agendas. The project follows strict layering:
 
 - **`src/domain/`** - Pure business logic (entities, use-cases, repository interfaces, service interfaces)
-- **`src/core/`** - Implementation layer (database models, mappers, repositories, services, utilities, environment config, use-case factories, service factories)
+- **`src/infra/`** - Infrastructure layer (database models, mappers, repositories, services, utilities, environment config, use-case factories, service factories)
 - **`src/apps/`** - Application entry points:
   - **`api/`** - Fastify HTTP layer (routes, server config)
   - **`message-queue/`** - RabbitMQ consumer/publisher (queue processing)
   - **`jobs/`** - Scheduled tasks with node-cron
 
-**IMPORTANT:** `core/` is NOT just infrastructure - it contains:
+**Infrastructure Layer Contents:**
 
 - `cache/` - Redis client and service
 - `database/` - Sequelize connection, models, migrations, seeders
@@ -44,7 +44,7 @@ Configured path aliases in `tsconfig.json` and `vite.config.ts`:
 
 - `@/*` → `./src/*`
 - `@domain/*` → `./src/domain/*`
-- `@core/*` → `./src/core/*`
+- `@infra/*` → `./src/infra/*`
 - `@api/*` → `./src/apps/api/*`
 
 **Examples:**
@@ -52,30 +52,30 @@ Configured path aliases in `tsconfig.json` and `vite.config.ts`:
 ```typescript
 // ✅ CORRECT - Use path aliases
 import { CreateSellerUseCase } from "@domain/use-cases/create-seller.js";
-import { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
+import { SequelizeUnitOfWork } from "@infra/repository/uow/sequelize-unit-of-work.js";
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 
 // ❌ WRONG - Don't use relative paths
 import { CreateSellerUseCase } from "../../../domain/use-cases/create-seller.js";
-import { SequelizeUnitOfWork } from "../../core/repository/uow/sequelize-unit-of-work.js";
+import { SequelizeUnitOfWork } from "../../infra/repository/uow/sequelize-unit-of-work.js";
 ```
 
 **Pattern by file location:**
 
-- **Routes** (`src/apps/api/routes/`): Use `@domain/*`, `@core/*`, `@api/*`
-- **Use-cases** (`src/domain/use-cases/`): Use `@core/*` for utilities, relative imports for domain entities
-- **Repositories** (`src/core/repository/`): Use `@domain/*` for entities/interfaces, relative for mappers/models
-- **Mappers** (`src/core/entities/mappers/`): Use `@domain/*` for entities, relative for models
-- **Factories** (`src/core/use-cases/factories/`): Use `@domain/*` and `@core/*`
+- **Routes** (`src/apps/api/routes/`): Use `@domain/*`, `@infra/*`, `@api/*`
+- **Use-cases** (`src/domain/use-cases/`): Use `@infra/*` for utilities, relative imports for domain entities
+- **Repositories** (`src/infra/repository/`): Use `@domain/*` for entities/interfaces, relative for mappers/models
+- **Mappers** (`src/infra/entities/mappers/`): Use `@domain/*` for entities, relative for models
+- **Factories** (`src/infra/use-cases/factories/`): Use `@domain/*` and `@infra/*`
 
 ## Database & Migrations
 
 Uses **Sequelize ORM** with TypeScript decorators. Key conventions:
 
-- **CRITICAL:** Migrations MUST use `.cjs` extension (not `.js`): `src/core/database/migrations/TIMESTAMP-description.cjs`
-- **CRITICAL:** Seeders MUST use `.cjs` extension (not `.js`): `src/core/database/seeders/TIMESTAMP-description.cjs`
-- **CRITICAL:** All models MUST be imported and registered in `src/core/database/connection.ts` models array
-- Models in `src/core/database/models/` match migrations exactly
+- **CRITICAL:** Migrations MUST use `.cjs` extension (not `.js`): `src/infra/database/migrations/TIMESTAMP-description.cjs`
+- **CRITICAL:** Seeders MUST use `.cjs` extension (not `.js`): `src/infra/database/seeders/TIMESTAMP-description.cjs`
+- **CRITICAL:** All models MUST be imported and registered in `src/infra/database/connection.ts` models array
+- Models in `src/infra/database/models/` match migrations exactly
 
 **Sequelize Model Pattern:**
 
@@ -110,7 +110,7 @@ Each model file follows this structure:
    - `@HasOne(() => ChildModel)` for one-to-one
    - Always add `@ForeignKey()` on the column that holds the foreign key
 
-- **Mappers** (`src/core/entities/mappers/`) are plain exported functions (not classes) that bridge Sequelize models and domain entities:
+- **Mappers** (`src/infra/entities/mappers/`) are plain exported functions (not classes) that bridge Sequelize models and domain entities:
   - `toModel()` function converts domain entity → Sequelize model (for database operations)
   - `toEntity()` function converts Sequelize model → domain entity (for business logic)
   - **Import pattern:** Repositories use namespace imports: `import * as MapperName from "../entities/mappers/mapper-name.js";` to maintain `MapperName.toModel()` syntax
@@ -134,9 +134,9 @@ Each model file follows this structure:
 **Adding a new field workflow:**
 
 1. Create domain entity prop in `src/domain/entities/`
-2. Create `.cjs` migration in `src/core/database/migrations/`
-3. Add prop to Sequelize model in `src/core/database/models/`
-4. Update mapper functions in `src/core/entities/mappers/`
+2. Create `.cjs` migration in `src/infra/database/migrations/`
+3. Add prop to Sequelize model in `src/infra/database/models/`
+4. Update mapper functions in `src/infra/entities/mappers/`
 
 ## Validation & Type Safety
 
@@ -307,7 +307,7 @@ Example: `CreateSellerUseCase` validates email uniqueness, formats data, persist
    - NEVER use model types or password variants in interfaces
    - **CRITICAL:** Methods that return arrays MUST NOT return `null`. Always return empty arrays `[]` when no results are found
 
-2. **Implement repository** in `src/core/repository/[name].repository.ts`
+2. **Implement repository** in `src/infra/repository/[name].repository.ts`
 
    - Takes `SequelizeTransaction` in constructor
    - Implements the domain interface
@@ -332,7 +332,7 @@ Example: `CreateSellerUseCase` validates email uniqueness, formats data, persist
    - Add import for the new repository interface
    - Add getter: `get [name]Repository(): I[Name]Repository;`
 
-4. **Update UoW implementation** in `src/core/repository/uow/sequelize-unit-of-work.ts`
+4. **Update UoW implementation** in `src/infra/repository/uow/sequelize-unit-of-work.ts`
    - Add import for repository interface and implementation
    - Add private property: `private _[name]Repository: I[Name]Repository | null = null;`
    - Add getter using `createAndGetRepository` pattern
@@ -353,7 +353,7 @@ get agendaPeriodsRepository() {
 **Cache Layer Structure:**
 
 ```
-src/core/
+src/infra/
 ├── cache/
 │   ├── redis.ts              # Redis client instance
 │   └── service.ts            # RedisCacheService implementation
@@ -365,7 +365,7 @@ src/core/
 
 **Creating a cached repository:**
 
-1. **Base Class** (`src/core/repository/cache/_default.ts`):
+1. **Base Class** (`src/infra/repository/cache/_default.ts`):
 
    ```typescript
    import type { RedisCacheService } from "../../cache/service.js";
@@ -378,7 +378,7 @@ src/core/
    }
    ```
 
-2. **Cached Repository Implementation** (`src/core/repository/cache/[name].repository.ts`):
+2. **Cached Repository Implementation** (`src/infra/repository/cache/[name].repository.ts`):
 
    ```typescript
    import type { SellerType } from "@domain/entities/seller.js";
@@ -444,7 +444,7 @@ src/core/
 - Consider cache-aside pattern (lazy loading)
 - Delete specific keys, avoid full cache flushes in production
 
-**Redis Cache Service** (`src/core/cache/service.ts`):
+**Redis Cache Service** (`src/infra/cache/service.ts`):
 
 ```typescript
 export class RedisCacheService {
@@ -459,7 +459,7 @@ export class RedisCacheService {
 
 Routes in `src/apps/api/routes/` use **factory functions** to instantiate use-cases with UoW:
 
-- **CRITICAL:** Routes NEVER directly instantiate `SequelizeUnitOfWork` or use-cases - they use factory functions from `src/core/use-cases/factories/`
+- **CRITICAL:** Routes NEVER directly instantiate `SequelizeUnitOfWork` or use-cases - they use factory functions from `src/infra/use-cases/factories/`
 - Each factory creates a new UoW instance and use-case instance
 - Routes destructure `{ useCase }` from the factory
 - UoW manages transactions automatically - routes never call transaction methods
@@ -467,12 +467,12 @@ Routes in `src/apps/api/routes/` use **factory functions** to instantiate use-ca
 
 **Factory Pattern:**
 
-Every use-case MUST have a corresponding factory function in `src/core/use-cases/factories/[use-case-name].ts`:
+Every use-case MUST have a corresponding factory function in `src/infra/use-cases/factories/[use-case-name].ts`:
 
 ```typescript
 import { CreateSellerUseCase } from "@domain/use-cases/create-seller.js";
-import type { CreateFactoryFunction } from "@core/@types/create-factory.js";
-import { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
+import type { CreateFactoryFunction } from "@infra/@types/create-factory.js";
+import { SequelizeUnitOfWork } from "@infra/repository/uow/sequelize-unit-of-work.js";
 
 export const createSellerFactory: CreateFactoryFunction<
   CreateSellerUseCase
@@ -489,10 +489,10 @@ export const createSellerFactory: CreateFactoryFunction<
 
 **Factory Type Definition:**
 
-The `CreateFactoryFunction<T>` type is defined in `src/core/@types/create-factory.ts`:
+The `CreateFactoryFunction<T>` type is defined in `src/infra/@types/create-factory.ts`:
 
 ```typescript
-import type { SequelizeUnitOfWork } from "@core/repository/uow/sequelize-unit-of-work.js";
+import type { SequelizeUnitOfWork } from "@infra/repository/uow/sequelize-unit-of-work.js";
 
 export type CreateFactoryFunction<T> = () => {
   useCase: T;
@@ -609,7 +609,7 @@ The `request.authSeller` property is available on authenticated routes and conta
 
 Each route file in `src/apps/api/routes/` follows this structure:
 
-1. **Import factories** - Import factory functions from `src/core/use-cases/factories/`
+1. **Import factories** - Import factory functions from `src/infra/use-cases/factories/`
 2. **Import schemas** - Import Zod schemas from use-cases (for validation only, not use-case classes)
 3. **Import types** - Import `FastifyZodInstance` and `FastityInitRoutes` types
 4. **Export init function** - Export a function named `init[Entity]Routes()` that returns `FastityInitRoutes`
@@ -618,9 +618,9 @@ Example pattern from [seller.ts](src/apps/api/routes/seller.ts):
 
 ```typescript
 import z from "zod";
-import { authSellerFactory } from "@core/use-cases/factories/auth-seller.js";
-import { createSellerFactory } from "@core/use-cases/factories/create-seller.js";
-import { updateSellerFactory } from "@core/use-cases/factories/update-seller.js";
+import { authSellerFactory } from "@infra/use-cases/factories/auth-seller.js";
+import { createSellerFactory } from "@infra/use-cases/factories/create-seller.js";
+import { updateSellerFactory } from "@infra/use-cases/factories/update-seller.js";
 import { AuthSellerSchema } from "@domain/use-cases/auth-seller.js";
 import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
 import { UpdateSellerSchema } from "@domain/use-cases/update-seller.js";
@@ -740,12 +740,12 @@ Content-Type: application/json
 
 ## Services Layer
 
-Services in `src/core/services/` provide integrations with external systems. Each service has a corresponding domain interface.
+Services in `src/infra/services/` provide integrations with external systems. Each service has a corresponding domain interface.
 
 **Service Structure:**
 
 ```
-src/core/services/
+src/infra/services/
 ├── email.ts           # EmailService - Nodemailer integration
 ├── log.ts             # LogService - Logging abstraction
 ├── queue.ts           # QueueService - RabbitMQ integration
@@ -761,7 +761,7 @@ src/core/services/
 Every service SHOULD have a corresponding factory function:
 
 ```typescript
-// src/core/services/factories/_default.ts
+// src/infra/services/factories/_default.ts
 import type { ILogService } from "@/domain/services/log.interface.js";
 
 export type CreateServiceFactoryReturn<T> = {
@@ -774,7 +774,7 @@ export type CreateServiceFactoryFunction<T> = (
 ```
 
 ```typescript
-// src/core/services/factories/email.ts
+// src/infra/services/factories/email.ts
 import { EmailService } from "../email.js";
 import type { CreateServiceFactoryFunction } from "./_default.js";
 
@@ -877,8 +877,8 @@ export class QueueService implements iQueueService {
 **Adding a New Service:**
 
 1. Create domain interface in `src/domain/services/[name].interface.ts`
-2. Create implementation in `src/core/services/[name].ts`
-3. Create factory in `src/core/services/factories/[name].ts`
+2. Create implementation in `src/infra/services/[name].ts`
+3. Create factory in `src/infra/services/factories/[name].ts`
 4. Use factory to instantiate service where needed
 
 ## Key Dependencies
@@ -1098,7 +1098,7 @@ As the project scales, consider these structural refinements:
 
 ### 1. Consolidate Shared Types
 
-Currently `@types` folders are scattered across `src/apps/api/@types` and `src/core/@types`. Consider:
+Currently `@types` folders are scattered across `src/apps/api/@types` and `src/infra/@types`. Consider:
 
 ```
 src/
@@ -1232,7 +1232,7 @@ import { IdObj } from "@domain/shared/value-objects/id.js";
 For non-repository external integrations (email, SMS, payment gateways):
 
 ```
-src/core/
+src/infra/
 ├── cache/
 ├── database/
 ├── repository/

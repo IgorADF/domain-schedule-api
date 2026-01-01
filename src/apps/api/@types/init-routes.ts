@@ -1,4 +1,4 @@
-import type { LogService } from "@/core/services/log.js";
+import type { LogService } from "@/infra/services/log.js";
 import type { FastifyZodInstance } from "./fastity-instance.js";
 
 export type FastityInitRoutes = (fastify: FastifyZodInstance) => Promise<void>;

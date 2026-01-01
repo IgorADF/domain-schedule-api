@@ -5,7 +5,7 @@ import {
 	validatorCompiler,
 	type ZodTypeProvider,
 } from "fastify-type-provider-zod";
-import { Envs } from "@/core/envs/envs.js";
+import { Envs } from "@/infra/envs/envs.js";
 import type { AuthSeller } from "./@types/auth-seller.js";
 import { errorHandler } from "./handlers/errors.js";
 import { initRoutes } from "./routes/_init.js";

@@ -1,6 +1,6 @@
-import { authenticateDbConnection } from "@core/database/connection.js";
-import { Envs } from "@core/envs/envs.js";
-import { testRedisConnection } from "@/core/cache/redis.js";
+import { authenticateDbConnection } from "@/infra/database/connection.js";
+import { Envs } from "@/infra/envs/envs.js";
+import { testRedisConnection } from "@/infra/cache/redis.js";
 import { fastifyInstance, logInfoOnServer } from "./server-config.js";
 
 try {

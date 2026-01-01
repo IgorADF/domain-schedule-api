@@ -6,7 +6,7 @@ import type { ISellerRepository } from "@domain/repositories/seller.interface.js
 import type { IUnitOfWork } from "@domain/repositories/uow/unit-of-work.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
 import type { Class } from "@/@types/class.js";
-import { RedisCacheService } from "@/core/cache/service.js";
+import { RedisCacheService } from "@/infra/cache/service.js";
 import { sequelizeConnection } from "../../database/connection.js";
 import { AgendaConfigsRepository } from "../agenda-configs.repository.js";
 import { AgendaDayOfWeekRepository } from "../agenda-day-of-week.repository.js";

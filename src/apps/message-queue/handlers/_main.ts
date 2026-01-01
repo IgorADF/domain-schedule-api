@@ -1,5 +1,5 @@
 import type { MessageType } from "../message.js";
-import { EmailHandlerSchema, type EmailHandler } from "./email-handler.js";
+import { type EmailHandler, EmailHandlerSchema } from "./email-handler.js";
 
 export class MainHandler {
 	constructor(private readonly emailHandler: EmailHandler) {}
