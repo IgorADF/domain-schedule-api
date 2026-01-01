@@ -4,9 +4,9 @@ import { Envs } from "../envs/envs.js";
 import config from "./config/config.js";
 import type { SequelizeConfigType } from "./config/config-type.js";
 
-const connectionConfig: SequelizeConfigType | undefined = config[
-	Envs.NODE_ENV
-] as any;
+const connectionConfig = config[Envs.NODE_ENV] as
+	| SequelizeConfigType
+	| undefined;
 
 if (!connectionConfig) {
 	throw new Error("Unable to find database configuration");
