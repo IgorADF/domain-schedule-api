@@ -4,12 +4,15 @@ import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import type { iQueueService } from "../services/queue.interface.js";
 import { InvalidCredentials } from "../shared/errors/invalid-credentials.js";
 import { SendEmailError } from "../shared/errors/send-email.js";
-import { SystemLanguages, SystemLanguagesType } from "../shared/value-objects/system-languages.js";
+import {
+	SystemLanguages,
+	type SystemLanguagesType,
+} from "../shared/value-objects/system-languages.js";
 
 export const AskSellerResetPasswordSchema = SellerSchema.pick({
 	email: true,
 }).extend({
-	language: SystemLanguages
+	language: SystemLanguages,
 });
 
 export type AskSellerResetPasswordType = z.infer<
@@ -54,7 +57,7 @@ export class AskSellerResetPasswordUseCase {
 		</html>
 	  `;
 		}
-		
+
 		return `
 		<html>
 		  <body>

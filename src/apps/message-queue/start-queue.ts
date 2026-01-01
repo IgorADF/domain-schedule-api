@@ -1,5 +1,5 @@
-import { QueueConsumer } from "./consumers/consumer.js";
 import { closeConnection } from "../../infra/queue/queue-config.js";
+import { QueueConsumer } from "./consumers/consumer.js";
 
 async function startQueue() {
 	try {
@@ -29,4 +29,4 @@ process.on("SIGTERM", async () => {
 	process.exit(0);
 });
 
-await startQueue();
+startQueue();
