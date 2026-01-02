@@ -6,6 +6,7 @@ import {
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import { EntityAlreadyExist } from "../shared/errors/entity-already-exist.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
+import { updateEntity } from "../entities/helpers/update.js";
 
 export const UpdateSellerSchema = SellerWithPasswordSchema.pick({
 	id: true,
@@ -36,13 +37,18 @@ export class UpdateSellerUseCase {
 			}
 		}
 
-		const updateData: Partial<SellerType> = {};
+		let updateData: Partial<SellerType> = {};
+
 		if (sellerData.email !== undefined) {
 			updateData.email = sellerData.email;
 		}
 		if (sellerData.name !== undefined) {
 			updateData.name = sellerData.name;
 		}
+
+		updateData = updateEntity<SellerType>({
+			...updateData,
+		});
 
 		const updatedSeller = await this.uow.sellerRepository.updateSeller(
 			sellerData.id,
