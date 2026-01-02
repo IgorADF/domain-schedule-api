@@ -7,6 +7,7 @@ import { Timestamp } from "../shared/value-objects/timestamp.js";
 export const AgendaScheduleSchema = z
 	.object({
 		id: IdObj,
+		agendaConfigId: IdObj,
 		contactName: z.string().min(1).max(100),
 		contactPhoneNumber: z.string().min(1).max(20),
 		day: DayObj,

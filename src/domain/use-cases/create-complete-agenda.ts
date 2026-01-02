@@ -93,9 +93,7 @@ export class CreateCompleteAgendaUseCase {
 	): Promise<{ data: AgendaConfigType }> {
 		const useCaseData = {
 			sellerId: sellerId,
-			maxDaysOfAdvancedNotice: input.maxDaysOfAdvancedNotice,
-			minHoursOfAdvancedNotice: input.minHoursOfAdvancedNotice,
-			timezone: input.timezone,
+			...input,
 		};
 
 		const parsedUseCaseData = CreateAgendaConfigSchema.parse(useCaseData);

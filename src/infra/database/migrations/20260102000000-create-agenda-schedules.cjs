@@ -12,6 +12,15 @@ module.exports = {
 				unique: true,
 			},
 			{
+				field: "agendaConfigId",
+				type: Sequelize.UUID,
+				allowNull: false,
+				references: {
+					key: "id",
+					model: "AgendaConfigs",
+				},
+			},
+			{
 				field: "contactName",
 				type: Sequelize.STRING(100),
 				allowNull: false,

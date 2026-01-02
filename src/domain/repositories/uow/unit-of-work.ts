@@ -3,6 +3,7 @@ import type { IAgendaDayOfWeekRepository } from "../agenda-day-of-week.interface
 import type { IAgendaEventRepository } from "../agenda-event.interface.js";
 import type { IAgendaPeriodsRepository } from "../agenda-periods.interface.js";
 import type { IAgendaScheduleRepository } from "../agenda-schedule.interface.js";
+import type { IOverwriteDayRepository } from "../overwrite-day.interface.js";
 import type { ISellerRepository } from "../seller.interface.js";
 
 export interface IUnitOfWork {
@@ -16,4 +17,5 @@ export interface IUnitOfWork {
 	get agendaConfigsRepository(): IAgendaConfigsRepository;
 	get agendaEventRepository(): IAgendaEventRepository;
 	get agendaScheduleRepository(): IAgendaScheduleRepository;
+	get overwriteDayRepository(): IOverwriteDayRepository;
 }

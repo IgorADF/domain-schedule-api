@@ -7,8 +7,9 @@
 - [x] Login
 - [x] ResetPassword
 - [X-] Cria seller config
-- [] Lista seller config
--
+- [X-] Lista seller config
+- [x] Cria schedule
+- []
 
 ### Tech
 

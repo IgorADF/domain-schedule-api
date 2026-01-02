@@ -7,6 +7,7 @@ import { createEntity } from "../entities/helpers/creation.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 
 export const CreateAgendaScheduleSchema = AgendaScheduleSchema.pick({
+	agendaConfigId: true,
 	contactName: true,
 	contactPhoneNumber: true,
 	day: true,
@@ -25,11 +26,7 @@ export class CreateAgendaScheduleUseCase {
 		input: CreateAgendaScheduleType,
 	): Promise<{ data: AgendaScheduleType }> {
 		const agendaSchedule = createEntity<AgendaScheduleType>({
-			contactName: input.contactName,
-			contactPhoneNumber: input.contactPhoneNumber,
-			day: input.day,
-			startTime: input.startTime,
-			endTime: input.endTime,
+			...input,
 		});
 
 		const parsedSchedule = AgendaScheduleSchema.parse(agendaSchedule);

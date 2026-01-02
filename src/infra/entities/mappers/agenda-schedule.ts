@@ -14,6 +14,7 @@ export function toModel(schedule: AgendaScheduleType): AgendaScheduleModelType {
 
 	return {
 		id: schedule.id,
+		agendaConfigId: schedule.agendaConfigId,
 		contactName: schedule.contactName,
 		contactPhoneNumber: schedule.contactPhoneNumber,
 		day: dayString,
@@ -34,6 +35,7 @@ export function toEntity(_schedule: AgendaScheduleModel): AgendaScheduleType {
 
 	const map: AgendaScheduleType = {
 		id: schedule.id,
+		agendaConfigId: schedule.agendaConfigId,
 		contactName: schedule.contactName,
 		contactPhoneNumber: schedule.contactPhoneNumber,
 		day: {

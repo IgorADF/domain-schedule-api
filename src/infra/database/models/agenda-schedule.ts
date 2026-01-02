@@ -1,5 +1,13 @@
 import type { InferAttributes, InferCreationAttributes } from "sequelize";
-import { Column, DataType, Model, Table } from "sequelize-typescript";
+import {
+	BelongsTo,
+	Column,
+	DataType,
+	ForeignKey,
+	Model,
+	Table,
+} from "sequelize-typescript";
+import AgendaConfigsModel from "./agenda-configs.js";
 
 export type AgendaScheduleModelType = InferAttributes<AgendaScheduleModel>;
 export type AgendaScheduleModelCreationType =
@@ -12,6 +20,10 @@ class AgendaScheduleModel extends Model<
 > {
 	@Column({ allowNull: false, type: DataType.UUID, primaryKey: true })
 	declare id: string;
+
+	@ForeignKey(() => AgendaConfigsModel)
+	@Column({ allowNull: false, type: DataType.UUID })
+	agendaConfigId!: string;
 
 	@Column({ allowNull: false, type: DataType.STRING(100) })
 	contactName!: string;
@@ -33,6 +45,11 @@ class AgendaScheduleModel extends Model<
 
 	@Column({ allowNull: false, type: DataType.DATE })
 	updateDate!: Date;
+
+	/* Associations */
+
+	@BelongsTo(() => AgendaConfigsModel)
+	agendaConfig?: AgendaConfigsModel;
 }
 
 export default AgendaScheduleModel;

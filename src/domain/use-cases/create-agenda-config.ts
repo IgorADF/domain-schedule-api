@@ -22,10 +22,7 @@ export class CreateAgendaConfigUseCase {
 		data: AgendaConfigType;
 	}> {
 		const agendaConfig = createEntity<AgendaConfigType>({
-			sellerId: input.sellerId,
-			maxDaysOfAdvancedNotice: input.maxDaysOfAdvancedNotice,
-			minHoursOfAdvancedNotice: input.minHoursOfAdvancedNotice,
-			timezone: input.timezone,
+			...input,
 		});
 
 		const parsedConfig = AgendaConfigSchema.parse(agendaConfig);
