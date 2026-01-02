@@ -1,9 +1,9 @@
-import { uuidv7 } from "uuidv7";
 import type z from "zod";
 import {
 	AgendaConfigSchema,
 	type AgendaConfigType,
 } from "../entities/agenda-config.js";
+import { createEntity } from "../entities/helpers/creation.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 
 export const CreateAgendaConfigSchema = AgendaConfigSchema.pick({
@@ -21,18 +21,12 @@ export class CreateAgendaConfigUseCase {
 	async execute(input: CreateAgendaConfigType): Promise<{
 		data: AgendaConfigType;
 	}> {
-		const now = new Date();
-		const agendaConfigId = uuidv7();
-
-		const agendaConfig: AgendaConfigType = {
-			id: agendaConfigId,
+		const agendaConfig = createEntity<AgendaConfigType>({
 			sellerId: input.sellerId,
 			maxDaysOfAdvancedNotice: input.maxDaysOfAdvancedNotice,
 			minHoursOfAdvancedNotice: input.minHoursOfAdvancedNotice,
 			timezone: input.timezone,
-			creationDate: now,
-			updateDate: now,
-		};
+		});
 
 		const parsedConfig = AgendaConfigSchema.parse(agendaConfig);
 

@@ -1,9 +1,9 @@
-import { uuidv7 } from "uuidv7";
 import type z from "zod";
 import {
 	AgendaDayOfWeekSchema,
 	type AgendaDayOfWeekType,
 } from "../entities/agenda-day-of-week.js";
+import { createEntity } from "../entities/helpers/creation.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 
 export const CreateAgendaDayOfWeekSchema = AgendaDayOfWeekSchema.pick({
@@ -23,15 +23,9 @@ export class CreateAgendaDayOfWeekUseCase {
 		input: CreateAgendaDayOfWeekType,
 		persistData: boolean = true,
 	): Promise<{ data: AgendaDayOfWeekType }> {
-		const now = new Date();
-
-		const agendaDayOfWeek: AgendaDayOfWeekType = {
+		const agendaDayOfWeek = createEntity<AgendaDayOfWeekType>({
 			...input,
-
-			id: uuidv7(),
-			creationDate: now,
-			updateDate: now,
-		};
+		});
 
 		const parsedDayOfWeek = AgendaDayOfWeekSchema.parse(agendaDayOfWeek);
 

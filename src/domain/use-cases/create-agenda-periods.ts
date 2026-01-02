@@ -1,9 +1,9 @@
-import { uuidv7 } from "uuidv7";
 import z from "zod";
 import {
 	AgendaPeriodSchema,
 	type AgendaPeriodType,
 } from "../entities/agenda-periods.js";
+import { createEntity } from "../entities/helpers/creation.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 
 export const CreateAgendaPeriodsSchema = z.array(
@@ -30,16 +30,10 @@ export class CreateAgendaPeriodsUseCase {
 		for (let iPeriods = 0; iPeriods < input.length; iPeriods++) {
 			const period = input[iPeriods];
 
-			const now = new Date();
-
-			const formattedPeriod: AgendaPeriodType = {
+			const formattedPeriod = createEntity<AgendaPeriodType>({
 				...period,
-
-				id: uuidv7(),
 				order: iPeriods + 1,
-				creationDate: now,
-				updateDate: now,
-			};
+			});
 
 			const parsedPeriod = AgendaPeriodSchema.parse(formattedPeriod);
 			formattedPeriods.push(parsedPeriod);

@@ -1,5 +1,5 @@
-import { uuidv7 } from "uuidv7";
 import type z from "zod";
+import { createEntity } from "../entities/helpers/creation.js";
 import {
 	maxPasswordCreationLength,
 	type SellerType,
@@ -54,19 +54,13 @@ export class CreateSellerUseCase {
 	}
 
 	formatNewSeller(newSeller: CreateSellerType): SellerWithPasswordSchemaType {
-		const now = new Date();
-
-		const formatNewSeller: SellerWithPasswordSchemaType = {
+		const seller = createEntity<SellerWithPasswordSchemaType>({
 			...newSeller,
 			password: this.passwordService.hashPassword(newSeller.password),
-
-			id: uuidv7(),
-			creationDate: now,
-			updateDate: now,
 			deleteDate: null,
-		};
+		});
 
-		const parsedNewSeller = SellerWithPasswordSchema.parse(formatNewSeller);
+		const parsedNewSeller = SellerWithPasswordSchema.parse(seller);
 		return parsedNewSeller;
 	}
 }

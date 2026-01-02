@@ -104,6 +104,18 @@ All business logic in `src/domain/use-cases/`. Each class:
 - Command: `Promise<void>`
 - Auth: Minimal data, NEVER passwords
 
+**Entity Creation:** Use `createEntity()` helper from `src/domain/entities/helpers/creation.ts` to automatically add `id`, `creationDate`, and `updateDate`:
+
+```typescript
+import { createEntity } from "../entities/helpers/creation.js";
+
+const entity = createEntity<EntityType>({
+  // ...entity fields (excluding id, creationDate, updateDate)
+});
+
+const parsed = EntitySchema.parse(entity);
+```
+
 **Bulk operations:** Format all items first, then call `bulkCreate()` once. NEVER call repository inside loops.
 
 **Transactions:** Managed inside use-cases for write operations.
