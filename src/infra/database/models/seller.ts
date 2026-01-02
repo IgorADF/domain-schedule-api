@@ -27,7 +27,8 @@ class SellerModel extends Model<SellerModelType, SellerModelCreationType> {
 	@Column({ allowNull: false, type: DataType.DATE })
 	updateDate!: Date;
 
-	declare deletedAt?: Date;
+	@Column({ type: DataType.DATE })
+	deleteDate!: Date | null;
 
 	/* Associations */
 

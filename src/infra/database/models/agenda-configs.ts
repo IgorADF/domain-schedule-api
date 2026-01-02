@@ -33,7 +33,7 @@ class AgendaConfigsModel extends Model<
 	maxDaysOfAdvancedNotice!: number;
 
 	@Column({ type: DataType.INTEGER })
-	minHoursOfAdvancedNotice?: number;
+	minHoursOfAdvancedNotice!: number | null;
 
 	@Column({ allowNull: false, type: DataType.STRING(50) })
 	timezone!: string;

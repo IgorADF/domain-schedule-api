@@ -15,7 +15,7 @@ export function toModel(sup: SellerWithPasswordSchemaType): SellerModelType {
 		password: sup.password,
 		creationDate: sup.creationDate,
 		updateDate: sup.updateDate,
-		deletedAt: sup.deletedAt ?? undefined,
+		deleteDate: sup.deleteDate,
 	};
 }
 
@@ -29,7 +29,7 @@ export function toPartialModel(
 		password: sup.password,
 		creationDate: sup.creationDate,
 		updateDate: sup.updateDate,
-		deletedAt: sup.deletedAt ?? undefined,
+		deleteDate: sup.deleteDate ?? undefined,
 	};
 }
 
@@ -42,7 +42,7 @@ export function toEntity(_sup: SellerModel): SellerType {
 		email: sup.email,
 		creationDate: sup.creationDate,
 		updateDate: sup.updateDate,
-		deletedAt: sup.deletedAt,
+		deleteDate: sup.deleteDate,
 	};
 
 	const entity = SellerSchema.parse(map);
@@ -61,7 +61,7 @@ export function toEntityWithPassword(
 		password: sup.password,
 		creationDate: sup.creationDate,
 		updateDate: sup.updateDate,
-		deletedAt: sup?.deletedAt,
+		deleteDate: sup?.deleteDate,
 	};
 
 	const entity = SellerWithPasswordSchema.parse(map);

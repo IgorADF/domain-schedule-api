@@ -65,7 +65,7 @@ Uses **Sequelize ORM** with TypeScript decorators.
 1. Import decorators from `sequelize-typescript`
 2. Use `@Table({ tableName, paranoid, timestamps: false })`
 3. Define columns with `@Column({ type: DataType.X })`
-4. Declare timestamps: `creationDate`, `updateDate`, `deletedAt?`
+4. Declare timestamps: `creationDate`, `updateDate`
 5. Add associations: `@BelongsTo`, `@HasMany`, `@ForeignKey`
 
 **Mappers** (`src/infra/entities/mappers/`): Plain functions `toModel()` and `toEntity()` for conversion.

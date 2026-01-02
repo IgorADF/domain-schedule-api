@@ -12,7 +12,7 @@ export function toModel(
 		id: agendaConfig.id,
 		sellerId: agendaConfig.sellerId,
 		maxDaysOfAdvancedNotice: agendaConfig.maxDaysOfAdvancedNotice,
-		minHoursOfAdvancedNotice: agendaConfig?.minHoursOfAdvancedNotice,
+		minHoursOfAdvancedNotice: agendaConfig.minHoursOfAdvancedNotice,
 		timezone: agendaConfig.timezone,
 		creationDate: agendaConfig.creationDate,
 		updateDate: agendaConfig.updateDate,

@@ -63,6 +63,7 @@ export class CreateSellerUseCase {
 			id: uuidv7(),
 			creationDate: now,
 			updateDate: now,
+			deleteDate: null,
 		};
 
 		const parsedNewSeller = SellerWithPasswordSchema.parse(formatNewSeller);
