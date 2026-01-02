@@ -5,7 +5,7 @@ export type AgendaScheduleModelType = InferAttributes<AgendaScheduleModel>;
 export type AgendaScheduleModelCreationType =
 	InferCreationAttributes<AgendaScheduleModel>;
 
-@Table({ tableName: "AgendaSchedules", timestamps: true })
+@Table({ tableName: "AgendaSchedules", timestamps: false })
 class AgendaScheduleModel extends Model<
 	AgendaScheduleModelType,
 	AgendaScheduleModelCreationType
@@ -28,8 +28,11 @@ class AgendaScheduleModel extends Model<
 	@Column({ allowNull: false, type: DataType.TIME })
 	endTime!: string;
 
-	declare createdAt: Date;
-	declare updatedAt: Date;
+	@Column({ allowNull: false, type: DataType.DATE })
+	creationDate!: Date;
+
+	@Column({ allowNull: false, type: DataType.DATE })
+	updateDate!: Date;
 }
 
 export default AgendaScheduleModel;

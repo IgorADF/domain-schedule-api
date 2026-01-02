@@ -8,7 +8,7 @@ export type SellerModelCreationType = InferCreationAttributes<SellerModel>;
 @Table({
 	tableName: "Sellers",
 	paranoid: true,
-	timestamps: true,
+	timestamps: false,
 	defaultScope: { attributes: { exclude: ["password"] } },
 })
 class SellerModel extends Model<SellerModelType, SellerModelCreationType> {
@@ -21,8 +21,12 @@ class SellerModel extends Model<SellerModelType, SellerModelCreationType> {
 	@Column({ allowNull: false, type: DataType.STRING(100) })
 	password!: string;
 
-	declare createdAt: Date;
-	declare updatedAt: Date;
+	@Column({ allowNull: false, type: DataType.DATE })
+	creationDate!: Date;
+
+	@Column({ allowNull: false, type: DataType.DATE })
+	updateDate!: Date;
+
 	declare deletedAt?: Date;
 
 	/* Associations */

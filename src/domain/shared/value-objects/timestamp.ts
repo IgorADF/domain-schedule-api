@@ -1,8 +1,8 @@
 import z from "zod";
 
 export const Timestamp = z.object({
-	createdAt: z.date(),
-	updatedAt: z.date(),
+	creationDate: z.date(),
+	updateDate: z.date(),
 });
 
 export const ParanoidTimestamp = z

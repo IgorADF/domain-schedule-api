@@ -13,8 +13,8 @@ export function toModel(
 		agendaConfigId: dayOfWeek.agendaConfigId,
 		dayOfWeek: dayOfWeek.dayOfWeek,
 		cancelAllDay: dayOfWeek.cancelAllDay,
-		createdAt: dayOfWeek.createdAt,
-		updatedAt: dayOfWeek.updatedAt,
+		creationDate: dayOfWeek.creationDate,
+		updateDate: dayOfWeek.updateDate,
 	};
 }
 
@@ -28,8 +28,8 @@ export function toEntity(
 		agendaConfigId: dayOfWeek.agendaConfigId,
 		dayOfWeek: dayOfWeek.dayOfWeek,
 		cancelAllDay: dayOfWeek.cancelAllDay,
-		createdAt: dayOfWeek.createdAt,
-		updatedAt: dayOfWeek.updatedAt,
+		creationDate: dayOfWeek.creationDate,
+		updateDate: dayOfWeek.updateDate,
 	};
 
 	const entity = AgendaDayOfWeekSchema.parse(map);

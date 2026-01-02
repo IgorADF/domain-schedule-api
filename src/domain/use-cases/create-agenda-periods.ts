@@ -37,8 +37,8 @@ export class CreateAgendaPeriodsUseCase {
 
 				id: uuidv7(),
 				order: iPeriods + 1,
-				createdAt: now,
-				updatedAt: now,
+				creationDate: now,
+				updateDate: now,
 			};
 
 			const parsedPeriod = AgendaPeriodSchema.parse(formattedPeriod);

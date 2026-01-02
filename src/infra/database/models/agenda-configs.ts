@@ -38,8 +38,11 @@ class AgendaConfigsModel extends Model<
 	@Column({ allowNull: false, type: DataType.STRING(50) })
 	timezone!: string;
 
-	declare createdAt: Date;
-	declare updatedAt: Date;
+	@Column({ allowNull: false, type: DataType.DATE })
+	creationDate!: Date;
+
+	@Column({ allowNull: false, type: DataType.DATE })
+	updateDate!: Date;
 
 	/* Associations */
 

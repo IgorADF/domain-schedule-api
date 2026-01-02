@@ -12,8 +12,8 @@ module.exports = {
 				name: "Test Seller",
 				email: "test@gmail.com",
 				password: hashSync("123456"),
-				createdAt: new Date(),
-				updatedAt: new Date(),
+				creationDate: new Date(),
+				updateDate: new Date(),
 			},
 		]);
 	},

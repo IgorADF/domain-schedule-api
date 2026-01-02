@@ -14,8 +14,8 @@ export function toModel(
 		maxDaysOfAdvancedNotice: agendaConfig.maxDaysOfAdvancedNotice,
 		minHoursOfAdvancedNotice: agendaConfig?.minHoursOfAdvancedNotice,
 		timezone: agendaConfig.timezone,
-		createdAt: agendaConfig.createdAt,
-		updatedAt: agendaConfig.updatedAt,
+		creationDate: agendaConfig.creationDate,
+		updateDate: agendaConfig.updateDate,
 	};
 }
 
@@ -28,8 +28,8 @@ export function toEntity(_agendaConfig: AgendaConfigsModel): AgendaConfigType {
 		maxDaysOfAdvancedNotice: agendaConfig.maxDaysOfAdvancedNotice,
 		minHoursOfAdvancedNotice: agendaConfig.minHoursOfAdvancedNotice,
 		timezone: agendaConfig.timezone,
-		createdAt: agendaConfig.createdAt,
-		updatedAt: agendaConfig.updatedAt,
+		creationDate: agendaConfig.creationDate,
+		updateDate: agendaConfig.updateDate,
 	};
 
 	const entity = AgendaConfigSchema.parse(map);

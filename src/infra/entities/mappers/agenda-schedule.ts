@@ -19,8 +19,8 @@ export function toModel(schedule: AgendaScheduleType): AgendaScheduleModelType {
 		day: dayString,
 		startTime,
 		endTime,
-		createdAt: schedule.createdAt,
-		updatedAt: schedule.updatedAt,
+		creationDate: schedule.creationDate,
+		updateDate: schedule.updateDate,
 	};
 }
 
@@ -49,8 +49,8 @@ export function toEntity(_schedule: AgendaScheduleModel): AgendaScheduleType {
 			hour: endHour,
 			minute: endMinute,
 		},
-		createdAt: schedule.createdAt,
-		updatedAt: schedule.updatedAt,
+		creationDate: schedule.creationDate,
+		updateDate: schedule.updateDate,
 	};
 
 	const entity = AgendaScheduleSchema.parse(map);

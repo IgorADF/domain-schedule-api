@@ -28,6 +28,12 @@ class OverwriteDayModel extends Model<
 	@Column({ allowNull: false, type: DataType.BOOLEAN })
 	cancelAllDay!: boolean;
 
+	@Column({ allowNull: false, type: DataType.DATE })
+	creationDate!: Date;
+
+	@Column({ allowNull: false, type: DataType.DATE })
+	updateDate!: Date;
+
 	/* Associations */
 
 	@BelongsTo(() => AgendaConfigsModel)

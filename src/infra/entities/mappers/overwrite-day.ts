@@ -13,6 +13,8 @@ export function toModel(overwriteDay: OverwriteDayType): OverwriteDayModelType {
 		agendaId: overwriteDay.agendaId,
 		day: new Date(year, month - 1, day),
 		cancelAllDay: overwriteDay.cancelAllDay,
+		creationDate: overwriteDay.creationDate,
+		updateDate: overwriteDay.updateDate,
 	};
 }
 
@@ -28,8 +30,8 @@ export function toEntity(_overwriteDay: OverwriteDayModel): OverwriteDayType {
 			day: overwriteDay.day.getDate(),
 		},
 		cancelAllDay: overwriteDay.cancelAllDay,
-		createdAt: overwriteDay.createdAt,
-		updatedAt: overwriteDay.updatedAt,
+		creationDate: overwriteDay.creationDate,
+		updateDate: overwriteDay.updateDate,
 	};
 
 	const entity = OverwriteDaySchema.parse(map);

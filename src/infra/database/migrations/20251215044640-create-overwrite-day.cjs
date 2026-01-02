@@ -30,6 +30,16 @@ module.exports = {
 				type: Sequelize.BOOLEAN,
 				allowNull: false,
 			},
+			{
+				field: "creationDate",
+				type: Sequelize.DATE,
+				allowNull: false,
+			},
+			{
+				field: "updateDate",
+				type: Sequelize.DATE,
+				allowNull: false,
+			},
 		]);
 	},
 

@@ -46,8 +46,11 @@ class AgendaPeriodsModel extends Model<
 	})
 	order!: number;
 
-	declare createdAt: Date;
-	declare updatedAt: Date;
+	@Column({ allowNull: false, type: DataType.DATE })
+	creationDate!: Date;
+
+	@Column({ allowNull: false, type: DataType.DATE })
+	updateDate!: Date;
 
 	/* Associations */
 

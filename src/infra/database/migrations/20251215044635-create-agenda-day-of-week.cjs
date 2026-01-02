@@ -25,6 +25,16 @@ module.exports = {
 				type: Sequelize.INTEGER,
 				allowNull: false,
 			},
+			{
+				field: "creationDate",
+				type: Sequelize.DATE,
+				allowNull: false,
+			},
+			{
+				field: "updateDate",
+				type: Sequelize.DATE,
+				allowNull: false,
+			},
 		]);
 	},
 

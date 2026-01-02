@@ -29,8 +29,8 @@ export class CreateAgendaDayOfWeekUseCase {
 			...input,
 
 			id: uuidv7(),
-			createdAt: now,
-			updatedAt: now,
+			creationDate: now,
+			updateDate: now,
 		};
 
 		const parsedDayOfWeek = AgendaDayOfWeekSchema.parse(agendaDayOfWeek);

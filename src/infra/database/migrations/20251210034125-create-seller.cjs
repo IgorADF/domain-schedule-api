@@ -23,12 +23,12 @@ module.exports = {
 				allowNull: false,
 			},
 			{
-				field: "createdAt",
+				field: "creationDate",
 				type: Sequelize.DATE,
 				allowNull: false,
 			},
 			{
-				field: "updatedAt",
+				field: "updateDate",
 				type: Sequelize.DATE,
 				allowNull: false,
 			},

@@ -30,8 +30,8 @@ export class CreateAgendaConfigUseCase {
 			maxDaysOfAdvancedNotice: input.maxDaysOfAdvancedNotice,
 			minHoursOfAdvancedNotice: input.minHoursOfAdvancedNotice,
 			timezone: input.timezone,
-			createdAt: now,
-			updatedAt: now,
+			creationDate: now,
+			updateDate: now,
 		};
 
 		const parsedConfig = AgendaConfigSchema.parse(agendaConfig);

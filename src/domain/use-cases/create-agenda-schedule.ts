@@ -34,8 +34,8 @@ export class CreateAgendaScheduleUseCase {
 			day: input.day,
 			startTime: input.startTime,
 			endTime: input.endTime,
-			createdAt: now,
-			updatedAt: now,
+			creationDate: now,
+			updateDate: now,
 		};
 
 		const parsedSchedule = AgendaScheduleSchema.parse(agendaSchedule);

@@ -13,8 +13,8 @@ export function toModel(sup: SellerWithPasswordSchemaType): SellerModelType {
 		name: sup.name,
 		email: sup.email,
 		password: sup.password,
-		createdAt: sup.createdAt,
-		updatedAt: sup.updatedAt,
+		creationDate: sup.creationDate,
+		updateDate: sup.updateDate,
 		deletedAt: sup.deletedAt ?? undefined,
 	};
 }
@@ -27,8 +27,8 @@ export function toPartialModel(
 		name: sup.name,
 		email: sup.email,
 		password: sup.password,
-		createdAt: sup.createdAt,
-		updatedAt: sup.updatedAt,
+		creationDate: sup.creationDate,
+		updateDate: sup.updateDate,
 		deletedAt: sup.deletedAt ?? undefined,
 	};
 }
@@ -40,8 +40,8 @@ export function toEntity(_sup: SellerModel): SellerType {
 		id: sup.id,
 		name: sup.name,
 		email: sup.email,
-		createdAt: sup.createdAt,
-		updatedAt: sup.updatedAt,
+		creationDate: sup.creationDate,
+		updateDate: sup.updateDate,
 		deletedAt: sup.deletedAt,
 	};
 
@@ -59,8 +59,8 @@ export function toEntityWithPassword(
 		name: sup.name,
 		email: sup.email,
 		password: sup.password,
-		createdAt: sup.createdAt,
-		updatedAt: sup.updatedAt,
+		creationDate: sup.creationDate,
+		updateDate: sup.updateDate,
 		deletedAt: sup?.deletedAt,
 	};
 

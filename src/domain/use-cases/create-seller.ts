@@ -61,8 +61,8 @@ export class CreateSellerUseCase {
 			password: this.passwordService.hashPassword(newSeller.password),
 
 			id: uuidv7(),
-			createdAt: now,
-			updatedAt: now,
+			creationDate: now,
+			updateDate: now,
 		};
 
 		const parsedNewSeller = SellerWithPasswordSchema.parse(formatNewSeller);

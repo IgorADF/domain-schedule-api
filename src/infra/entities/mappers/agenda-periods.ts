@@ -20,8 +20,8 @@ export function toModel(period: AgendaPeriodType): AgendaPeriodsModelType {
 		minutesOfService: period.minutesOfService,
 		minutesOfInterval: period.minutesOfInterval,
 		order: period.order,
-		createdAt: period.createdAt,
-		updatedAt: period.updatedAt,
+		creationDate: period.creationDate,
+		updateDate: period.updateDate,
 	};
 }
 
@@ -42,8 +42,8 @@ export function toEntity(_period: AgendaPeriodsModel): AgendaPeriodType {
 		minutesOfService: period.minutesOfService,
 		minutesOfInterval: period.minutesOfInterval,
 		order: period.order,
-		createdAt: period.createdAt,
-		updatedAt: period.updatedAt,
+		creationDate: period.creationDate,
+		updateDate: period.updateDate,
 	};
 
 	const entity = AgendaPeriodSchema.parse(map);

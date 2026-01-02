@@ -57,13 +57,15 @@ Uses **Sequelize ORM** with TypeScript decorators.
 - All models registered in `src/infra/database/connection.ts`
 - **ALWAYS create a migration when changing anything database-related** (adding/removing/modifying columns, indexes, tables, etc.)
 - For existing tables, create an ALTER migration with timestamp: `YYYYMMDDHHMMSS-alter-table-name.cjs`
+- **Timestamp fields use custom names: `creationDate` and `updateDate`** (not Sequelize defaults `createdAt`/`updatedAt`)
+- All migrations must define timestamp columns as: `creationDate` and `updateDate`
 
 **Model Pattern:**
 
 1. Import decorators from `sequelize-typescript`
 2. Use `@Table({ tableName, paranoid, timestamps: false })`
 3. Define columns with `@Column({ type: DataType.X })`
-4. Declare timestamps: `createdAt`, `updatedAt`, `deletedAt?`
+4. Declare timestamps: `creationDate`, `updateDate`, `deletedAt?`
 5. Add associations: `@BelongsTo`, `@HasMany`, `@ForeignKey`
 
 **Mappers** (`src/infra/entities/mappers/`): Plain functions `toModel()` and `toEntity()` for conversion.

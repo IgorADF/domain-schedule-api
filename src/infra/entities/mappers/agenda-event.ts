@@ -11,8 +11,8 @@ export function toModel(event: AgendaEventType): AgendaEventModelType {
 		agendaConfigId: event.agendaConfigId,
 		type: event.type,
 		description: event.description,
-		createdAt: event.createdAt,
-		updatedAt: event.updatedAt,
+		creationDate: event.creationDate,
+		updateDate: event.updateDate,
 	};
 }
 
@@ -24,8 +24,8 @@ export function toEntity(_event: AgendaEventModel): AgendaEventType {
 		agendaConfigId: event.agendaConfigId,
 		type: event.type as AgendaEventType["type"],
 		description: event.description,
-		createdAt: event.createdAt,
-		updatedAt: event.updatedAt,
+		creationDate: event.creationDate,
+		updateDate: event.updateDate,
 	};
 
 	const entity = AgendaEventSchema.parse(map);
