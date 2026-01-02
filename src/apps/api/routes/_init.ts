@@ -1,6 +1,7 @@
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import { createLogService } from "@/infra/services/factories/log.js";
 import { initAgendaRoutes } from "./agenda.js";
+import { initAgendaScheduleRoutes } from "./agenda-schedule.js";
 import { initSellerRoutes } from "./seller.js";
 
 export async function initRoutes(fastify: FastifyZodInstance) {
@@ -12,4 +13,7 @@ export async function initRoutes(fastify: FastifyZodInstance) {
 
 	fastify.register(initSellerRoutes(logger), { prefix: "sellers" });
 	fastify.register(initAgendaRoutes(logger), { prefix: "agendas" });
+	fastify.register(initAgendaScheduleRoutes(logger), {
+		prefix: "agenda-schedules",
+	});
 }

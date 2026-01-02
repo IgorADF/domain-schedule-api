@@ -20,4 +20,17 @@ export class AgendaPeriodsRepository
 		});
 		return periods.map((period) => AgendaPeriodsMapper.toEntity(period));
 	}
+
+	async getByAgendaDayOfWeekIds(agendaDayOfWeekIds: string[]) {
+		if (agendaDayOfWeekIds.length === 0) {
+			return [];
+		}
+
+		const periods = await this.sequelizeRepository.findAll({
+			where: { agendaDayOfWeekId: agendaDayOfWeekIds },
+			transaction: this.transaction,
+		});
+
+		return periods.map((period) => AgendaPeriodsMapper.toEntity(period));
+	}
 }

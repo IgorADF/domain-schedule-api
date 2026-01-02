@@ -2,6 +2,7 @@ import type { IAgendaConfigsRepository } from "@domain/repositories/agenda-confi
 import type { IAgendaDayOfWeekRepository } from "@domain/repositories/agenda-day-of-week.interface.js";
 import type { IAgendaEventRepository } from "@domain/repositories/agenda-event.interface.js";
 import type { IAgendaPeriodsRepository } from "@domain/repositories/agenda-periods.interface.js";
+import type { IAgendaScheduleRepository } from "@domain/repositories/agenda-schedule.interface.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
 import type { IUnitOfWork } from "@domain/repositories/uow/unit-of-work.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
@@ -12,6 +13,7 @@ import { AgendaConfigsRepository } from "../agenda-configs.repository.js";
 import { AgendaDayOfWeekRepository } from "../agenda-day-of-week.repository.js";
 import { AgendaEventRepository } from "../agenda-event.repository.js";
 import { AgendaPeriodsRepository } from "../agenda-periods.repository.js";
+import { AgendaScheduleRepository } from "../agenda-schedule.repository.js";
 import { CachedSellerRepository } from "../cache/seller.repository.js";
 import { SellerRepository } from "../seller.repository.js";
 
@@ -22,7 +24,8 @@ type CacheRepositoryNames =
 	| "agendaPeriodsRepository"
 	| "agendaDayOfWeekRepository"
 	| "agendaConfigsRepository"
-	| "agendaEventRepository";
+	| "agendaEventRepository"
+	| "agendaScheduleRepository";
 
 type RepositoriesToCache = {
 	[K in CacheRepositoryNames]?: true;
@@ -36,6 +39,7 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 	private _agendaDayOfWeekRepository: IAgendaDayOfWeekRepository | null = null;
 	private _agendaConfigsRepository: IAgendaConfigsRepository | null = null;
 	private _agendaEventRepository: IAgendaEventRepository | null = null;
+	private _agendaScheduleRepository: IAgendaScheduleRepository | null = null;
 
 	constructor(
 		private configs: { repositoriesToCache: RepositoriesToCache } = {
@@ -122,6 +126,13 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 		return this.createAndGetRepository<IAgendaEventRepository>(
 			AgendaEventRepository,
 			"_agendaEventRepository" as keyof this,
+		);
+	}
+
+	get agendaScheduleRepository() {
+		return this.createAndGetRepository<IAgendaScheduleRepository>(
+			AgendaScheduleRepository,
+			"_agendaScheduleRepository" as keyof this,
 		);
 	}
 }

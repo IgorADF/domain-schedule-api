@@ -4,9 +4,10 @@
 
 ### Business
 
-- Login (auth)
-- ResetPassword ()
--
+- [x] Login
+- [x] ResetPassword
+- [X-] Cria seller config
+- [] Lista seller config
 -
 
 ### Tech
@@ -14,3 +15,4 @@
 - Fastify log to redis reconnection
 - OTLP: https://www.youtube.com/watch?v=Wu0Ajkxh69Y
 - Passar o redis como prop no init da api
+- Organizar jwt como lib de jwt

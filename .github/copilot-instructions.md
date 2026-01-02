@@ -55,6 +55,8 @@ Uses **Sequelize ORM** with TypeScript decorators.
 
 - Migrations/seeders use `.cjs` extension: `src/infra/database/migrations/TIMESTAMP-name.cjs`
 - All models registered in `src/infra/database/connection.ts`
+- **ALWAYS create a migration when changing anything database-related** (adding/removing/modifying columns, indexes, tables, etc.)
+- For existing tables, create an ALTER migration with timestamp: `YYYYMMDDHHMMSS-alter-table-name.cjs`
 
 **Model Pattern:**
 
@@ -67,6 +69,8 @@ Uses **Sequelize ORM** with TypeScript decorators.
 **Mappers** (`src/infra/entities/mappers/`): Plain functions `toModel()` and `toEntity()` for conversion.
 
 **Adding a field:** Entity → Migration (.cjs) → Model → Mapper
+
+**Modifying a field:** Migration (.cjs) → Model → Mapper (if needed)
 
 ## Validation & Type Safety
 
@@ -154,6 +158,7 @@ fastify.post("/", { schema: { body: Schema } }, async (request) => {
 - Routes NEVER instantiate UoW or use-cases directly
 - Use `fastify.authenticate` for protected routes
 - Register routes in `_init.ts` with plural prefixes
+- **ALWAYS create an HTTP test file in `src/apps/api/http/` for each new route**
 
 **Auth:** Access `request.authSeller?.id` on authenticated routes.
 

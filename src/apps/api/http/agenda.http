@@ -1,3 +1,11 @@
+###
+
+# @name ListAgendaConfig
+GET {{baseUrl}}/agendas
+Authorization: Bearer {{TOKEN}}
+
+###
+
 # @name CreateAgendaWrongBody
 POST {{baseUrl}}/agendas
 Content-Type: application/json

@@ -1,0 +1,23 @@
+###
+
+# @name CreateAgendaSchedule
+POST {{baseUrl}}/agenda-schedules
+Content-Type: application/json
+
+{
+	"contactName": "John Doe",
+	"contactPhoneNumber": "+5511987654321",
+	"day": {
+		"year": 2026,
+		"month": 1,
+		"day": 15
+	},
+	"startTime": {
+		"hour": 14,
+		"minute": 30
+	},
+	"endTime": {
+		"hour": 15,
+		"minute": 30
+	}
+}
