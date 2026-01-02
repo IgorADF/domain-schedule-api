@@ -116,6 +116,16 @@ const entity = createEntity<EntityType>({
 const parsed = EntitySchema.parse(entity);
 ```
 
+**Entity Update:** Use `updateEntity()` helper from `src/domain/entities/helpers/update.ts` to automatically update `updateDate`:
+
+```typescript
+import { updateEntity } from "../entities/helpers/update.js";
+
+const updatedData = updateEntity<EntityType>({
+  // ...fields to update (updateDate is automatically set)
+});
+```
+
 **Bulk operations:** Format all items first, then call `bulkCreate()` once. NEVER call repository inside loops.
 
 **Transactions:** Managed inside use-cases for write operations.
