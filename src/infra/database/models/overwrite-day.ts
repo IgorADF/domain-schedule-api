@@ -18,6 +18,9 @@ class OverwriteDayModel extends Model<
 	OverwriteDayModelType,
 	OverwriteDayModelCreationType
 > {
+	@Column({ allowNull: false, type: DataType.UUID, primaryKey: true })
+	declare id: string;
+
 	@ForeignKey(() => AgendaConfigsModel)
 	@Column({ allowNull: false, type: DataType.UUID })
 	agendaId!: string;

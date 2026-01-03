@@ -6,7 +6,7 @@ import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import { InvalidCreantionData } from "../shared/errors/invalid-creation-data.js";
 import {
 	CreateAgendaConfigSchema,
-	CreateAgendaConfigUseCase,
+	type CreateAgendaConfigUseCase,
 } from "./create-agenda-config.js";
 import {
 	CreateAgendaDayOfWeekSchema,
@@ -63,7 +63,12 @@ export type CreateCompleteAgendaType = z.infer<
 >;
 
 export class CreateCompleteAgendaUseCase {
-	constructor(private uow: IUnitOfWork) {}
+	constructor(
+		private readonly uow: IUnitOfWork,
+		private readonly createAgendaConfigUseCase: CreateAgendaConfigUseCase,
+		private readonly createAgendaDayOfWeekUseCase: CreateAgendaDayOfWeekUseCase,
+		private readonly createAgendaPeriodsUseCase: CreateAgendaPeriodsUseCase,
+	) {}
 
 	async execute({
 		sellerId,
@@ -98,8 +103,7 @@ export class CreateCompleteAgendaUseCase {
 
 		const parsedUseCaseData = CreateAgendaConfigSchema.parse(useCaseData);
 
-		const createConfigUseCase = new CreateAgendaConfigUseCase(this.uow);
-		return await createConfigUseCase.execute(parsedUseCaseData);
+		return await this.createAgendaConfigUseCase.execute(parsedUseCaseData);
 	}
 
 	private async createDaysOfWeek(
@@ -123,12 +127,8 @@ export class CreateCompleteAgendaUseCase {
 			const parsedDayOfWeekToCreate =
 				CreateAgendaDayOfWeekSchema.parse(dayOfWeekToCreate);
 
-			const createAgendaDayOfWeekUseCase = new CreateAgendaDayOfWeekUseCase(
-				this.uow,
-			);
-
 			const { data: createdDayOfWeek } =
-				await createAgendaDayOfWeekUseCase.execute(
+				await this.createAgendaDayOfWeekUseCase.execute(
 					parsedDayOfWeekToCreate,
 					false,
 				);
@@ -165,8 +165,7 @@ export class CreateCompleteAgendaUseCase {
 		const parsedPeriodsToCreate =
 			CreateAgendaPeriodsSchema.parse(periodsToCreate);
 
-		const createPeriodsUseCase = new CreateAgendaPeriodsUseCase(this.uow);
-		const createdPeriods = await createPeriodsUseCase.execute(
+		const createdPeriods = await this.createAgendaPeriodsUseCase.execute(
 			parsedPeriodsToCreate,
 			false,
 		);

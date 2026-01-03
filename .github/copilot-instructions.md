@@ -64,9 +64,12 @@ Uses **Sequelize ORM** with TypeScript decorators.
 
 1. Import decorators from `sequelize-typescript`
 2. Use `@Table({ tableName, paranoid, timestamps: false })`
-3. Define columns with `@Column({ type: DataType.X })`
-4. Declare timestamps: `creationDate`, `updateDate`
-5. Add associations: `@BelongsTo`, `@HasMany`, `@ForeignKey`
+3. **ALWAYS declare id with `@Column` decorator:** `@Column({ allowNull: false, type: DataType.UUID, primaryKey: true }) declare id: string;`
+4. Define columns with `@Column({ type: DataType.X })`
+5. Declare timestamps: `creationDate`, `updateDate`
+6. Add associations: `@BelongsTo`, `@HasMany`, `@ForeignKey`
+
+**CRITICAL:** Never use `declare id: string;` without `@Column` decorator - this causes SQL quoting issues with UUIDs.
 
 **Mappers** (`src/infra/entities/mappers/`): Plain functions `toModel()` and `toEntity()` for conversion.
 

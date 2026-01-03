@@ -6,7 +6,7 @@
     },
     "local": {
       "baseUrl": "http://localhost:3000",
-      "TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAxOWI1ZGY3LTVhMzItNzk2OS1iMWU3LTMzZWE4MWVlMzJjMyIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NjY4MzkyMjAsImV4cCI6MTc2Njg0MjgyMH0.sy9WL37-MLYh8w6YaxIQO7xZxk7q6cgel4la7WnNisI"
+      "TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAxOWI4MDc2LTMyNTQtNzE1My04NGZkLTEwZGQwMjM2NTk1OSIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NjczODY5MjQsImV4cCI6MTc2NzM5MDUyNH0.HNv0HzPjuY92SGRzj9qNhWV31yWKbl46AhbyEUR8XFM"
     },
     "development": {
       "baseUrl": "https://dev-api.yourdomain.com",
@@ -17,7 +17,7 @@
       "TOKEN": ""
     }
   },
-  "rest-client.timeoutinmilliseconds": 30000,
+  "rest-client.timeoutinmilliseconds": 1000000,
   "rest-client.followredirect": true,
   "rest-client.showResponseInDifferentTab": true,
   "rest-client.previewOption": "body"

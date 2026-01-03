@@ -6,11 +6,8 @@ import type AgendaPeriodsModel from "../../database/models/agenda-periods.js";
 import type { AgendaPeriodsModelType } from "../../database/models/agenda-periods.js";
 
 export function toModel(period: AgendaPeriodType): AgendaPeriodsModelType {
-	const startTime = new Date();
-	startTime.setHours(period.startTime.hour, period.startTime.minute, 0, 0);
-
-	const endTime = new Date();
-	endTime.setHours(period.endTime.hour, period.endTime.minute, 0, 0);
+	const startTime = `${String(period.startTime.hour).padStart(2, "0")}:${String(period.startTime.minute).padStart(2, "0")}:00`;
+	const endTime = `${String(period.endTime.hour).padStart(2, "0")}:${String(period.endTime.minute).padStart(2, "0")}:00`;
 
 	return {
 		id: period.id,
@@ -28,16 +25,19 @@ export function toModel(period: AgendaPeriodType): AgendaPeriodsModelType {
 export function toEntity(_period: AgendaPeriodsModel): AgendaPeriodType {
 	const period = _period.toJSON();
 
+	const [startHour, startMinute] = period.startTime.split(":").map(Number);
+	const [endHour, endMinute] = period.endTime.split(":").map(Number);
+
 	const map: AgendaPeriodType = {
 		id: period.id,
 		agendaDayOfWeekId: period.agendaDayOfWeekId,
 		startTime: {
-			hour: period.startTime.getHours(),
-			minute: period.startTime.getMinutes(),
+			hour: startHour,
+			minute: startMinute,
 		},
 		endTime: {
-			hour: period.endTime.getHours(),
-			minute: period.endTime.getMinutes(),
+			hour: endHour,
+			minute: endMinute,
 		},
 		minutesOfService: period.minutesOfService,
 		minutesOfInterval: period.minutesOfInterval,

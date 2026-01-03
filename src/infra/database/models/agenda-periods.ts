@@ -18,15 +18,18 @@ class AgendaPeriodsModel extends Model<
 	AgendaPeriodsModelType,
 	AgendaPeriodsModelCreationType
 > {
+	@Column({ allowNull: false, type: DataType.UUID, primaryKey: true })
+	declare id: string;
+
 	@ForeignKey(() => AgendaDayOfWeekModel)
 	@Column({ allowNull: false, type: DataType.UUID })
 	agendaDayOfWeekId!: string;
 
 	@Column({ allowNull: false, type: DataType.TIME })
-	startTime!: Date;
+	startTime!: string;
 
 	@Column({ allowNull: false, type: DataType.TIME })
-	endTime!: Date;
+	endTime!: string;
 
 	@Column({
 		allowNull: false,

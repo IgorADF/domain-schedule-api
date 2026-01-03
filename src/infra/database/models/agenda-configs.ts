@@ -22,6 +22,9 @@ class AgendaConfigsModel extends Model<
 	AgendaConfigsModelType,
 	AgendaConfigsModelCreationType
 > {
+	@Column({ allowNull: false, type: DataType.UUID, primaryKey: true })
+	declare id: string;
+
 	@ForeignKey(() => SellerModel)
 	@Column({ allowNull: false, type: DataType.UUID, unique: true })
 	sellerId!: string;

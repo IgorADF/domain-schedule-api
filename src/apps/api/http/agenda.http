@@ -231,3 +231,9 @@ Authorization: Bearer {{TOKEN}}
         }
     ]
 }
+
+###
+
+# @name ListAvailableSlots
+GET {{baseUrl}}/agendas/available-slots?initialDate=2026-01-05&finalDate=2026-01-12
+Authorization: Bearer {{TOKEN}}

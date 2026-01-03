@@ -1,4 +1,5 @@
 import type z from "zod";
+import { updateEntity } from "../entities/helpers/update.js";
 import {
 	type SellerType,
 	SellerWithPasswordSchema,
@@ -6,7 +7,6 @@ import {
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import { EntityAlreadyExist } from "../shared/errors/entity-already-exist.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
-import { updateEntity } from "../entities/helpers/update.js";
 
 export const UpdateSellerSchema = SellerWithPasswordSchema.pick({
 	id: true,

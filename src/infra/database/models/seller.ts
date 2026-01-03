@@ -12,6 +12,9 @@ export type SellerModelCreationType = InferCreationAttributes<SellerModel>;
 	defaultScope: { attributes: { exclude: ["password"] } },
 })
 class SellerModel extends Model<SellerModelType, SellerModelCreationType> {
+	@Column({ allowNull: false, type: DataType.UUID, primaryKey: true })
+	declare id: string;
+
 	@Column({ allowNull: false, type: DataType.STRING(50) })
 	name!: string;
 

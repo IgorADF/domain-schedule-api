@@ -20,6 +20,9 @@ class AgendaDayOfWeekModel extends Model<
 	AgendaDayOfWeekModelType,
 	AgendaDayOfWeekModelCreationType
 > {
+	@Column({ allowNull: false, type: DataType.UUID, primaryKey: true })
+	declare id: string;
+
 	@ForeignKey(() => AgendaConfigsModel)
 	@Column({ allowNull: false, type: DataType.UUID })
 	agendaConfigId!: string;

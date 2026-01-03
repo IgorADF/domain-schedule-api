@@ -5,13 +5,13 @@ import type { AgendaPeriodType } from "../entities/agenda-periods.js";
 import type { AgendaScheduleType } from "../entities/agenda-schedule.js";
 import type { OverwriteDayType } from "../entities/overwrite-day.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
-import { DayObj } from "../shared/value-objects/day.js";
-import { TimeObj } from "../shared/value-objects/time.js";
+import type { DayObj } from "../shared/value-objects/day.js";
+import type { TimeObj } from "../shared/value-objects/time.js";
 
 export const ListAvailableSlotsSchema = z.object({
 	sellerId: z.uuid(),
-	initialDate: DayObj,
-	finalDate: DayObj,
+	initialDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+	finalDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
 export type ListAvailableSlotsInput = z.infer<typeof ListAvailableSlotsSchema>;
@@ -22,8 +22,18 @@ export type SlotType = {
 	endTime: z.infer<typeof TimeObj>;
 };
 
+export type TimeSlot = {
+	startTime: z.infer<typeof TimeObj>;
+	endTime: z.infer<typeof TimeObj>;
+};
+
+export type DaySlots = {
+	day: z.infer<typeof DayObj>;
+	slots: TimeSlot[];
+};
+
 export type AvailableSlotsOutput = {
-	data: SlotType[];
+	data: DaySlots[];
 };
 
 export class ListAvailableSlotsUseCase {
@@ -31,9 +41,12 @@ export class ListAvailableSlotsUseCase {
 
 	async execute({
 		sellerId,
-		initialDate,
-		finalDate,
+		initialDate: initialDateString,
+		finalDate: finalDateString,
 	}: ListAvailableSlotsInput): Promise<AvailableSlotsOutput> {
+		const initialDate = this.parseDateString(initialDateString);
+		const finalDate = this.parseDateString(finalDateString);
+
 		const agendaConfig =
 			await this.uow.agendaConfigsRepository.getBySellerId(sellerId);
 
@@ -88,12 +101,11 @@ export class ListAvailableSlotsUseCase {
 			agendaConfig,
 		);
 
-		return { data: availableSlots };
+		const groupedSlots = this.groupSlotsByDay(availableSlots);
+
+		return { data: groupedSlots };
 	}
 
-	/**
-	 * Generate all possible slots based on periods configuration
-	 */
 	private generateAllSlots(
 		initialDate: z.infer<typeof DayObj>,
 		finalDate: z.infer<typeof DayObj>,
@@ -103,13 +115,11 @@ export class ListAvailableSlotsUseCase {
 	): SlotType[] {
 		const slots: SlotType[] = [];
 
-		// Create a map of dayOfWeek -> periods for quick lookup
 		const periodsByDayOfWeek = this.groupPeriodsByDayOfWeek(
 			daysOfWeek,
 			periods,
 		);
 
-		// Iterate through each day in the range
 		const currentDate = this.createDate(initialDate);
 		const endDate = this.createDate(finalDate);
 
@@ -272,9 +282,6 @@ export class ListAvailableSlotsUseCase {
 		return start1Minutes < end2Minutes && end1Minutes > start2Minutes;
 	}
 
-	/**
-	 * Group periods by their day of week id
-	 */
 	private groupPeriodsByDayOfWeek(
 		daysOfWeek: AgendaDayOfWeekType[],
 		periods: AgendaPeriodType[],
@@ -315,5 +322,52 @@ export class ListAvailableSlotsUseCase {
 	private getDayOfWeek(date: Date): number {
 		const jsDay = date.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
 		return jsDay === 0 ? 7 : jsDay; // Convert to 1=Monday, 7=Sunday
+	}
+
+	/**
+	 * Parse date string (YYYY-MM-DD) to DayObj
+	 */
+	private parseDateString(dateString: string): z.infer<typeof DayObj> {
+		const [year, month, day] = dateString.split("-").map(Number);
+		return { year, month, day };
+	}
+
+	/**
+	 * Group slots by day
+	 */
+	private groupSlotsByDay(slots: SlotType[]): DaySlots[] {
+		const grouped = new Map<string, TimeSlot[]>();
+
+		for (const slot of slots) {
+			const dayKey = `${slot.day.year}-${String(slot.day.month).padStart(2, "0")}-${String(slot.day.day).padStart(2, "0")}`;
+
+			if (!grouped.has(dayKey)) {
+				grouped.set(dayKey, []);
+			}
+
+			grouped.get(dayKey)?.push({
+				startTime: slot.startTime,
+				endTime: slot.endTime,
+			});
+		}
+
+		// Convert map to array and sort by date
+		const result: DaySlots[] = [];
+		for (const [dayKey, timeSlots] of grouped) {
+			const [year, month, day] = dayKey.split("-").map(Number);
+			result.push({
+				day: { year, month, day },
+				slots: timeSlots,
+			});
+		}
+
+		// Sort by date
+		result.sort((a, b) => {
+			if (a.day.year !== b.day.year) return a.day.year - b.day.year;
+			if (a.day.month !== b.day.month) return a.day.month - b.day.month;
+			return a.day.day - b.day.day;
+		});
+
+		return result;
 	}
 }

@@ -3,6 +3,7 @@ import type { IAgendaDayOfWeekRepository } from "@domain/repositories/agenda-day
 import type { IAgendaEventRepository } from "@domain/repositories/agenda-event.interface.js";
 import type { IAgendaPeriodsRepository } from "@domain/repositories/agenda-periods.interface.js";
 import type { IAgendaScheduleRepository } from "@domain/repositories/agenda-schedule.interface.js";
+import type { IOverwriteDayRepository } from "@domain/repositories/overwrite-day.interface.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
 import type { IUnitOfWork } from "@domain/repositories/uow/unit-of-work.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
@@ -15,6 +16,7 @@ import { AgendaEventRepository } from "../agenda-event.repository.js";
 import { AgendaPeriodsRepository } from "../agenda-periods.repository.js";
 import { AgendaScheduleRepository } from "../agenda-schedule.repository.js";
 import { CachedSellerRepository } from "../cache/seller.repository.js";
+import { OverwriteDayRepository } from "../overwrite-day.repository.js";
 import { SellerRepository } from "../seller.repository.js";
 
 const breakCharIndex = 1;
@@ -25,7 +27,8 @@ type CacheRepositoryNames =
 	| "agendaDayOfWeekRepository"
 	| "agendaConfigsRepository"
 	| "agendaEventRepository"
-	| "agendaScheduleRepository";
+	| "agendaScheduleRepository"
+	| "overwriteDayRepository";
 
 type RepositoriesToCache = {
 	[K in CacheRepositoryNames]?: true;
@@ -40,6 +43,7 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 	private _agendaConfigsRepository: IAgendaConfigsRepository | null = null;
 	private _agendaEventRepository: IAgendaEventRepository | null = null;
 	private _agendaScheduleRepository: IAgendaScheduleRepository | null = null;
+	private _overwriteDayRepository: IOverwriteDayRepository | null = null;
 
 	constructor(
 		private configs: { repositoriesToCache: RepositoriesToCache } = {
@@ -133,6 +137,13 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 		return this.createAndGetRepository<IAgendaScheduleRepository>(
 			AgendaScheduleRepository,
 			"_agendaScheduleRepository" as keyof this,
+		);
+	}
+
+	get overwriteDayRepository() {
+		return this.createAndGetRepository<IOverwriteDayRepository>(
+			OverwriteDayRepository,
+			"_overwriteDayRepository" as keyof this,
 		);
 	}
 }
