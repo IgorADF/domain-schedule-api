@@ -47,7 +47,6 @@ module.exports = {
 			{
 				field: "minutesOfInterval",
 				type: Sequelize.INTEGER,
-				allowNull: false,
 			},
 			{
 				field: "order",

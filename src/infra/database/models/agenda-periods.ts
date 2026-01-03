@@ -38,7 +38,6 @@ class AgendaPeriodsModel extends Model<
 	minutesOfService!: number;
 
 	@Column({
-		allowNull: false,
 		type: DataType.INTEGER,
 	})
 	minutesOfInterval!: number | null;

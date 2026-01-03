@@ -19,7 +19,8 @@
     "test": "vitest",
     "lint": "npx @biomejs/biome lint --max-diagnostics 100",
     "format": "npx @biomejs/biome format --write ./src",
-    "organize:all": "npx @biomejs/biome check --write ./src"
+    "organize:all": "npx @biomejs/biome check --write ./src",
+    "w:kill:port": "kill-windows-port.bat"
   },
   "keywords": [],
   "author": "",

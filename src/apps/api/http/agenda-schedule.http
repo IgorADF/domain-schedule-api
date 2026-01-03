@@ -1,23 +1,55 @@
 ###
 
-# @name CreateAgendaSchedule
-POST {{baseUrl}}/agenda-schedules
+# @name ListSellerSchedules
+GET {{BASE_URL}}/agenda-schedules?initialDate=2026-01-01&finalDate=2026-01-31
+Authorization: Bearer {{TOKEN}}
+
+###
+
+# @name CreateAgendaScheduleNormalSlot
+POST {{BASE_URL}}/agenda-schedules
 Content-Type: application/json
 
 {
+	"agendaConfigId": "{{AGENDA_CONFIG_ID}}",
 	"contactName": "John Doe",
 	"contactPhoneNumber": "+5511987654321",
 	"day": {
 		"year": 2026,
 		"month": 1,
-		"day": 15
+		"day": 5
 	},
 	"startTime": {
-		"hour": 14,
-		"minute": 30
+		"hour": 15,
+		"minute": 0
 	},
 	"endTime": {
-		"hour": 15,
-		"minute": 30
+		"hour": 16,
+		"minute": 0
+	}
+}
+
+###
+
+# @name CreateAgendaScheduleWrongSlot1
+POST {{BASE_URL}}/agenda-schedules
+Content-Type: application/json
+
+{
+	"agendaConfigId": "{{AGENDA_CONFIG_ID}}",
+	"contactName": "John Doe",
+	"contactPhoneNumber": "+5511987654321",
+	"day": {
+		"year": 2026,
+		"month": 1,
+		"day": 5
+	},
+	"startTime": {
+		"hour": 16,
+		"minute": 15
+	},
+	"endTime": {
+		"hour": 16,
+		"minute": 45
 	}
 }

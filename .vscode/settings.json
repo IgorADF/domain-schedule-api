@@ -1,19 +1,20 @@
 {
   "rest-client.environmentVariables": {
     "$shared": {
-      "baseUrl": "http://localhost:3000",
+      "BASE_URL": "http://localhost:3000",
       "TOKEN": ""
     },
     "local": {
-      "baseUrl": "http://localhost:3000",
-      "TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAxOWI4MDc2LTMyNTQtNzE1My04NGZkLTEwZGQwMjM2NTk1OSIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NjczODY5MjQsImV4cCI6MTc2NzM5MDUyNH0.HNv0HzPjuY92SGRzj9qNhWV31yWKbl46AhbyEUR8XFM"
+      "BASE_URL": "http://localhost:3000",
+      "TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAxOWI4NDA5LTM4N2QtNzhjNS05MDEzLTE0ZTIxYzc5ODYyMiIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3Njc0NDY4NDQsImV4cCI6MTc2NzQ1MDQ0NH0.1C3_2gxKYVHHZjRjGBGOFi4vbOnKZybn9v0pq2WL11E",
+      "AGENDA_CONFIG_ID": "019b840b-31af-704c-9453-7e47ae80bbdc"
     },
     "development": {
-      "baseUrl": "https://dev-api.yourdomain.com",
+      "BASE_URL": "https://dev-api.yourdomain.com",
       "TOKEN": ""
     },
     "production": {
-      "baseUrl": "https://api.yourdomain.com",
+      "BASE_URL": "https://api.yourdomain.com",
       "TOKEN": ""
     }
   },
