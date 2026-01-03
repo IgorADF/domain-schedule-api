@@ -127,13 +127,11 @@ export class ListAvailableSlotsUseCase {
 			const dayOfWeek = this.getDayOfWeek(currentDate);
 			const dayConfig = daysOfWeek.find((d) => d.dayOfWeek === dayOfWeek);
 
-			// Skip if no config for this day or if day is cancelled
 			if (!dayConfig || dayConfig.cancelAllDay) {
 				currentDate.setDate(currentDate.getDate() + 1);
 				continue;
 			}
 
-			// Check max days of advanced notice
 			const today = new Date();
 			const diffDays = Math.ceil(
 				(currentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
@@ -143,10 +141,8 @@ export class ListAvailableSlotsUseCase {
 				continue;
 			}
 
-			// Get periods for this day of week
 			const dayPeriods = periodsByDayOfWeek.get(dayConfig.id) || [];
 
-			// Generate slots for each period
 			for (const period of dayPeriods) {
 				const periodSlots = this.generateSlotsFromPeriod(
 					{
@@ -165,9 +161,6 @@ export class ListAvailableSlotsUseCase {
 		return slots;
 	}
 
-	/**
-	 * Generate slots within a single period based on service time and interval
-	 */
 	private generateSlotsFromPeriod(
 		day: z.infer<typeof DayObj>,
 		period: AgendaPeriodType,
@@ -199,16 +192,12 @@ export class ListAvailableSlotsUseCase {
 				endTime: slotEndTime,
 			});
 
-			// Move to next slot (service duration + interval)
 			currentMinutes = slotEndMinutes + interval;
 		}
 
 		return slots;
 	}
 
-	/**
-	 * Filter out slots that are already booked or cancelled by overwrite days
-	 */
 	private filterAvailableSlots(
 		slots: SlotType[],
 		overwriteDays: OverwriteDayType[],
@@ -218,7 +207,6 @@ export class ListAvailableSlotsUseCase {
 		const now = new Date();
 
 		return slots.filter((slot) => {
-			// Check if day is cancelled by overwrite
 			const isCancelledByOverwrite = overwriteDays.some(
 				(o) =>
 					o.cancelAllDay &&
@@ -231,7 +219,6 @@ export class ListAvailableSlotsUseCase {
 				return false;
 			}
 
-			// Check min hours of advanced notice
 			if (agendaConfig.minHoursOfAdvancedNotice) {
 				const slotDateTime = new Date(
 					slot.day.year,
@@ -247,7 +234,6 @@ export class ListAvailableSlotsUseCase {
 				}
 			}
 
-			// Check if slot is already booked
 			const isBooked = existingSchedules.some(
 				(schedule) =>
 					schedule.day.year === slot.day.year &&
@@ -265,9 +251,6 @@ export class ListAvailableSlotsUseCase {
 		});
 	}
 
-	/**
-	 * Check if two time ranges overlap
-	 */
 	private timesOverlap(
 		start1: z.infer<typeof TimeObj>,
 		end1: z.infer<typeof TimeObj>,
@@ -309,32 +292,20 @@ export class ListAvailableSlotsUseCase {
 		return map;
 	}
 
-	/**
-	 * Create a Date object from DayObj
-	 */
 	private createDate(day: z.infer<typeof DayObj>): Date {
 		return new Date(day.year, day.month - 1, day.day);
 	}
 
-	/**
-	 * Get day of week (1-7, Monday=1, Sunday=7) from Date
-	 */
 	private getDayOfWeek(date: Date): number {
 		const jsDay = date.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
 		return jsDay === 0 ? 7 : jsDay; // Convert to 1=Monday, 7=Sunday
 	}
 
-	/**
-	 * Parse date string (YYYY-MM-DD) to DayObj
-	 */
 	private parseDateString(dateString: string): z.infer<typeof DayObj> {
 		const [year, month, day] = dateString.split("-").map(Number);
 		return { year, month, day };
 	}
 
-	/**
-	 * Group slots by day
-	 */
 	private groupSlotsByDay(slots: SlotType[]): DaySlots[] {
 		const grouped = new Map<string, TimeSlot[]>();
 
@@ -351,7 +322,6 @@ export class ListAvailableSlotsUseCase {
 			});
 		}
 
-		// Convert map to array and sort by date
 		const result: DaySlots[] = [];
 		for (const [dayKey, timeSlots] of grouped) {
 			const [year, month, day] = dayKey.split("-").map(Number);
@@ -361,7 +331,6 @@ export class ListAvailableSlotsUseCase {
 			});
 		}
 
-		// Sort by date
 		result.sort((a, b) => {
 			if (a.day.year !== b.day.year) return a.day.year - b.day.year;
 			if (a.day.month !== b.day.month) return a.day.month - b.day.month;
