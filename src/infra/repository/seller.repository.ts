@@ -16,7 +16,9 @@ export class SellerRepository
 
 	async create(data: SellerWithPasswordSchemaType) {
 		const modelInstance = SellerMapper.toModel(data);
-		const sup = await this.sequelizeRepository.create(modelInstance);
+		const sup = await this.sequelizeRepository.create(modelInstance, {
+			transaction: this.transaction,
+		});
 		return SellerMapper.toEntity(sup);
 	}
 
@@ -24,22 +26,31 @@ export class SellerRepository
 		const sup = await this.sequelizeRepository.findOne({
 			where: { email },
 			attributes: { include: ["password"] },
+			transaction: this.transaction,
 		});
 		return sup ? SellerMapper.toEntityWithPassword(sup) : null;
 	}
 
 	async getSellerByEmail(email: string) {
-		const sup = await this.sequelizeRepository.findOne({ where: { email } });
+		const sup = await this.sequelizeRepository.findOne({
+			where: { email },
+			transaction: this.transaction,
+		});
 		return sup ? SellerMapper.toEntity(sup) : null;
 	}
 
 	async getSellerById(id: string) {
-		const sup = await this.sequelizeRepository.findByPk(id);
+		const sup = await this.sequelizeRepository.findByPk(id, {
+			transaction: this.transaction,
+		});
 		return sup ? SellerMapper.toEntity(sup) : null;
 	}
 
 	async updateSeller(id: string, data: Partial<SellerType>) {
-		const seller = await this.sequelizeRepository.findByPk(id);
+		const seller = await this.sequelizeRepository.findByPk(id, {
+			transaction: this.transaction,
+		});
+
 		if (!seller) {
 			throw new Error("Seller not found");
 		}
