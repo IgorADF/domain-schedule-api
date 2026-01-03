@@ -20,11 +20,11 @@ Content-Type: application/json
 		"day": 5
 	},
 	"startTime": {
-		"hour": 15,
+		"hour": 9,
 		"minute": 0
 	},
 	"endTime": {
-		"hour": 16,
+		"hour": 10,
 		"minute": 0
 	}
 }
@@ -51,5 +51,30 @@ Content-Type: application/json
 	"endTime": {
 		"hour": 16,
 		"minute": 45
+	}
+}
+
+###
+
+# @name CreateAgendaScheduleWrongSlot2
+POST {{BASE_URL}}/agenda-schedules
+Content-Type: application/json
+
+{
+	"agendaConfigId": "{{AGENDA_CONFIG_ID}}",
+	"contactName": "John Doe",
+	"contactPhoneNumber": "+5511987654321",
+	"day": {
+		"year": 2026,
+		"month": 1,
+		"day": 5
+	},
+	"startTime": {
+		"hour": 9,
+		"minute": 30
+	},
+	"endTime": {
+		"hour": 11,
+		"minute": 15
 	}
 }

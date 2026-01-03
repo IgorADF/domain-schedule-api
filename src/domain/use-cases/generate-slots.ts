@@ -196,6 +196,7 @@ export class GenerateSlotsUseCase {
 
 	/**
 	 * Check if a specific slot is available.
+	 * Validates that the requested slot matches exactly with an available generated slot.
 	 */
 	isSlotAvailable(slot: SlotType, context: SlotAvailabilityContext): boolean {
 		const {
@@ -206,87 +207,39 @@ export class GenerateSlotsUseCase {
 			existingSchedules,
 		} = context;
 
-		// 1. Check max days of advanced notice
-		const slotDate = this.createDate(slot.day);
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
+		// 1. Generate all possible slots for the requested day
+		const allSlots = this.generateAllSlots(slot.day, slot.day, {
+			agendaConfig,
+			daysOfWeek,
+			periods,
+		});
 
-		const diffDays = Math.ceil(
-			(slotDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+		// 2. Filter to get only available slots (not booked, not cancelled, respects notice times)
+		const availableSlots = this.filterAvailableSlots(allSlots, {
+			agendaConfig,
+			overwriteDays,
+			existingSchedules,
+		});
+
+		// 3. Check if requested slot matches exactly with an available slot
+		return this.slotMatchesExactly(slot, availableSlots);
+	}
+
+	/**
+	 * Check if a slot matches exactly with one of the available slots.
+	 * Both startTime and endTime must match exactly.
+	 */
+	slotMatchesExactly(slot: SlotType, availableSlots: SlotType[]): boolean {
+		return availableSlots.some(
+			(availableSlot) =>
+				availableSlot.day.year === slot.day.year &&
+				availableSlot.day.month === slot.day.month &&
+				availableSlot.day.day === slot.day.day &&
+				availableSlot.startTime.hour === slot.startTime.hour &&
+				availableSlot.startTime.minute === slot.startTime.minute &&
+				availableSlot.endTime.hour === slot.endTime.hour &&
+				availableSlot.endTime.minute === slot.endTime.minute,
 		);
-
-		if (diffDays > agendaConfig.maxDaysOfAdvancedNotice) {
-			return false;
-		}
-
-		// 2. Check min hours of advanced notice
-		if (agendaConfig.minHoursOfAdvancedNotice) {
-			const slotDateTime = new Date(
-				slot.day.year,
-				slot.day.month - 1,
-				slot.day.day,
-				slot.startTime.hour,
-				slot.startTime.minute,
-			);
-			const now = new Date();
-			const minNoticeMs =
-				agendaConfig.minHoursOfAdvancedNotice * 60 * 60 * 1000;
-
-			if (slotDateTime.getTime() - now.getTime() < minNoticeMs) {
-				return false;
-			}
-		}
-
-		// 3. Check if day of week is configured and not cancelled
-		const dayOfWeek = this.getDayOfWeek(slotDate);
-		const dayConfig = daysOfWeek.find((d) => d.dayOfWeek === dayOfWeek);
-
-		if (!dayConfig || dayConfig.cancelAllDay) {
-			return false;
-		}
-
-		// 4. Check if day is cancelled by overwrite
-		const isCancelledByOverwrite = overwriteDays.some(
-			(o) =>
-				o.cancelAllDay &&
-				o.day.year === slot.day.year &&
-				o.day.month === slot.day.month &&
-				o.day.day === slot.day.day,
-		);
-
-		if (isCancelledByOverwrite) {
-			return false;
-		}
-
-		// 5. Check if slot fits within a configured period for this day
-		const dayPeriods = periods.filter(
-			(p) => p.agendaDayOfWeekId === dayConfig.id,
-		);
-		const slotFitsPeriod = this.checkSlotFitsPeriod(
-			slot.startTime,
-			slot.endTime,
-			dayPeriods,
-		);
-
-		if (!slotFitsPeriod) {
-			return false;
-		}
-
-		// 6. Check if slot overlaps with existing schedules
-		const hasOverlap = existingSchedules.some(
-			(schedule) =>
-				schedule.day.year === slot.day.year &&
-				schedule.day.month === slot.day.month &&
-				schedule.day.day === slot.day.day &&
-				this.timesOverlap(
-					slot.startTime,
-					slot.endTime,
-					schedule.startTime,
-					schedule.endTime,
-				),
-		);
-
-		return !hasOverlap;
 	}
 
 	/**
