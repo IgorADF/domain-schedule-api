@@ -33,4 +33,17 @@ export class AgendaPeriodsRepository
 
 		return periods.map((period) => AgendaPeriodsMapper.toEntity(period));
 	}
+
+	async getByOverwriteDayIds(overwriteDayIds: string[]) {
+		if (overwriteDayIds.length === 0) {
+			return [];
+		}
+
+		const periods = await this.sequelizeRepository.findAll({
+			where: { overwriteDayId: overwriteDayIds },
+			transaction: this.transaction,
+		});
+
+		return periods.map((period) => AgendaPeriodsMapper.toEntity(period));
+	}
 }

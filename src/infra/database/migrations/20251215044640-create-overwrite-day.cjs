@@ -19,6 +19,8 @@ module.exports = {
 					key: "id",
 					model: "AgendaConfigs",
 				},
+				onUpdate: "CASCADE",
+				onDelete: "CASCADE",
 			},
 			{
 				field: "day",

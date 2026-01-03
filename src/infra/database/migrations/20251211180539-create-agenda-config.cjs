@@ -20,6 +20,8 @@ module.exports = {
 					key: "id",
 					model: "Sellers",
 				},
+				onUpdate: "CASCADE",
+				onDelete: "CASCADE",
 			},
 			{
 				field: "maxDaysOfAdvancedNotice",

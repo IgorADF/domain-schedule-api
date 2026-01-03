@@ -8,6 +8,7 @@ import {
 	Table,
 } from "sequelize-typescript";
 import AgendaDayOfWeekModel from "./agenda-day-of-week.js";
+import OverwriteDayModel from "./overwrite-day.js";
 
 export type AgendaPeriodsModelType = InferAttributes<AgendaPeriodsModel>;
 export type AgendaPeriodsModelCreationType =
@@ -22,8 +23,12 @@ class AgendaPeriodsModel extends Model<
 	declare id: string;
 
 	@ForeignKey(() => AgendaDayOfWeekModel)
-	@Column({ allowNull: false, type: DataType.UUID })
-	agendaDayOfWeekId!: string;
+	@Column({ type: DataType.UUID })
+	agendaDayOfWeekId!: string | null;
+
+	@ForeignKey(() => OverwriteDayModel)
+	@Column({ type: DataType.UUID })
+	overwriteDayId!: string | null;
 
 	@Column({ allowNull: false, type: DataType.TIME })
 	startTime!: string;
@@ -58,5 +63,8 @@ class AgendaPeriodsModel extends Model<
 
 	@BelongsTo(() => AgendaDayOfWeekModel)
 	agendaDayOfWeek?: AgendaDayOfWeekModel;
+
+	@BelongsTo(() => OverwriteDayModel)
+	overwriteDay?: OverwriteDayModel;
 }
 export default AgendaPeriodsModel;

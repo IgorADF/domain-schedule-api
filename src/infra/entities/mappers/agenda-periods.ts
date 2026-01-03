@@ -12,6 +12,7 @@ export function toModel(period: AgendaPeriodType): AgendaPeriodsModelType {
 	return {
 		id: period.id,
 		agendaDayOfWeekId: period.agendaDayOfWeekId,
+		overwriteDayId: period.overwriteDayId,
 		startTime,
 		endTime,
 		minutesOfService: period.minutesOfService,
@@ -31,6 +32,7 @@ export function toEntity(_period: AgendaPeriodsModel): AgendaPeriodType {
 	const map: AgendaPeriodType = {
 		id: period.id,
 		agendaDayOfWeekId: period.agendaDayOfWeekId,
+		overwriteDayId: period.overwriteDayId,
 		startTime: {
 			hour: startHour,
 			minute: startMinute,

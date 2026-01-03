@@ -10,7 +10,7 @@ export function toModel(overwriteDay: OverwriteDayType): OverwriteDayModelType {
 
 	return {
 		id: overwriteDay.id,
-		agendaId: overwriteDay.agendaId,
+		agendaConfigId: overwriteDay.agendaConfigId,
 		day: new Date(year, month - 1, day),
 		cancelAllDay: overwriteDay.cancelAllDay,
 		creationDate: overwriteDay.creationDate,
@@ -23,7 +23,7 @@ export function toEntity(_overwriteDay: OverwriteDayModel): OverwriteDayType {
 
 	const map: OverwriteDayType = {
 		id: overwriteDay.id,
-		agendaId: overwriteDay.agendaId,
+		agendaConfigId: overwriteDay.agendaConfigId,
 		day: {
 			year: overwriteDay.day.getFullYear(),
 			month: overwriteDay.day.getMonth() + 1,

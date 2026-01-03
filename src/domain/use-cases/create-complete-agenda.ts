@@ -159,6 +159,7 @@ export class CreateCompleteAgendaUseCase {
 	): Promise<AgendaPeriodType[]> {
 		const periodsToCreate = periodsOfDays.map((period) => ({
 			...period,
+			overwriteDayId: null,
 			agendaDayOfWeekId: daysOfWeekId,
 		}));
 

@@ -1,6 +1,6 @@
 import type { OverwriteDayType } from "@domain/entities/overwrite-day.js";
 import type { IOverwriteDayRepository } from "@domain/repositories/overwrite-day.interface.js";
-import type { DayObj } from "@domain/shared/value-objects/day.js";
+import { dayToISOString, type DayObj } from "@domain/shared/value-objects/day.js";
 import { Op } from "sequelize";
 import type z from "zod";
 import OverwriteDayModel from "../database/models/overwrite-day.js";
@@ -23,16 +23,16 @@ export class OverwriteDayRepository
 	}
 
 	async getByDateRange(
-		agendaId: string,
+		agendaConfigId: string,
 		initialDate: z.infer<typeof DayObj>,
 		finalDate: z.infer<typeof DayObj>,
 	): Promise<OverwriteDayType[]> {
-		const initialDateString = `${initialDate.year}-${initialDate.month.toString().padStart(2, "0")}-${initialDate.day.toString().padStart(2, "0")}`;
-		const finalDateString = `${finalDate.year}-${finalDate.month.toString().padStart(2, "0")}-${finalDate.day.toString().padStart(2, "0")}`;
+		const initialDateString = dayToISOString(initialDate);
+		const finalDateString = dayToISOString(finalDate);
 
 		const overwriteDays = await this.sequelizeRepository.findAll({
 			where: {
-				agendaId,
+				agendaConfigId,
 				day: {
 					[Op.between]: [initialDateString, finalDateString],
 				},

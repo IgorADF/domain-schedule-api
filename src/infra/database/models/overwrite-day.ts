@@ -4,10 +4,12 @@ import {
 	Column,
 	DataType,
 	ForeignKey,
+	HasMany,
 	Model,
 	Table,
 } from "sequelize-typescript";
 import AgendaConfigsModel from "./agenda-configs.js";
+import AgendaPeriodsModel from "./agenda-periods.js";
 
 export type OverwriteDayModelType = InferAttributes<OverwriteDayModel>;
 export type OverwriteDayModelCreationType =
@@ -23,7 +25,7 @@ class OverwriteDayModel extends Model<
 
 	@ForeignKey(() => AgendaConfigsModel)
 	@Column({ allowNull: false, type: DataType.UUID })
-	agendaId!: string;
+	agendaConfigId!: string;
 
 	@Column({ allowNull: false, type: DataType.DATEONLY })
 	day!: Date;
@@ -40,7 +42,10 @@ class OverwriteDayModel extends Model<
 	/* Associations */
 
 	@BelongsTo(() => AgendaConfigsModel)
-	agenda?: AgendaConfigsModel;
+	agendaConfig?: AgendaConfigsModel;
+
+	@HasMany(() => AgendaPeriodsModel)
+	periods?: AgendaPeriodsModel[];
 }
 
 export default OverwriteDayModel;

@@ -52,15 +52,18 @@ export class ListAvailableSlotsUseCase {
 				dayOfWeekIds,
 			);
 
-		if (periods.length === 0) {
+		const { overwriteDays, overwritePeriods } =
+			await this.generateSlotsUseCase.fetchOverwriteContext(
+				this.uow,
+				agendaConfig.id,
+				initialDate,
+				finalDate,
+			);
+
+		// No slots available if there are no regular periods and no overwrite periods
+		if (periods.length === 0 && overwritePeriods.length === 0) {
 			return { data: [] };
 		}
-
-		const overwriteDays = await this.uow.overwriteDayRepository.getByDateRange(
-			agendaConfig.id,
-			initialDate,
-			finalDate,
-		);
 
 		const existingSchedules =
 			await this.uow.agendaScheduleRepository.getByDateRange(
@@ -76,6 +79,8 @@ export class ListAvailableSlotsUseCase {
 				agendaConfig,
 				daysOfWeek,
 				periods,
+				overwriteDays,
+				overwritePeriods,
 			},
 		);
 
@@ -83,7 +88,6 @@ export class ListAvailableSlotsUseCase {
 			allSlots,
 			{
 				agendaConfig,
-				overwriteDays,
 				existingSchedules,
 			},
 		);

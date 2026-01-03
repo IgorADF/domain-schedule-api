@@ -14,6 +14,8 @@ module.exports = {
 				key: "id",
 				model: "OverwriteDay",
 			},
+			onUpdate: "CASCADE",
+			onDelete: "CASCADE",
 		});
 	},
 };

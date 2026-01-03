@@ -28,6 +28,7 @@ export type SlotAvailabilityContext = {
 	daysOfWeek: AgendaDayOfWeekType[];
 	periods: AgendaPeriodType[];
 	overwriteDays: OverwriteDayType[];
+	overwritePeriods: AgendaPeriodType[];
 	existingSchedules: AgendaScheduleType[];
 };
 
@@ -38,16 +39,27 @@ export type SlotAvailabilityContext = {
 export class GenerateSlotsUseCase {
 	/**
 	 * Generate all possible slots for a date range based on agenda configuration.
+	 * OverwriteDays with periods will take over the normal day configuration.
 	 */
 	generateAllSlots(
 		initialDate: z.infer<typeof DayObj>,
 		finalDate: z.infer<typeof DayObj>,
 		context: Pick<
 			SlotAvailabilityContext,
-			"agendaConfig" | "daysOfWeek" | "periods"
+			| "agendaConfig"
+			| "daysOfWeek"
+			| "periods"
+			| "overwriteDays"
+			| "overwritePeriods"
 		>,
 	): SlotType[] {
-		const { agendaConfig, daysOfWeek, periods } = context;
+		const {
+			agendaConfig,
+			daysOfWeek,
+			periods,
+			overwriteDays,
+			overwritePeriods,
+		} = context;
 		const slots: SlotType[] = [];
 
 		const periodsByDayOfWeek = this.groupPeriodsByDayOfWeek(
@@ -55,17 +67,20 @@ export class GenerateSlotsUseCase {
 			periods,
 		);
 
+		const periodsByOverwriteDay = this.groupPeriodsByOverwriteDay(
+			overwriteDays,
+			overwritePeriods,
+		);
+
 		const currentDate = this.createDate(initialDate);
 		const endDate = this.createDate(finalDate);
 
 		while (currentDate <= endDate) {
-			const dayOfWeek = this.getDayOfWeek(currentDate);
-			const dayConfig = daysOfWeek.find((d) => d.dayOfWeek === dayOfWeek);
-
-			if (!dayConfig || dayConfig.cancelAllDay) {
-				currentDate.setDate(currentDate.getDate() + 1);
-				continue;
-			}
+			const currentDay: z.infer<typeof DayObj> = {
+				year: currentDate.getFullYear(),
+				month: currentDate.getMonth() + 1,
+				day: currentDate.getDate(),
+			};
 
 			const today = new Date();
 			const diffDays = Math.ceil(
@@ -76,17 +91,47 @@ export class GenerateSlotsUseCase {
 				continue;
 			}
 
+			// Check if there's an overwrite day for this date
+			const overwriteDay = overwriteDays.find(
+				(o) =>
+					o.day.year === currentDay.year &&
+					o.day.month === currentDay.month &&
+					o.day.day === currentDay.day,
+			);
+
+			if (overwriteDay) {
+				// If cancelAllDay is true, skip this day entirely
+				if (overwriteDay.cancelAllDay) {
+					currentDate.setDate(currentDate.getDate() + 1);
+					continue;
+				}
+
+				// Use overwrite day periods instead of regular day periods
+				const overwritePeriodsForDay =
+					periodsByOverwriteDay.get(overwriteDay.id) || [];
+
+				for (const period of overwritePeriodsForDay) {
+					const periodSlots = this.generateSlotsFromPeriod(currentDay, period);
+					slots.push(...periodSlots);
+				}
+
+				currentDate.setDate(currentDate.getDate() + 1);
+				continue;
+			}
+
+			// Normal day processing
+			const dayOfWeek = this.getDayOfWeek(currentDate);
+			const dayConfig = daysOfWeek.find((d) => d.dayOfWeek === dayOfWeek);
+
+			if (!dayConfig || dayConfig.cancelAllDay) {
+				currentDate.setDate(currentDate.getDate() + 1);
+				continue;
+			}
+
 			const dayPeriods = periodsByDayOfWeek.get(dayConfig.id) || [];
 
 			for (const period of dayPeriods) {
-				const periodSlots = this.generateSlotsFromPeriod(
-					{
-						year: currentDate.getFullYear(),
-						month: currentDate.getMonth() + 1,
-						day: currentDate.getDate(),
-					},
-					period,
-				);
+				const periodSlots = this.generateSlotsFromPeriod(currentDay, period);
 				slots.push(...periodSlots);
 			}
 
@@ -137,31 +182,19 @@ export class GenerateSlotsUseCase {
 	}
 
 	/**
-	 * Filter out slots that are already booked or cancelled by overwrite days.
+	 * Filter out slots that are already booked or don't meet advanced notice requirements.
 	 */
 	filterAvailableSlots(
 		slots: SlotType[],
 		context: Pick<
 			SlotAvailabilityContext,
-			"agendaConfig" | "overwriteDays" | "existingSchedules"
+			"agendaConfig" | "existingSchedules"
 		>,
 	): SlotType[] {
-		const { agendaConfig, overwriteDays, existingSchedules } = context;
+		const { agendaConfig, existingSchedules } = context;
 		const now = new Date();
 
 		return slots.filter((slot) => {
-			const isCancelledByOverwrite = overwriteDays.some(
-				(o) =>
-					o.cancelAllDay &&
-					o.day.year === slot.day.year &&
-					o.day.month === slot.day.month &&
-					o.day.day === slot.day.day,
-			);
-
-			if (isCancelledByOverwrite) {
-				return false;
-			}
-
 			if (agendaConfig.minHoursOfAdvancedNotice) {
 				const slotDateTime = new Date(
 					slot.day.year,
@@ -204,6 +237,7 @@ export class GenerateSlotsUseCase {
 			daysOfWeek,
 			periods,
 			overwriteDays,
+			overwritePeriods,
 			existingSchedules,
 		} = context;
 
@@ -212,12 +246,13 @@ export class GenerateSlotsUseCase {
 			agendaConfig,
 			daysOfWeek,
 			periods,
+			overwriteDays,
+			overwritePeriods,
 		});
 
-		// 2. Filter to get only available slots (not booked, not cancelled, respects notice times)
+		// 2. Filter to get only available slots (not booked, respects notice times)
 		const availableSlots = this.filterAvailableSlots(allSlots, {
 			agendaConfig,
-			overwriteDays,
 			existingSchedules,
 		});
 
@@ -325,22 +360,25 @@ export class GenerateSlotsUseCase {
 	}
 
 	/**
-	 * Group periods by day of week ID.
+	 * Generic method to group periods by parent entity ID.
 	 */
-	groupPeriodsByDayOfWeek(
-		daysOfWeek: AgendaDayOfWeekType[],
+	private groupPeriodsById<T extends { id: string }>(
+		parentEntities: T[],
 		periods: AgendaPeriodType[],
+		getParentId: (period: AgendaPeriodType) => string | null,
 	): Map<string, AgendaPeriodType[]> {
 		const map = new Map<string, AgendaPeriodType[]>();
 
-		for (const day of daysOfWeek) {
-			map.set(day.id, []);
+		for (const parent of parentEntities) {
+			map.set(parent.id, []);
 		}
 
 		for (const period of periods) {
-			const existing = map.get(period.agendaDayOfWeekId) || [];
+			const parentId = getParentId(period);
+			if (!parentId) continue;
+			const existing = map.get(parentId) || [];
 			existing.push(period);
-			map.set(period.agendaDayOfWeekId, existing);
+			map.set(parentId, existing);
 		}
 
 		for (const [key, value] of map) {
@@ -351,6 +389,34 @@ export class GenerateSlotsUseCase {
 		}
 
 		return map;
+	}
+
+	/**
+	 * Group periods by day of week ID.
+	 */
+	groupPeriodsByDayOfWeek(
+		daysOfWeek: AgendaDayOfWeekType[],
+		periods: AgendaPeriodType[],
+	): Map<string, AgendaPeriodType[]> {
+		return this.groupPeriodsById(
+			daysOfWeek,
+			periods,
+			(p) => p.agendaDayOfWeekId,
+		);
+	}
+
+	/**
+	 * Group periods by overwrite day ID.
+	 */
+	groupPeriodsByOverwriteDay(
+		overwriteDays: OverwriteDayType[],
+		periods: AgendaPeriodType[],
+	): Map<string, AgendaPeriodType[]> {
+		return this.groupPeriodsById(
+			overwriteDays,
+			periods,
+			(p) => p.overwriteDayId,
+		);
 	}
 
 	/**
@@ -374,5 +440,33 @@ export class GenerateSlotsUseCase {
 	parseDateString(dateString: string): z.infer<typeof DayObj> {
 		const [year, month, day] = dateString.split("-").map(Number);
 		return { year, month, day };
+	}
+
+	/**
+	 * Fetch overwrite days and their periods for a date range.
+	 * Helper to reduce duplication across use cases.
+	 */
+	async fetchOverwriteContext(
+		uow: { overwriteDayRepository: { getByDateRange: (agendaConfigId: string, initialDate: z.infer<typeof DayObj>, finalDate: z.infer<typeof DayObj>) => Promise<OverwriteDayType[]> }; agendaPeriodsRepository: { getByOverwriteDayIds: (ids: string[]) => Promise<AgendaPeriodType[]> } },
+		agendaConfigId: string,
+		initialDate: z.infer<typeof DayObj>,
+		finalDate: z.infer<typeof DayObj>,
+	): Promise<{
+		overwriteDays: OverwriteDayType[];
+		overwritePeriods: AgendaPeriodType[];
+	}> {
+		const overwriteDays = await uow.overwriteDayRepository.getByDateRange(
+			agendaConfigId,
+			initialDate,
+			finalDate,
+		);
+
+		const overwriteDayIds = overwriteDays.map((o) => o.id);
+		const overwritePeriods =
+			overwriteDayIds.length > 0
+				? await uow.agendaPeriodsRepository.getByOverwriteDayIds(overwriteDayIds)
+				: [];
+
+		return { overwriteDays, overwritePeriods };
 	}
 }

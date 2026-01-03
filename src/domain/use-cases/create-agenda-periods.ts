@@ -9,6 +9,7 @@ import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 export const CreateAgendaPeriodsSchema = z.array(
 	AgendaPeriodSchema.pick({
 		agendaDayOfWeekId: true,
+		overwriteDayId: true,
 		startTime: true,
 		endTime: true,
 		minutesOfService: true,

@@ -5,4 +5,5 @@ export interface IAgendaPeriodsRepository {
 	getByAgendaDayOfWeekIds(
 		agendaDayOfWeekIds: string[],
 	): Promise<AgendaPeriodType[]>;
+	getByOverwriteDayIds(overwriteDayIds: string[]): Promise<AgendaPeriodType[]>;
 }

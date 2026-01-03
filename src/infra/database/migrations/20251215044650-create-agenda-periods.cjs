@@ -19,6 +19,8 @@ module.exports = {
 					key: "id",
 					model: "AgendaDayOfWeek",
 				},
+				onUpdate: "CASCADE",
+				onDelete: "CASCADE",
 			},
 			{
 				field: "overwriteId",
@@ -28,6 +30,8 @@ module.exports = {
 					key: "id",
 					model: "OverwriteDay",
 				},
+				onUpdate: "CASCADE",
+				onDelete: "CASCADE",
 			},
 			{
 				field: "startTime",

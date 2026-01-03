@@ -83,11 +83,13 @@ export class CreateAgendaScheduleUseCase {
 				dayOfWeekIds,
 			);
 
-		const overwriteDays = await this.uow.overwriteDayRepository.getByDateRange(
-			agendaConfig.id,
-			day,
-			day,
-		);
+		const { overwriteDays, overwritePeriods } =
+			await this.generateSlotsUseCase.fetchOverwriteContext(
+				this.uow,
+				agendaConfig.id,
+				day,
+				day,
+			);
 
 		const existingSchedules =
 			await this.uow.agendaScheduleRepository.getByDateRange(
@@ -103,6 +105,7 @@ export class CreateAgendaScheduleUseCase {
 				daysOfWeek,
 				periods,
 				overwriteDays,
+				overwritePeriods,
 				existingSchedules,
 			},
 		);

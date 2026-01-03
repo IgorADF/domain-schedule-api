@@ -6,7 +6,7 @@ import { Timestamp } from "../shared/value-objects/timestamp.js";
 export const OverwriteDaySchema = z
 	.object({
 		id: IdObj,
-		agendaId: IdObj,
+		agendaConfigId: IdObj,
 		day: DayObj,
 		cancelAllDay: z.boolean(),
 	})
