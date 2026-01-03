@@ -11,6 +11,6 @@ export type DayType = z.infer<typeof DayObj>;
 /**
  * Convert DayObj to ISO date string (YYYY-MM-DD).
  */
-export function dayToISOString(day: z.infer<typeof DayObj>): string {
+export function dayToISOString(day: DayType): string {
 	return `${day.year}-${day.month.toString().padStart(2, "0")}-${day.day.toString().padStart(2, "0")}`;
 }

@@ -2,7 +2,7 @@ import z from "zod";
 import type { AgendaScheduleType } from "../entities/agenda-schedule.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
-import type { DayObj } from "../shared/value-objects/day.js";
+import type { DayType } from "../shared/value-objects/day.js";
 
 export const ListSellerSchedulesSchema = z.object({
 	sellerId: z.uuid(),
@@ -13,7 +13,7 @@ export const ListSellerSchedulesSchema = z.object({
 export type ListSellerSchedulesType = z.infer<typeof ListSellerSchedulesSchema>;
 
 export type ScheduleByDateType = {
-	date: z.infer<typeof DayObj>;
+	date: DayType;
 	schedules: AgendaScheduleType[];
 };
 
@@ -56,7 +56,7 @@ export class ListSellerSchedulesUseCase {
 		};
 	}
 
-	private parseDateString(dateString: string): z.infer<typeof DayObj> {
+	private parseDateString(dateString: string): DayType {
 		const [year, month, day] = dateString.split("-").map(Number);
 		return { year, month, day };
 	}

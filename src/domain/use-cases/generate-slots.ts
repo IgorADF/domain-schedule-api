@@ -1,25 +1,24 @@
-import type z from "zod";
 import type { AgendaConfigType } from "../entities/agenda-config.js";
 import type { AgendaDayOfWeekType } from "../entities/agenda-day-of-week.js";
 import type { AgendaPeriodType } from "../entities/agenda-periods.js";
 import type { AgendaScheduleType } from "../entities/agenda-schedule.js";
 import type { OverwriteDayType } from "../entities/overwrite-day.js";
-import type { DayObj } from "../shared/value-objects/day.js";
-import type { TimeObj } from "../shared/value-objects/time.js";
+import type { DayType } from "../shared/value-objects/day.js";
+import type { TimeType } from "../shared/value-objects/time.js";
 
 export type SlotType = {
-	day: z.infer<typeof DayObj>;
-	startTime: z.infer<typeof TimeObj>;
-	endTime: z.infer<typeof TimeObj>;
+	day: DayType;
+	startTime: TimeType;
+	endTime: TimeType;
 };
 
 export type TimeSlot = {
-	startTime: z.infer<typeof TimeObj>;
-	endTime: z.infer<typeof TimeObj>;
+	startTime: TimeType;
+	endTime: TimeType;
 };
 
 export type DaySlots = {
-	day: z.infer<typeof DayObj>;
+	day: DayType;
 	slots: TimeSlot[];
 };
 
@@ -42,8 +41,8 @@ export class GenerateSlotsUseCase {
 	 * OverwriteDays with periods will take over the normal day configuration.
 	 */
 	generateAllSlots(
-		initialDate: z.infer<typeof DayObj>,
-		finalDate: z.infer<typeof DayObj>,
+		initialDate: DayType,
+		finalDate: DayType,
 		context: Pick<
 			SlotAvailabilityContext,
 			| "agendaConfig"
@@ -76,7 +75,7 @@ export class GenerateSlotsUseCase {
 		const endDate = this.createDate(finalDate);
 
 		while (currentDate <= endDate) {
-			const currentDay: z.infer<typeof DayObj> = {
+			const currentDay: DayType = {
 				year: currentDate.getFullYear(),
 				month: currentDate.getMonth() + 1,
 				day: currentDate.getDate(),
@@ -144,10 +143,7 @@ export class GenerateSlotsUseCase {
 	/**
 	 * Generate slots within a single period based on service time and interval.
 	 */
-	generateSlotsFromPeriod(
-		day: z.infer<typeof DayObj>,
-		period: AgendaPeriodType,
-	): SlotType[] {
+	generateSlotsFromPeriod(day: DayType, period: AgendaPeriodType): SlotType[] {
 		const slots: SlotType[] = [];
 
 		const startMinutes = period.startTime.hour * 60 + period.startTime.minute;
@@ -158,13 +154,13 @@ export class GenerateSlotsUseCase {
 		let currentMinutes = startMinutes;
 
 		while (currentMinutes + serviceDuration <= endMinutes) {
-			const slotStartTime: z.infer<typeof TimeObj> = {
+			const slotStartTime: TimeType = {
 				hour: Math.floor(currentMinutes / 60),
 				minute: currentMinutes % 60,
 			};
 
 			const slotEndMinutes = currentMinutes + serviceDuration;
-			const slotEndTime: z.infer<typeof TimeObj> = {
+			const slotEndTime: TimeType = {
 				hour: Math.floor(slotEndMinutes / 60),
 				minute: slotEndMinutes % 60,
 			};
@@ -281,11 +277,11 @@ export class GenerateSlotsUseCase {
 	 * Check if a slot fits within any of the given periods.
 	 */
 	checkSlotFitsPeriod(
-		startTime: z.infer<typeof TimeObj>,
-		endTime: z.infer<typeof TimeObj>,
+		startTime: TimeType,
+		endTime: TimeType,
 		periods: {
-			startTime: z.infer<typeof TimeObj>;
-			endTime: z.infer<typeof TimeObj>;
+			startTime: TimeType;
+			endTime: TimeType;
 		}[],
 	): boolean {
 		const slotStartMinutes = startTime.hour * 60 + startTime.minute;
@@ -308,10 +304,10 @@ export class GenerateSlotsUseCase {
 	 * Note: Back-to-back times (end1 === start2 or end2 === start1) are NOT considered overlap.
 	 */
 	timesOverlap(
-		start1: z.infer<typeof TimeObj>,
-		end1: z.infer<typeof TimeObj>,
-		start2: z.infer<typeof TimeObj>,
-		end2: z.infer<typeof TimeObj>,
+		start1: TimeType,
+		end1: TimeType,
+		start2: TimeType,
+		end2: TimeType,
 	): boolean {
 		const start1Minutes = start1.hour * 60 + start1.minute;
 		const end1Minutes = end1.hour * 60 + end1.minute;
@@ -422,7 +418,7 @@ export class GenerateSlotsUseCase {
 	/**
 	 * Create a Date object from DayObj.
 	 */
-	createDate(day: z.infer<typeof DayObj>): Date {
+	createDate(day: DayType): Date {
 		return new Date(day.year, day.month - 1, day.day);
 	}
 
@@ -437,7 +433,7 @@ export class GenerateSlotsUseCase {
 	/**
 	 * Parse date string (YYYY-MM-DD) to DayObj.
 	 */
-	parseDateString(dateString: string): z.infer<typeof DayObj> {
+	parseDateString(dateString: string): DayType {
 		const [year, month, day] = dateString.split("-").map(Number);
 		return { year, month, day };
 	}
@@ -447,10 +443,21 @@ export class GenerateSlotsUseCase {
 	 * Helper to reduce duplication across use cases.
 	 */
 	async fetchOverwriteContext(
-		uow: { overwriteDayRepository: { getByDateRange: (agendaConfigId: string, initialDate: z.infer<typeof DayObj>, finalDate: z.infer<typeof DayObj>) => Promise<OverwriteDayType[]> }; agendaPeriodsRepository: { getByOverwriteDayIds: (ids: string[]) => Promise<AgendaPeriodType[]> } },
+		uow: {
+			overwriteDayRepository: {
+				getByDateRange: (
+					agendaConfigId: string,
+					initialDate: DayType,
+					finalDate: DayType,
+				) => Promise<OverwriteDayType[]>;
+			};
+			agendaPeriodsRepository: {
+				getByOverwriteDayIds: (ids: string[]) => Promise<AgendaPeriodType[]>;
+			};
+		},
 		agendaConfigId: string,
-		initialDate: z.infer<typeof DayObj>,
-		finalDate: z.infer<typeof DayObj>,
+		initialDate: DayType,
+		finalDate: DayType,
 	): Promise<{
 		overwriteDays: OverwriteDayType[];
 		overwritePeriods: AgendaPeriodType[];
@@ -464,7 +471,9 @@ export class GenerateSlotsUseCase {
 		const overwriteDayIds = overwriteDays.map((o) => o.id);
 		const overwritePeriods =
 			overwriteDayIds.length > 0
-				? await uow.agendaPeriodsRepository.getByOverwriteDayIds(overwriteDayIds)
+				? await uow.agendaPeriodsRepository.getByOverwriteDayIds(
+						overwriteDayIds,
+					)
 				: [];
 
 		return { overwriteDays, overwritePeriods };
