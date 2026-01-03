@@ -4,6 +4,7 @@ import { EntityAlreadyExist } from "@/domain/shared/errors/entity-already-exist.
 import { EntityNotFound } from "@/domain/shared/errors/entity-not-found.js";
 import { InvalidCreantionData } from "@/domain/shared/errors/invalid-creation-data.js";
 import { InvalidCredentials } from "@/domain/shared/errors/invalid-credentials.js";
+import { SlotNotAvailable } from "@/domain/shared/errors/slot-not-available.js";
 
 /**
  * Global error handler for Fastify API
@@ -60,6 +61,13 @@ export async function errorHandler(
 	if (error instanceof InvalidCreantionData) {
 		return reply.status(400).send({
 			error: "Bad Request",
+			message: error.message,
+		});
+	}
+
+	if (error instanceof SlotNotAvailable) {
+		return reply.status(409).send({
+			error: "Conflict",
 			message: error.message,
 		});
 	}
