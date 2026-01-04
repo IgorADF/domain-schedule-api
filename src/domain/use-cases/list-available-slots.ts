@@ -92,8 +92,11 @@ export class ListAvailableSlotsUseCase {
 			},
 		);
 
-		const groupedSlots =
-			this.generateSlotsUseCase.groupSlotsByDay(availableSlots);
+		const groupedSlots = this.generateSlotsUseCase.groupSlotsByDayRange(
+			availableSlots,
+			initialDate,
+			finalDate,
+		);
 
 		return { data: groupedSlots };
 	}

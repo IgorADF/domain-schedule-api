@@ -24,6 +24,15 @@ export class OverwriteDayRepository
 		return OverwriteDayMapper.toEntity(overwriteDay);
 	}
 
+	async bulkCreate(data: OverwriteDayType[]): Promise<OverwriteDayType[]> {
+		const modelInstances = data.map((d) => OverwriteDayMapper.toModel(d));
+		const overwriteDays = await this.sequelizeRepository.bulkCreate(
+			modelInstances,
+			{ transaction: this.transaction },
+		);
+		return overwriteDays.map((o) => OverwriteDayMapper.toEntity(o));
+	}
+
 	async getByDateRange(
 		agendaConfigId: string,
 		initialDate: DayType,

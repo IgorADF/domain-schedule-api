@@ -1,0 +1,78 @@
+###
+
+# @name CreateOverwriteDaysWithPeriods
+POST {{BASE_URL}}/overwrite-days
+Content-Type: application/json
+Authorization: Bearer {{TOKEN}}
+
+{
+	"agendaConfigId": "{{AGENDA_CONFIG_ID}}",
+	"overwriteDays": [
+		{
+			"day": {
+				"year": 2026,
+				"month": 1,
+				"day": 10
+			},
+			"cancelAllDay": false,
+			"periods": [
+				{
+					"startTime": {
+						"hour": 10,
+						"minute": 0
+					},
+					"endTime": {
+						"hour": 12,
+						"minute": 0
+					},
+					"minutesOfService": 30,
+					"minutesOfInterval": 10
+				},
+				{
+					"startTime": {
+						"hour": 14,
+						"minute": 0
+					},
+					"endTime": {
+						"hour": 18,
+						"minute": 0
+					},
+					"minutesOfService": 60,
+					"minutesOfInterval": null
+				}
+			]
+		},
+		{
+			"day": {
+				"year": 2026,
+				"month": 1,
+				"day": 15
+			},
+			"cancelAllDay": true
+		},
+		{
+			"day": {
+				"year": 2026,
+				"month": 2,
+				"day": 14
+			},
+			"cancelAllDay": false,
+			"periods": [
+				{
+					"startTime": {
+						"hour": 9,
+						"minute": 0
+					},
+					"endTime": {
+						"hour": 17,
+						"minute": 0
+					},
+					"minutesOfService": 45,
+					"minutesOfInterval": 15
+				}
+			]
+		}
+	]
+}
+
+###

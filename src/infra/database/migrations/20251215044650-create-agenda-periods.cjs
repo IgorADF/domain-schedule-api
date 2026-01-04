@@ -14,7 +14,6 @@ module.exports = {
 			{
 				field: "agendaDayOfWeekId",
 				type: Sequelize.UUID,
-				allowNull: false,
 				references: {
 					key: "id",
 					model: "AgendaDayOfWeek",

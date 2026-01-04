@@ -14,6 +14,7 @@ export const AgendaPeriodSchema = z
 		minutesOfInterval: z.number().positive().min(5).max(9999).nullable(),
 		order: z.number().positive().min(1).max(5),
 	})
+	.extend(Timestamp.shape)
 	.refine(
 		(data) => {
 			if (
@@ -28,7 +29,6 @@ export const AgendaPeriodSchema = z
 			message:
 				"Either agendaDayOfWeekId or overwriteDayId must be set, but not both.",
 		},
-	)
-	.extend(Timestamp.shape);
+	);
 
 export type AgendaPeriodType = z.infer<typeof AgendaPeriodSchema>;

@@ -26,21 +26,9 @@ module.exports = {
 		await queryInterface.addIndex("AgendaPeriods", ["overwriteDayId"], {
 			name: "AgendaPeriods_overwriteDayId_index",
 		});
-
-		// Change agendaDayOfWeekId to allow nulls
-		await queryInterface.changeColumn("AgendaPeriods", "agendaDayOfWeekId", {
-			type: Sequelize.UUID,
-			allowNull: true,
-			references: {
-				key: "id",
-				model: "AgendaDayOfWeek",
-			},
-			onUpdate: "CASCADE",
-			onDelete: "CASCADE",
-		});
 	},
 
-	async down(queryInterface, Sequelize) {
+	async down(queryInterface) {
 		// Remove index
 		await queryInterface.removeIndex(
 			"AgendaPeriods",
@@ -56,17 +44,5 @@ module.exports = {
 			"agendaConfigId",
 			"agendaId",
 		);
-
-		// Change agendaDayOfWeekId to not allow nulls
-		await queryInterface.changeColumn("AgendaPeriods", "agendaDayOfWeekId", {
-			type: Sequelize.UUID,
-			allowNull: false,
-			references: {
-				key: "id",
-				model: "AgendaDayOfWeek",
-			},
-			onUpdate: "CASCADE",
-			onDelete: "CASCADE",
-		});
 	},
 };

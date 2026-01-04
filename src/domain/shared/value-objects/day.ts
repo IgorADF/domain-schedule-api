@@ -14,3 +14,11 @@ export type DayType = z.infer<typeof DayObj>;
 export function dayToISOString(day: DayType): string {
 	return `${day.year}-${day.month.toString().padStart(2, "0")}-${day.day.toString().padStart(2, "0")}`;
 }
+
+/**
+ * Convert ISO date string (YYYY-MM-DD) to DayObj.
+ */
+export function isoStringToDay(isoString: string): DayType {
+	const [year, month, day] = isoString.split("-").map(Number);
+	return { year, month, day };
+}

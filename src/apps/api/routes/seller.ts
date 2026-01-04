@@ -21,7 +21,7 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 				const { useCase } = authSellerFactory(logger);
 				const result = await useCase.execute(request.body);
 
-				const token = fastify.jwt.sign({
+				const token = await fastify.jwtSign({
 					id: result.sellerId,
 					email: result.email,
 				});
@@ -60,15 +60,14 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 		);
 
 		fastify.patch(
-			"/:id",
+			"/",
 			{
 				schema: {
-					params: z.object({ id: z.uuid() }),
 					body: UpdateSellerSchema.omit({ id: true }),
 				},
 			},
 			async (request) => {
-				const { id } = request.params;
+				const id = request?.authSeller?.id as string;
 				const { useCase } = updateSellerFactory();
 				const result = await useCase.execute({ id, ...request.body });
 				return { data: result.data };

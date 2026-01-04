@@ -28,7 +28,7 @@ class OverwriteDayModel extends Model<
 	agendaConfigId!: string;
 
 	@Column({ allowNull: false, type: DataType.DATEONLY })
-	day!: Date;
+	day!: string;
 
 	@Column({ allowNull: false, type: DataType.BOOLEAN })
 	cancelAllDay!: boolean;

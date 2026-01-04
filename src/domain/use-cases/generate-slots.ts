@@ -356,6 +356,54 @@ export class GenerateSlotsUseCase {
 	}
 
 	/**
+	 * Group slots by day for a specific date range.
+	 * Returns all days in the range, even if they have no available slots.
+	 */
+	groupSlotsByDayRange(
+		slots: SlotType[],
+		initialDate: DayType,
+		finalDate: DayType,
+	): DaySlots[] {
+		const grouped = new Map<string, TimeSlot[]>();
+
+		// Group existing slots
+		for (const slot of slots) {
+			const dayKey = `${slot.day.year}-${String(slot.day.month).padStart(2, "0")}-${String(slot.day.day).padStart(2, "0")}`;
+
+			if (!grouped.has(dayKey)) {
+				grouped.set(dayKey, []);
+			}
+
+			grouped.get(dayKey)?.push({
+				startTime: slot.startTime,
+				endTime: slot.endTime,
+			});
+		}
+
+		// Create entries for all days in the range
+		const result: DaySlots[] = [];
+		const currentDate = this.createDate(initialDate);
+		const endDate = this.createDate(finalDate);
+
+		while (currentDate <= endDate) {
+			const dayKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
+
+			result.push({
+				day: {
+					year: currentDate.getFullYear(),
+					month: currentDate.getMonth() + 1,
+					day: currentDate.getDate(),
+				},
+				slots: grouped.get(dayKey) || [],
+			});
+
+			currentDate.setDate(currentDate.getDate() + 1);
+		}
+
+		return result;
+	}
+
+	/**
 	 * Generic method to group periods by parent entity ID.
 	 */
 	private groupPeriodsById<T extends { id: string }>(

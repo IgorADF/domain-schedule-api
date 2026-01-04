@@ -2,15 +2,23 @@ import {
 	AgendaScheduleSchema,
 	type AgendaScheduleType,
 } from "@domain/entities/agenda-schedule.js";
+import {
+	dayToISOString,
+	isoStringToDay,
+} from "@/domain/shared/value-objects/day.js";
+import {
+	fromFormattedTimeString,
+	toFormattedTimeString,
+} from "@/domain/shared/value-objects/time.js";
 import type AgendaScheduleModel from "../../database/models/agenda-schedule.js";
 import type { AgendaScheduleModelType } from "../../database/models/agenda-schedule.js";
 
 export function toModel(schedule: AgendaScheduleType): AgendaScheduleModelType {
-	const startTime = `${schedule.startTime.hour.toString().padStart(2, "0")}:${schedule.startTime.minute.toString().padStart(2, "0")}`;
-	const endTime = `${schedule.endTime.hour.toString().padStart(2, "0")}:${schedule.endTime.minute.toString().padStart(2, "0")}`;
+	const startTime = toFormattedTimeString(schedule.startTime);
+	const endTime = toFormattedTimeString(schedule.endTime);
 
 	const { year, month, day } = schedule.day;
-	const dayString = `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+	const dayString = dayToISOString({ year, month, day });
 
 	return {
 		id: schedule.id,
@@ -28,10 +36,14 @@ export function toModel(schedule: AgendaScheduleType): AgendaScheduleModelType {
 export function toEntity(_schedule: AgendaScheduleModel): AgendaScheduleType {
 	const schedule = _schedule.toJSON();
 
-	const [startHour, startMinute] = schedule.startTime.split(":").map(Number);
-	const [endHour, endMinute] = schedule.endTime.split(":").map(Number);
+	const { hour: startHour, minute: startMinute } = fromFormattedTimeString(
+		schedule.startTime,
+	);
+	const { hour: endHour, minute: endMinute } = fromFormattedTimeString(
+		schedule.endTime,
+	);
 
-	const [year, month, day] = schedule.day.split("-").map(Number);
+	const { year, month, day } = isoStringToDay(schedule.day);
 
 	const map: AgendaScheduleType = {
 		id: schedule.id,
