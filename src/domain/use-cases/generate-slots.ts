@@ -23,6 +23,12 @@ export type DaySlots = {
 	slots: TimeSlot[];
 };
 
+export enum SlotTimingValidation {
+	VALID = "valid",
+	TOO_SOON = "too-soon",
+	TOO_FAR_AHEAD = "too-far-ahead",
+}
+
 export type SlotAvailabilityContext = {
 	agendaConfig: AgendaConfigType;
 	daysOfWeek: AgendaDayOfWeekType[];
@@ -288,6 +294,38 @@ export class GenerateSlotsUseCase {
 
 		// 3. Check if requested slot matches exactly with an available slot
 		return this.slotMatchesExactly(slot, availableSlots);
+	}
+
+	/**
+	 * Validate if a slot respects the timing limits (min hours and max days of advanced notice).
+	 * Returns SlotTimingValidation enum indicating the validation result.
+	 */
+	validateSlotTiming(
+		slot: SlotType,
+		agendaConfig: AgendaConfigType,
+	): SlotTimingValidation {
+		const now = this.getNowInTimezone(agendaConfig.timezone);
+		const slotDateTime = this.createDateTimeInTimezone(
+			slot.day,
+			slot.startTime,
+			agendaConfig.timezone,
+		);
+
+		// Check minHoursOfAdvancedNotice
+		if (agendaConfig.minHoursOfAdvancedNotice) {
+			const diffHours = slotDateTime.diff(now, "hours").hours;
+			if (diffHours < agendaConfig.minHoursOfAdvancedNotice) {
+				return SlotTimingValidation.TOO_SOON;
+			}
+		}
+
+		// Check maxDaysOfAdvancedNotice
+		const diffDays = slotDateTime.diff(now, "days").days;
+		if (diffDays > agendaConfig.maxDaysOfAdvancedNotice) {
+			return SlotTimingValidation.TOO_FAR_AHEAD;
+		}
+
+		return SlotTimingValidation.VALID;
 	}
 
 	/**

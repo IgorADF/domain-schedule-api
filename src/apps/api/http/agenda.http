@@ -235,5 +235,5 @@ Authorization: Bearer {{TOKEN}}
 ###
 
 # @name ListAvailableSlots
-GET {{BASE_URL}}/agendas/available-slots?initialDate=2026-01-03&finalDate=2026-01-12
+GET {{BASE_URL}}/agendas/available-slots?initialDate=2026-01-05&finalDate=2026-01-12
 Authorization: Bearer {{TOKEN}}

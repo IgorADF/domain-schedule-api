@@ -5,8 +5,13 @@ import {
 } from "../entities/agenda-schedule.js";
 import { createEntity } from "../entities/helpers/creation.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import { ScheduleTooFarAhead } from "../shared/errors/schedule-too-far-ahead.js";
+import { ScheduleTooSoon } from "../shared/errors/schedule-too-soon.js";
 import { SlotNotAvailable } from "../shared/errors/slot-not-available.js";
-import type { GenerateSlotsUseCase } from "./generate-slots.js";
+import {
+	type GenerateSlotsUseCase,
+	SlotTimingValidation,
+} from "./generate-slots.js";
 
 export const CreateAgendaScheduleSchema = AgendaScheduleSchema.pick({
 	agendaConfigId: true,
@@ -30,11 +35,7 @@ export class CreateAgendaScheduleUseCase {
 	async execute(
 		input: CreateAgendaScheduleType,
 	): Promise<{ data: AgendaScheduleType }> {
-		const isSlotAvailable = await this.validateSlotAvailability(input);
-
-		if (!isSlotAvailable) {
-			throw new SlotNotAvailable();
-		}
+		await this.validateSlotAvailability(input);
 
 		const agendaSchedule = createEntity<AgendaScheduleType>({
 			...input,
@@ -58,14 +59,28 @@ export class CreateAgendaScheduleUseCase {
 
 	private async validateSlotAvailability(
 		input: CreateAgendaScheduleType,
-	): Promise<boolean> {
+	): Promise<void> {
 		const { agendaConfigId, day, startTime, endTime } = input;
 
 		const agendaConfig =
 			await this.uow.agendaConfigsRepository.getById(agendaConfigId);
 
 		if (!agendaConfig) {
-			return false;
+			throw new SlotNotAvailable();
+		}
+
+		// Validate timing limits first
+		const timingValidation = this.generateSlotsUseCase.validateSlotTiming(
+			{ day, startTime, endTime },
+			agendaConfig,
+		);
+
+		if (timingValidation === SlotTimingValidation.TOO_SOON) {
+			throw new ScheduleTooSoon();
+		}
+
+		if (timingValidation === SlotTimingValidation.TOO_FAR_AHEAD) {
+			throw new ScheduleTooFarAhead();
 		}
 
 		const daysOfWeek =
@@ -74,7 +89,7 @@ export class CreateAgendaScheduleUseCase {
 			);
 
 		if (daysOfWeek.length === 0) {
-			return false;
+			throw new SlotNotAvailable();
 		}
 
 		const dayOfWeekIds = daysOfWeek.map((d) => d.id);
@@ -98,7 +113,7 @@ export class CreateAgendaScheduleUseCase {
 				day,
 			);
 
-		return this.generateSlotsUseCase.isSlotAvailable(
+		const isAvailable = this.generateSlotsUseCase.isSlotAvailable(
 			{ day, startTime, endTime },
 			{
 				agendaConfig,
@@ -109,5 +124,9 @@ export class CreateAgendaScheduleUseCase {
 				existingSchedules,
 			},
 		);
+
+		if (!isAvailable) {
+			throw new SlotNotAvailable();
+		}
 	}
 }

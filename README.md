@@ -8,8 +8,8 @@
 - [x] ResetPassword
 - [X-] Cria seller config
 - [X-] Lista seller config
-- [x] Cria schedule
-- []
+- [x] Cria schedule + inside slot
+- [x] List slots
 
 ### Tech
 
