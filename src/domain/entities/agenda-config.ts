@@ -11,7 +11,13 @@ export const AgendaConfigSchema = z
 			.max(365 * 2)
 			.positive(),
 		minHoursOfAdvancedNotice: z.number().min(1).max(9999).positive().nullable(),
-		timezone: z.string().max(50),
+		timezone: z
+			.string()
+			.max(50)
+			.refine((val) => {
+				const isValid = Intl.supportedValuesOf("timeZone").includes(val);
+				return isValid;
+			}),
 	})
 	.extend(Timestamp.shape);
 

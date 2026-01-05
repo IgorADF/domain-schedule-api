@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import type { AgendaConfigType } from "../entities/agenda-config.js";
 import type { AgendaDayOfWeekType } from "../entities/agenda-day-of-week.js";
 import type { AgendaPeriodType } from "../entities/agenda-periods.js";
@@ -36,6 +37,42 @@ export type SlotAvailabilityContext = {
  * Centralizes all slot-related logic to avoid duplication.
  */
 export class GenerateSlotsUseCase {
+	/**
+	 * Get current date/time in the agenda's timezone.
+	 */
+	private getNowInTimezone(timezone: string): DateTime {
+		return DateTime.now().setZone(timezone);
+	}
+
+	/**
+	 * Create a DateTime object from DayType and TimeType in the agenda's timezone.
+	 */
+	private createDateTimeInTimezone(
+		day: DayType,
+		time: TimeType,
+		timezone: string,
+	): DateTime {
+		return DateTime.fromObject(
+			{
+				year: day.year,
+				month: day.month,
+				day: day.day,
+				hour: time.hour,
+				minute: time.minute,
+			},
+			{ zone: timezone },
+		);
+	}
+
+	/**
+	 * Calculate days difference between a date and now in the agenda's timezone.
+	 */
+	private calculateDaysDifference(targetDate: Date, timezone: string): number {
+		const now = this.getNowInTimezone(timezone);
+		const target = DateTime.fromJSDate(targetDate, { zone: timezone });
+		return Math.ceil(target.diff(now, "days").days);
+	}
+
 	/**
 	 * Generate all possible slots for a date range based on agenda configuration.
 	 * OverwriteDays with periods will take over the normal day configuration.
@@ -81,9 +118,9 @@ export class GenerateSlotsUseCase {
 				day: currentDate.getDate(),
 			};
 
-			const today = new Date();
-			const diffDays = Math.ceil(
-				(currentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+			const diffDays = this.calculateDaysDifference(
+				currentDate,
+				agendaConfig.timezone,
 			);
 			if (diffDays > agendaConfig.maxDaysOfAdvancedNotice) {
 				currentDate.setDate(currentDate.getDate() + 1);
@@ -188,20 +225,17 @@ export class GenerateSlotsUseCase {
 		>,
 	): SlotType[] {
 		const { agendaConfig, existingSchedules } = context;
-		const now = new Date();
+		const now = this.getNowInTimezone(agendaConfig.timezone);
 
 		return slots.filter((slot) => {
 			if (agendaConfig.minHoursOfAdvancedNotice) {
-				const slotDateTime = new Date(
-					slot.day.year,
-					slot.day.month - 1,
-					slot.day.day,
-					slot.startTime.hour,
-					slot.startTime.minute,
+				const slotDateTime = this.createDateTimeInTimezone(
+					slot.day,
+					slot.startTime,
+					agendaConfig.timezone,
 				);
-				const minNoticeMs =
-					agendaConfig.minHoursOfAdvancedNotice * 60 * 60 * 1000;
-				if (slotDateTime.getTime() - now.getTime() < minNoticeMs) {
+				const diffHours = slotDateTime.diff(now, "hours").hours;
+				if (diffHours < agendaConfig.minHoursOfAdvancedNotice) {
 					return false;
 				}
 			}
