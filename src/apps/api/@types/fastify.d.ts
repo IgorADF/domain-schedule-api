@@ -1,13 +1,6 @@
 import type { AuthSeller } from "./auth-seller.ts";
 import "fastify";
-import type {
-	Jwt,
-	JwtPayload,
-	PrivateKey,
-	Secret,
-	SignOptions,
-	VerifyOptions,
-} from "jsonwebtoken";
+import type { SignOptions, VerifyOptions } from "jsonwebtoken";
 
 declare module "fastify" {
 	interface FastifyInstance {

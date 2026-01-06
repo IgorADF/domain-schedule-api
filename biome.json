@@ -18,6 +18,12 @@
 			"recommended": true,
 			"style": {
 				"useTemplate": "off"
+			},
+			"correctness": {
+				"noUnusedFunctionParameters": "off"
+			},
+			"suspicious": {
+				"noExplicitAny": "info"
 			}
 		}
 	},
