@@ -4,12 +4,19 @@
 
 ### Business
 
+- [x] Criar seller
 - [x] Login
+- [x] Logout
 - [x] ResetPassword
-- [X-] Cria seller config
-- [X-] Lista seller config
-- [x] Cria schedule + inside slot
-- [x] List slots
+- [x] Atualizar seller
+
+- [X-] Cria agenda config
+- [X-] Lista agenda config
+- [x] List availables slots
+- [x] Cria schedule
+- [x] List schedules
+
+- [x] Overwrite criar multiplos
 
 ### Tech
 

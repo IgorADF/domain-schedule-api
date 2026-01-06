@@ -4,7 +4,7 @@ import { CreateOverwriteDaysSchema } from "@domain/use-cases/create-overwrite-da
 import type { LogService } from "@/infra/services/log.js";
 import { createOverwriteDaysFactory } from "@/infra/use-cases/factories/create-overwrite-days.js";
 
-export const initOverwriteDaysRoutes: InitRoute = (_logger: LogService) => {
+export const initOverwriteDaysRoutes: InitRoute = (logger: LogService) => {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.post(
 			"/",

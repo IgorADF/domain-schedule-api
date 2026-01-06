@@ -7,7 +7,7 @@ import { createCompleteAgendaFactory } from "@/infra/use-cases/factories/create-
 import { listAgendaConfigFactory } from "@/infra/use-cases/factories/list-agenda-config.js";
 import { listAvailableSlotsFactory } from "@/infra/use-cases/factories/list-available-slots.js";
 
-export const initAgendaRoutes: InitRoute = (_logger: LogService) => {
+export const initAgendaRoutes: InitRoute = (logger: LogService) => {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.get("/", { onRequest: [fastify.authenticate] }, async (request) => {
 			const { useCase } = listAgendaConfigFactory();
@@ -15,7 +15,7 @@ export const initAgendaRoutes: InitRoute = (_logger: LogService) => {
 			const sellerId = request.authSeller.id;
 			const result = await useCase.execute(sellerId);
 
-			return result;
+			return { data: result.data };
 		});
 
 		fastify.get(
@@ -36,7 +36,7 @@ export const initAgendaRoutes: InitRoute = (_logger: LogService) => {
 					finalDate: request.query.finalDate,
 				});
 
-				return result;
+				return { data: result.data };
 			},
 		);
 

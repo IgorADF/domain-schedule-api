@@ -29,7 +29,7 @@ export function toPartialModel(
 		password: sup.password,
 		creationDate: sup.creationDate,
 		updateDate: sup.updateDate,
-		deleteDate: sup.deleteDate ?? undefined,
+		deleteDate: sup.deleteDate,
 	};
 }
 
@@ -55,13 +55,8 @@ export function toEntityWithPassword(
 	const sup = _sup.toJSON();
 
 	const map: SellerWithPasswordSchemaType = {
-		id: sup.id,
-		name: sup.name,
-		email: sup.email,
+		...toEntity(_sup),
 		password: sup.password,
-		creationDate: sup.creationDate,
-		updateDate: sup.updateDate,
-		deleteDate: sup?.deleteDate,
 	};
 
 	const entity = SellerWithPasswordSchema.parse(map);

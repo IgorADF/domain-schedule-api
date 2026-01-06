@@ -6,7 +6,7 @@ import type { LogService } from "@/infra/services/log.js";
 import { createAgendaScheduleFactory } from "@/infra/use-cases/factories/create-agenda-schedule.js";
 import { listSellerSchedulesFactory } from "@/infra/use-cases/factories/list-seller-schedules.js";
 
-export const initAgendaScheduleRoutes: InitRoute = (_logger: LogService) => {
+export const initAgendaScheduleRoutes: InitRoute = (logger: LogService) => {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.get(
 			"/",
