@@ -63,9 +63,9 @@ Uses **Sequelize ORM** with TypeScript decorators.
 **Model Pattern:**
 
 1. Import decorators from `sequelize-typescript`
-2. Use `@Table({ tableName, paranoid, timestamps: false })`
+2. Use `@Table({ tableName, timestamps: false })`
 3. **ALWAYS declare id with `@Column` decorator:** `@Column({ allowNull: false, type: DataType.UUID, primaryKey: true }) declare id: string;`
-4. Define columns with `@Column({ type: DataType.X })`
+4. Define columns with `@Column({ type: DataType.X, allowNull: true/false })`
 5. Declare timestamps: `creationDate`, `updateDate`
 6. Add associations: `@BelongsTo`, `@HasMany`, `@ForeignKey`
 
@@ -86,9 +86,17 @@ Uses **Sequelize ORM** with TypeScript decorators.
 - Strings: `z.string().min(1).max(50)`
 - Numbers: `z.number().positive().min(X).max(Y)`
 - Optional: Chain `.optional()` at END
+- Nullable: Chain `.nullable()` at END
 - Use `.pick()` to create input schemas from entity schemas
+- Use `.omit()` to exclude fields from schemas
+- Use `.refine()` for complex validations
 
 **Value Objects:** `IdObj`, `TimeObj`, `DayObj`, `Timestamp`, `ParanoidTimestamp`
+
+**Helper Functions:**
+
+- `dayToISOString(day)` - Convert DayObj to ISO date string (YYYY-MM-DD)
+- `isoStringToDay(string)` - Convert ISO date string to DayObj
 
 **CRITICAL:** Never use `any` type. Format data before passing to functions, not inline.
 
@@ -96,15 +104,15 @@ Uses **Sequelize ORM** with TypeScript decorators.
 
 All business logic in `src/domain/use-cases/`. Each class:
 
-- Takes `IUnitOfWork` in constructor
+- Takes `IUnitOfWork` in constructor (some also take other use-cases for composition)
 - Receives pre-validated input
 - Has `execute()` as entry point
 - Throws custom errors from `src/domain/shared/errors/`
 
 **Return types:**
 
-- Query: `Promise<{ data: EntityType }>`
-- Command: `Promise<void>`
+- Query: `Promise<{ data: EntityType | EntityType[] }>`
+- Command: `Promise<{ data: EntityType }>`
 - Auth: Minimal data, NEVER passwords
 
 **Entity Creation:** Use `createEntity()` helper from `src/domain/entities/helpers/creation.ts` to automatically add `id`, `creationDate`, and `updateDate`:
@@ -146,6 +154,8 @@ async execute(input: InputType): Promise<void> {
 }
 ```
 
+**Use-Case Composition:** Some use-cases depend on others (e.g., `GenerateSlotsUseCase` is injected into `ListAvailableSlotsUseCase` and `CreateAgendaScheduleUseCase`).
+
 ## Repository Pattern
 
 **4 steps to create:**
@@ -159,7 +169,17 @@ async execute(input: InputType): Promise<void> {
 
 - Arrays return `[]` when empty, never `null`
 - Repositories don't throw errors; return `null` for not found
-- Use `Model.create(model, { transaction })` not `.toJSON()`
+- Use `Model.create(model, { transaction })` for single creates
+- Use `bulkCreate()` for multiple creates
+- Always pass `{ transaction: this.transaction }` to Sequelize operations
+
+**Common Repository Methods:**
+
+- `create(data)` - Create single entity
+- `bulkCreate(data[])` - Create multiple entities
+- `getById(id)` - Get by ID (returns null if not found)
+- `getByDateRange(configId, initialDate, finalDate)` - Query by date range
+- `getByXxxId(id)` or `getByXxxIds(ids[])` - Get by parent ID(s)
 
 ## Cache Pattern
 
@@ -182,12 +202,46 @@ fastify.post("/", { schema: { body: Schema } }, async (request) => {
 
 **CRITICAL:**
 
-- Routes NEVER instantiate UoW or use-cases directly
-- Use `fastify.authenticate` for protected routes
+- Routes NEVER instantiate UoW or use-cases directly - always use factories
+- Use `onRequest: [fastify.authenticate]` for protected routes
 - Register routes in `_init.ts` with plural prefixes
 - **ALWAYS create an HTTP test file in `src/apps/api/http/` for each new route**
+- Use `.omit({ sellerId: true })` on schemas when sellerId comes from auth
 
 **Auth:** Access `request.authSeller?.id` on authenticated routes.
+
+**Current Routes:**
+
+- `/sellers` - Authentication, registration, profile updates
+- `/agendas` - Agenda configuration and available slots
+- `/agenda-schedules` - Schedule management
+- `/overwrite-days` - Overwrite day management with periods
+
+**Protected Endpoint Pattern:**
+
+```typescript
+fastify.post(
+  "/",
+  {
+    schema: { body: Schema.omit({ sellerId: true }) },
+    onRequest: [fastify.authenticate],
+  },
+  async (request) => {
+    const sellerId = request.authSeller?.id as string;
+    const { useCase } = factory();
+    return await useCase.execute({ ...request.body, sellerId });
+  }
+);
+```
+
+**Validation Pattern:** Always validate that resources belong to authenticated seller:
+
+```typescript
+const resource = await this.uow.repository.getById(id);
+if (!resource || resource.sellerId !== input.sellerId) {
+  throw new EntityNotFound();
+}
+```
 
 ## Message Queue
 
@@ -242,15 +296,57 @@ Services in `src/infra/services/` implement domain interfaces.
 - `EntityAlreadyExist` → 409
 - `EntityNotFound` → 404
 - `InvalidCredentials` → 401
-- `InvalidCreantionData` → 400
+- `InvalidCreationData` → 400
+- `SlotNotAvailable` → 400
 
 Throw from use-cases; global handler converts to HTTP responses.
 
 ## Domain Entities
 
-**Entities:** `Seller`, `AgendaConfig`, `AgendaDayOfWeek`, `AgendaPeriods`, `OverwriteDay`, `AgendaEvent`, `Schedule`
+**Core Entities:**
+
+- `Seller` - User/seller account
+- `AgendaConfig` - Main agenda configuration (belongs to Seller)
+- `AgendaDayOfWeek` - Weekly recurring schedule configuration
+- `AgendaPeriods` - Time periods with service duration/intervals (can belong to AgendaDayOfWeek OR OverwriteDay)
+- `OverwriteDay` - Date-specific schedule overrides
+- `AgendaSchedule` - Booked appointments
+- `AgendaEvent` - Calendar events
 
 **Value Objects:** `IdObj`, `DayObj`, `TimeObj`, `Timestamp`, `ParanoidTimestamp`
+
+**Key Relationships:**
+
+- `AgendaPeriods` has nullable `agendaDayOfWeekId` OR nullable `overwriteDayId` (XOR constraint via Zod refine)
+- `OverwriteDay` can have multiple `AgendaPeriods` to define custom schedules for specific dates
+- If `OverwriteDay.cancelAllDay = true`, no periods needed (day is blocked)
+
+## Slot Generation & Availability
+
+**GenerateSlotsUseCase** centralizes slot logic:
+
+**Key Methods:**
+
+- `generateAllSlots(initialDate, finalDate, context)` - Generates all possible slots, considering overwrite days
+- `filterAvailableSlots(slots, context)` - Filters out booked/past slots
+- `groupSlotsByDay(slots)` - Groups slots by day (only days with slots)
+- `groupSlotsByDayRange(slots, initialDate, finalDate)` - Groups slots by day including ALL days in range (empty arrays for days without slots)
+- `fetchOverwriteContext(uow, agendaConfigId, initialDate, finalDate)` - Helper to fetch overwrite days and their periods
+- `isSlotAvailable(slot, context)` - Validates if a specific slot is available
+
+**Overwrite Day Priority:**
+
+1. Check if date has an `OverwriteDay`
+2. If yes and `cancelAllDay = true` → skip day (no slots)
+3. If yes and `cancelAllDay = false` → use overwrite periods (ignores regular day of week)
+4. If no overwrite day → use regular `AgendaDayOfWeek` periods
+
+**Slot Filtering:**
+
+- Respects `minHoursOfAdvancedNotice` from `AgendaConfig`
+- Respects `maxDaysOfAdvancedNotice` from `AgendaConfig`
+- Filters out already booked slots
+- Past slots are blocked if `minHoursOfAdvancedNotice` is set
 
 ## Dev Workflow
 
@@ -266,7 +362,7 @@ Throw from use-cases; global handler converts to HTTP responses.
 
 **Database:**
 
-- `npm run db:migrate` / `db:migrate:undo` / `db:seed`
+- `npm run db:migrate` / `db:migrate:undo` / `db:seed` / `db:reset`
 
 **Quality:**
 
@@ -279,12 +375,39 @@ Throw from use-cases; global handler converts to HTTP responses.
 **Services:** postgres, redis, rabbitmq, api, queue, jobs
 
 ```bash
-docker-compose up -d                    # Start all
-docker-compose up -d postgres redis rabbitmq  # Infra only
-docker-compose logs -f api              # View logs
+docker-compose up -d                              # Start all
+docker-compose up -d postgres redis rabbitmq      # Infra only
+docker-compose logs -f api                        # View logs
 ```
 
 **Env vars:** `DB_*`, `REDIS_*`, `RABBITMQ_*`, `API_*`, `SMTP_*`
+
+## Authentication & Authorization
+
+**Cookie-based JWT auth** with dual-token system:
+
+- Auth token: 15 minutes (short-lived)
+- Refresh token: 7 days (long-lived)
+- Both stored as HTTP-only cookies with `SameSite=Lax`
+- Secure flag enabled in production
+
+**Auth Flow:**
+
+1. Login → sets both tokens as cookies
+2. Protected routes use `fastify.authenticate` decorator
+3. If auth token expired but refresh valid → auto-refresh both tokens
+4. Access authenticated user via `request.authSeller`
+
+**Custom Decorators:**
+
+- `fastify.authenticate` - Authentication middleware
+- `fastify.jwtSign(payload, secret, options)` - Sign JWT
+- `fastify.jwtVerify(token, secret)` - Verify JWT (returns `{ payload, error }`)
+- `fastify.createCookie(name, value, maxAge)` - Create cookie string
+- `fastify.setSignTokensToReply(reply, payload, authData, refreshData)` - Set auth cookies
+- `fastify.setLogoutTokensToReply(reply, authData, refreshData)` - Clear auth cookies
+
+**CRITICAL:** Always validate resource ownership in use-cases, not just routes.
 
 ## Testing
 
@@ -303,6 +426,6 @@ Test: happy path, validation errors, business errors, edge cases.
 
 ## Key Dependencies
 
-**Runtime:** fastify, sequelize, zod, bcryptjs, uuidv7, luxon, nodemailer, amqplib, ioredis, node-cron
+**Runtime:** fastify, sequelize, zod, bcryptjs, uuidv7, luxon, nodemailer, amqplib, ioredis, node-cron, jsonwebtoken, cookie
 
-**Dev:** vitest, tsx, typescript
+**Dev:** vitest, tsx, typescript, @biomejs/biome
