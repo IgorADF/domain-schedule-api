@@ -7,12 +7,12 @@ if "%PORT%"=="" (
   exit /b 1
 )
 
-echo Procurando processo usando a porta %PORT%...
+echo Finding port %PORT%...
 
 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :%PORT% ^| findstr LISTENING') do (
-  echo Matando processo PID %%a na porta %PORT%
+  echo Killing process PID %%a on port %PORT%
   taskkill /PID %%a /F
   exit /b 0
 )
 
-echo Nenhum processo encontrado usando a porta %PORT%
+echo No process found using port %PORT%
