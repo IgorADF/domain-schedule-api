@@ -17,7 +17,7 @@ export const initOverwriteDaysRoutes: InitRoute = (_logger: LogService) => {
 			async (request) => {
 				const { useCase } = createOverwriteDaysFactory();
 
-				const sellerId = request.authSeller?.id as string;
+				const sellerId = request.authSeller.id;
 				const result = await useCase.execute({
 					...request.body,
 					sellerId,

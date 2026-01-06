@@ -12,7 +12,7 @@ export const initAgendaRoutes: InitRoute = (_logger: LogService) => {
 		fastify.get("/", { onRequest: [fastify.authenticate] }, async (request) => {
 			const { useCase } = listAgendaConfigFactory();
 
-			const sellerId = request.authSeller?.id as string;
+			const sellerId = request.authSeller.id;
 			const result = await useCase.execute(sellerId);
 
 			return result;
@@ -29,7 +29,7 @@ export const initAgendaRoutes: InitRoute = (_logger: LogService) => {
 			async (request) => {
 				const { useCase } = listAvailableSlotsFactory();
 
-				const sellerId = request.authSeller?.id as string;
+				const sellerId = request.authSeller.id;
 				const result = await useCase.execute({
 					sellerId,
 					initialDate: request.query.initialDate,
@@ -49,7 +49,7 @@ export const initAgendaRoutes: InitRoute = (_logger: LogService) => {
 			async (request) => {
 				const { useCase } = createCompleteAgendaFactory();
 
-				const sellerId = request.authSeller?.id as string;
+				const sellerId = request.authSeller.id;
 				await useCase.execute({ ...request.body, sellerId });
 
 				return { success: true };
