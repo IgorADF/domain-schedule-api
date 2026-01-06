@@ -3,7 +3,6 @@ import type { InitRoute } from "@api/@types/init-routes.js";
 import { AuthSellerSchema } from "@domain/use-cases/auth-seller.js";
 import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
 import { UpdateSellerSchema } from "@domain/use-cases/update-seller.js";
-import z from "zod";
 import { AskSellerResetPasswordSchema } from "@/domain/use-cases/ask-seller-reset-password.js";
 import { Envs } from "@/infra/envs/envs.js";
 import type { LogService } from "@/infra/services/log.js";
@@ -17,18 +16,26 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 		fastify.post(
 			"/auth",
 			{ schema: { body: AuthSellerSchema } },
-			async (request) => {
+			async (request, reply) => {
 				const { useCase } = authSellerFactory(logger);
 				const result = await useCase.execute(request.body);
 
-				const token = await fastify.jwtSign({
-					id: result.sellerId,
-					email: result.email,
-				});
-
-				return { token };
+				fastify.setSignTokensToReply(
+					reply,
+					{ id: result.sellerId, email: result.email },
+					fastify.authTokenData,
+					fastify.refreshTokenData,
+				);
 			},
 		);
+
+		fastify.post("/logout", async (request, reply) => {
+			fastify.setLogoutTokensToReply(
+				reply,
+				fastify.authTokenData,
+				fastify.refreshTokenData,
+			);
+		});
 
 		fastify.post(
 			"/ask-reset-password",
@@ -37,9 +44,8 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 				const { useCase } = askSellerResetPasswordFactory();
 
 				const jwtFunction = (payload: { id: string; email: string }) => {
-					return fastify.jwtSign(payload, {
+					return fastify.jwtSign(payload, Envs.API_JWT_RESET_SECRET, {
 						expiresIn: "15m",
-						key: Envs.API_JWT_RESET_SECRET,
 					});
 				};
 
@@ -65,6 +71,7 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 				schema: {
 					body: UpdateSellerSchema.omit({ id: true }),
 				},
+				onRequest: [fastify.authenticate],
 			},
 			async (request) => {
 				const id = request?.authSeller?.id as string;

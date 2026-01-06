@@ -7,7 +7,8 @@ export const EnvsSchema = z.object({
 	// General
 	NODE_ENV: z.enum(["development", "production", "test"]),
 	API_PORT: z.string().transform(Number),
-	API_JWT_SECRET: z.string(),
+	API_AUTH_JWT_SECRET: z.string(),
+	API_REFRESH_JWT_SECRET: z.string(),
 	API_JWT_RESET_SECRET: z.string(),
 
 	// DB

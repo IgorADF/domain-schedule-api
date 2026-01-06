@@ -27,7 +27,7 @@ export class AskSellerResetPasswordUseCase {
 
 	async execute(
 		{ email, language }: AskSellerResetPasswordType,
-		jwtFunction: (payload: { id: string; email: string }) => Promise<string>,
+		jwtFunction: (payload: { id: string; email: string }) => string,
 	) {
 		const existingSeller =
 			await this.uow.sellerRepository.getSellerWithPassword(email);
