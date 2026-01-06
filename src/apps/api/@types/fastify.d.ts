@@ -52,6 +52,6 @@ declare module "fastify" {
 	}
 
 	interface FastifyRequest {
-		authSeller: AuthSeller | null;
+		authSeller: AuthSeller;
 	}
 }

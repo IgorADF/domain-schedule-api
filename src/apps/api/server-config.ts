@@ -13,7 +13,10 @@ import { errorHandler } from "./handlers/errors.js";
 import { initRoutes } from "./routes/_init.js";
 
 function setFastifyInstanceDecorators(fastifyInstance: FastifyZodInstance) {
-	fastifyInstance.decorate("authSeller", null);
+	fastifyInstance.decorateRequest("authSeller", {
+		id: "",
+		email: "",
+	});
 
 	fastifyInstance.decorate("authTokenData", {
 		name: "sat_" + "2ae997cea374",

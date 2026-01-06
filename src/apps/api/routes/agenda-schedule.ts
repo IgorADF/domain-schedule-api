@@ -19,7 +19,7 @@ export const initAgendaScheduleRoutes: InitRoute = (_logger: LogService) => {
 			async (request) => {
 				const { useCase } = listSellerSchedulesFactory();
 
-				const sellerId = request.authSeller?.id as string;
+				const sellerId = request.authSeller.id;
 				const result = await useCase.execute({
 					sellerId,
 					initialDate: request.query.initialDate,
