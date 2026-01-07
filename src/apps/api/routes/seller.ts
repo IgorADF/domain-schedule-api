@@ -2,8 +2,6 @@ import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
 import { AuthSellerSchema } from "@domain/use-cases/auth-seller.js";
 import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
-import { UpdateSellerSchema } from "@domain/use-cases/update-seller.js";
-import z from "zod";
 import { AskSellerResetPasswordSchema } from "@/domain/use-cases/ask-seller-reset-password.js";
 import { Envs } from "@/infra/envs/envs.js";
 import type { LogService } from "@/infra/services/log.js";
@@ -12,21 +10,26 @@ import { authSellerFactory } from "@/infra/use-cases/factories/auth-seller.js";
 import { createSellerFactory } from "@/infra/use-cases/factories/create-seller.js";
 import { updateSellerFactory } from "@/infra/use-cases/factories/update-seller.js";
 import { jwtSign } from "../handlers/auth/jwt.js";
+import {
+	CreateSellerResponseSchema,
+	DefaultErrorSchema,
+	DefaultSuccessSchema,
+} from "../schemas/responses.js";
 
-export const initSellerRoutes: InitRoute = (logger: LogService) => {
+export const initSellerRoutes: InitRoute = (logger: LogService, tags) => {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.post(
 			"/auth",
 			{
 				schema: {
 					body: AuthSellerSchema,
-					tags: ["seller"],
+					tags,
 					description:
 						"Authenticate a seller (system user) and obtain tokens via http cookies",
 					response: {
-						200: fastify.DefaultSuccessSchema,
-						401: fastify.DefaultErrorSchema.describe(
-							"Invalid email or password provided",
+						200: DefaultSuccessSchema,
+						401: DefaultErrorSchema.describe(
+							"Invalid email or password provided (INVALID_CREDENTIALS)",
 						),
 					},
 				},
@@ -48,9 +51,9 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 			"/logout",
 			{
 				schema: {
-					tags: ["seller"],
+					tags,
 					response: {
-						default: z.object({ success: z.boolean() }),
+						200: DefaultSuccessSchema,
 					},
 				},
 			},
@@ -62,9 +65,19 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 
 		fastify.post(
 			"/ask-reset-password",
-			{ schema: { body: AskSellerResetPasswordSchema } },
+			{
+				schema: {
+					body: AskSellerResetPasswordSchema,
+					tags,
+					description:
+						"Public route to ask for a password reset link to be sent to the seller's email",
+					response: {
+						200: DefaultSuccessSchema,
+					},
+				},
+			},
 			async (request) => {
-				const { useCase } = askSellerResetPasswordFactory();
+				const { useCase } = askSellerResetPasswordFactory(logger);
 
 				const jwtFunction = (payload: { id: string; email: string }) => {
 					return jwtSign(payload, Envs.API_JWT_RESET_SECRET, {
@@ -80,7 +93,19 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 
 		fastify.post(
 			"/",
-			{ schema: { body: CreateSellerSchema } },
+			{
+				schema: {
+					body: CreateSellerSchema,
+					tags,
+					description: "Public route to create a new seller (system user)",
+					response: {
+						200: CreateSellerResponseSchema,
+						409: DefaultErrorSchema.describe(
+							"Seller with provided email already exists (ENTITY_ALREADY_EXIST)",
+						),
+					},
+				},
+			},
 			async (request) => {
 				const { useCase } = createSellerFactory();
 				const result = await useCase.execute(request.body);
@@ -88,21 +113,22 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 			},
 		);
 
-		fastify.patch(
-			"/",
-			{
-				schema: {
-					body: UpdateSellerSchema.omit({ id: true }),
-					security: [{ cookieAuth: [] }],
-				},
-				onRequest: [fastify.authenticate],
-			},
-			async (request) => {
-				const id = request.authSeller.id;
-				const { useCase } = updateSellerFactory();
-				const result = await useCase.execute({ id, ...request.body });
-				return { data: result.data };
-			},
-		);
+		/* TODO ROUTE */
+		// fastify.patch(
+		// 	"/",
+		// 	{
+		// 		schema: {
+		// 			body: UpdateSellerSchema.omit({ id: true }),
+		// 			security: [{ cookieAuth: [] }],
+		// 		},
+		// 		onRequest: [fastify.authenticate],
+		// 	},
+		// 	async (request) => {
+		// 		const id = request.authSeller.id;
+		// 		const { useCase } = updateSellerFactory();
+		// 		const result = await useCase.execute({ id, ...request.body });
+		// 		return { data: result.data };
+		// 	},
+		// );
 	};
 };

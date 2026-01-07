@@ -3,6 +3,7 @@ import type { AgendaConfigType } from "../entities/agenda-config.js";
 import type { AgendaDayOfWeekType } from "../entities/agenda-day-of-week.js";
 import type { AgendaPeriodType } from "../entities/agenda-periods.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import { EntityAlreadyExist } from "../shared/errors/entity-already-exist.js";
 import { InvalidCreantionData } from "../shared/errors/invalid-creation-data.js";
 import {
 	CreateAgendaConfigSchema,
@@ -77,6 +78,13 @@ export class CreateCompleteAgendaUseCase {
 	}: CreateCompleteAgendaType) {
 		try {
 			await this.uow.beginTransaction();
+
+			const existingAgendaConfig =
+				await this.uow.agendaConfigsRepository.getBySellerId(sellerId);
+
+			if (existingAgendaConfig) {
+				throw new EntityAlreadyExist();
+			}
 
 			const { data: createdConfig } = await this.createAgendaConfig(
 				agendaConfig,

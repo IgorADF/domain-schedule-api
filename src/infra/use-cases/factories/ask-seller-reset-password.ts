@@ -5,10 +5,14 @@ import type { CreateFactoryFunction } from "./_default.js";
 
 export const askSellerResetPasswordFactory: CreateFactoryFunction<
 	AskSellerResetPasswordUseCase
-> = () => {
+> = (logService) => {
 	const { uow } = createSequelizeUOW();
 	const queueService = createQueueService().service;
-	const useCase = new AskSellerResetPasswordUseCase(uow, queueService);
+	const useCase = new AskSellerResetPasswordUseCase(
+		uow,
+		queueService,
+		logService,
+	);
 
 	return {
 		uow,

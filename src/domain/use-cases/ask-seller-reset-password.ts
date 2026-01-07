@@ -1,9 +1,8 @@
 import type z from "zod";
 import { SellerSchema } from "../entities/seller.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { ILogService } from "../services/log.interface.js";
 import type { iQueueService } from "../services/queue.interface.js";
-import { InvalidCredentials } from "../shared/errors/invalid-credentials.js";
-import { SendEmailError } from "../shared/errors/send-email.js";
 import {
 	SystemLanguages,
 	type SystemLanguagesType,
@@ -23,6 +22,7 @@ export class AskSellerResetPasswordUseCase {
 	constructor(
 		private readonly uow: IUnitOfWork,
 		private readonly queueService: iQueueService,
+		private readonly logService?: ILogService,
 	) {}
 
 	async execute(
@@ -33,7 +33,7 @@ export class AskSellerResetPasswordUseCase {
 			await this.uow.sellerRepository.getSellerWithPassword(email);
 
 		if (!existingSeller) {
-			throw new InvalidCredentials();
+			return;
 		}
 
 		const token = await jwtFunction({
@@ -42,7 +42,19 @@ export class AskSellerResetPasswordUseCase {
 		});
 
 		const emailTemplate = this.createEmailTemplate(token, language);
-		await this.sendResetEmail(email, emailTemplate);
+
+		try {
+			await this.queueService.sendEmail({
+				to: email,
+				subject: "Password Reset Request",
+				html: emailTemplate,
+			});
+		} catch (error) {
+			this?.logService?.error(
+				"AskSellerResetPasswordUseCase: Error sending reset password email: " +
+					JSON.stringify(error),
+			);
+		}
 	}
 
 	private createEmailTemplate(token: string, language: SystemLanguagesType) {
@@ -67,17 +79,5 @@ export class AskSellerResetPasswordUseCase {
 		  </body>
 		</html>
 	  `;
-	}
-
-	private async sendResetEmail(email: string, template: string) {
-		try {
-			await this.queueService.sendEmail({
-				to: email,
-				subject: "Password Reset Request",
-				html: template,
-			});
-		} catch {
-			throw new SendEmailError();
-		}
 	}
 }

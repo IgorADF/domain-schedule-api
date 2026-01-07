@@ -1,5 +1,6 @@
 import z from "zod";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 import type { DaySlots, GenerateSlotsUseCase } from "./generate-slots.js";
 
 export const ListAvailableSlotsSchema = z.object({
@@ -34,7 +35,7 @@ export class ListAvailableSlotsUseCase {
 			await this.uow.agendaConfigsRepository.getBySellerId(sellerId);
 
 		if (!agendaConfig) {
-			return { data: [] };
+			throw new EntityNotFound();
 		}
 
 		const daysOfWeek =

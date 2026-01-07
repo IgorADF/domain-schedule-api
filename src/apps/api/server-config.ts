@@ -132,7 +132,22 @@ async function createFastifyInstance() {
 				{
 					name: "seller",
 					description:
-						"Seller related end-points, including authentication and management",
+						"Seller related end-points, including authentication and management.",
+				},
+				{
+					name: "overwrite-days",
+					description:
+						"Seller Overwrite Days related end-points, including management of overwrite days. Overwrite days are specific dates where a seller can define custom availability, overriding their regular schedule.",
+				},
+				{
+					name: "agenda",
+					description:
+						"Agenda related end-points, including retrieval of agenda configurations and available slots for sellers.",
+				},
+				{
+					name: "agenda-schedule",
+					description:
+						"Agenda Schedule related end-points, including management of regular weekly schedules for sellers.",
 				},
 			],
 			components: {

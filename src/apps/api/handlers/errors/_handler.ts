@@ -26,8 +26,6 @@ const USE_CASES_STATUS_CODE_MAP: Record<string, number> = {
 
 	// 404 - Resource doesn't exist
 	[EntityNotFound.uniqueCode]: 404,
-	SELLER_NOT_FOUND: 404,
-	AGENDA_NOT_FOUND: 404,
 
 	// 409 - Conflict with current state
 	[EntityAlreadyExist.uniqueCode]: 409,

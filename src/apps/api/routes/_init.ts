@@ -12,12 +12,12 @@ export async function initRoutes(fastify: FastifyZodInstance) {
 		return { status: "ok" };
 	});
 
-	fastify.register(initSellerRoutes(logger), { prefix: "sellers" });
-	fastify.register(initAgendaRoutes(logger), { prefix: "agendas" });
-	fastify.register(initAgendaScheduleRoutes(logger), {
+	fastify.register(initSellerRoutes(logger, ["seller"]), { prefix: "sellers" });
+	fastify.register(initAgendaRoutes(logger, ["agenda"]), { prefix: "agendas" });
+	fastify.register(initAgendaScheduleRoutes(logger, ["agenda-schedule"]), {
 		prefix: "agenda-schedules",
 	});
-	fastify.register(initOverwriteDaysRoutes(logger), {
+	fastify.register(initOverwriteDaysRoutes(logger, ["overwrite-day"]), {
 		prefix: "overwrite-days",
 	});
 }
