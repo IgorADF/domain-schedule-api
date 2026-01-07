@@ -11,6 +11,7 @@ import { askSellerResetPasswordFactory } from "@/infra/use-cases/factories/ask-s
 import { authSellerFactory } from "@/infra/use-cases/factories/auth-seller.js";
 import { createSellerFactory } from "@/infra/use-cases/factories/create-seller.js";
 import { updateSellerFactory } from "@/infra/use-cases/factories/update-seller.js";
+import { jwtSign } from "../handlers/auth/jwt.js";
 
 export const initSellerRoutes: InitRoute = (logger: LogService) => {
 	return async (fastify: FastifyZodInstance) => {
@@ -23,8 +24,8 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 					description:
 						"Authenticate a seller (system user) and obtain tokens via http cookies",
 					response: {
-						200: fastify.defaultSuccessSchema,
-						401: fastify.defaultErrorSchema.describe(
+						200: fastify.DefaultSuccessSchema,
+						401: fastify.DefaultErrorSchema.describe(
 							"Invalid email or password provided",
 						),
 					},
@@ -34,12 +35,10 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 				const { useCase } = authSellerFactory(logger);
 				const result = await useCase.execute(request.body);
 
-				fastify.setSignTokensToReply(
-					reply,
-					{ id: result.sellerId, email: result.email },
-					fastify.authTokenData,
-					fastify.refreshTokenData,
-				);
+				fastify.setSignTokensToReply(reply, {
+					id: result.sellerId,
+					email: result.email,
+				});
 
 				return { success: true };
 			},
@@ -56,12 +55,7 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 				},
 			},
 			async (request, reply) => {
-				fastify.setLogoutTokensToReply(
-					reply,
-					fastify.authTokenData,
-					fastify.refreshTokenData,
-				);
-
+				fastify.setLogoutTokensToReply(reply);
 				return { success: true };
 			},
 		);
@@ -73,7 +67,7 @@ export const initSellerRoutes: InitRoute = (logger: LogService) => {
 				const { useCase } = askSellerResetPasswordFactory();
 
 				const jwtFunction = (payload: { id: string; email: string }) => {
-					return fastify.jwtSign(payload, Envs.API_JWT_RESET_SECRET, {
+					return jwtSign(payload, Envs.API_JWT_RESET_SECRET, {
 						expiresIn: "15m",
 					});
 				};

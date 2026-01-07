@@ -1,60 +1,26 @@
 import type { AuthSeller } from "./auth-seller.ts";
 import "fastify";
-import type { SignOptions, VerifyOptions } from "jsonwebtoken";
+import type { ErrorSchema } from "../handlers/errors/schema.ts";
 
 declare module "fastify" {
 	interface FastifyInstance {
-		jwtVerify: <T>(
-			token: string,
-			secretOrPrivateKey: string,
-			options?: VerifyOptions,
-		) => { payload: T; error: false } | { payload: null; error: true };
-
-		jwtSign: (
-			payload: object,
-			secretOrPrivateKey: string,
-			options: SignOptions,
-		) => string;
-
-		createCookie: (
+		createAuthCookie: (
 			authTokenName: string,
 			authTokenValue: string,
 			maxAge: number,
 		) => string;
 
-		setSignTokensToReply: (
-			reply: FastifyReply,
-			payload: AuthSeller,
-			authTokenData: { name: string; expireInSeconds: number },
-			refreshTokenData: { name: string; expireInSeconds: number },
-		) => void;
+		setSignTokensToReply: (reply: FastifyReply, payload: AuthSeller) => void;
 
-		setLogoutTokensToReply: (
-			reply: FastifyReply,
-			authTokenData: { name: string; expireInSeconds: number },
-			refreshTokenData: { name: string; expireInSeconds: number },
-		) => void;
+		setLogoutTokensToReply: (reply: FastifyReply) => void;
 
 		authenticate: (
 			request: FastifyRequest,
 			reply: FastifyReply,
 		) => Promise<void>;
 
-		authTokenData: {
-			name: string;
-			expireInSeconds: number;
-		};
-
-		refreshTokenData: {
-			name: string;
-			expireInSeconds: number;
-		};
-
-		defaultSuccessSchema: z.ZodObject<{ success: z.ZodBoolean }>;
-		defaultErrorSchema: z.ZodObject<{
-			code: z.ZodString;
-			message: z.ZodString;
-		}>;
+		DefaultSuccessSchema: z.ZodObject<{ success: z.ZodBoolean }>;
+		DefaultErrorSchema: ErrorSchema;
 	}
 
 	interface FastifyRequest {

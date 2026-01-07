@@ -9,6 +9,8 @@ import { ScheduleTooFarAhead } from "@/domain/shared/errors/schedule-too-far-ahe
 import { ScheduleTooSoon } from "@/domain/shared/errors/schedule-too-soon.js";
 import { SendEmailError } from "@/domain/shared/errors/send-email.js";
 import { SlotNotAvailable } from "@/domain/shared/errors/slot-not-available.js";
+import { AuthHandlerError } from "../auth/_handler.js";
+import type { ErrorSchemaType } from "./schema.js";
 
 const USE_CASES_STATUS_CODE_MAP: Record<string, number> = {
 	// 400 - Bad Request → validation, business rules, default
@@ -40,11 +42,7 @@ const USE_CASES_STATUS_CODE_MAP: Record<string, number> = {
 function setReplySerializationError(
 	reply: FastifyReply,
 	statusCode: number,
-	body: {
-		error: string;
-		message: string;
-		details: Array<{ field: string; message: string }> | null;
-	},
+	body: ErrorSchemaType,
 ) {
 	reply
 		.status(statusCode)
@@ -52,8 +50,25 @@ function setReplySerializationError(
 		.send(body);
 }
 
+function handleAuthMiddleareError(
+	error: FastifyError,
+	reply: FastifyReply,
+): boolean {
+	if (!(error instanceof AuthHandlerError)) {
+		return false;
+	}
+
+	setReplySerializationError(reply, error.replyStatusCode, {
+		error: error.uniqueCode,
+		message: error.message,
+		details: null,
+	});
+
+	return false;
+}
+
 /**
- * Reply body must have the same props as defaultErrorSchema
+ * Reply body must have the same props as DefaultErrorSchema
  * otherwise an 500 error will be thrown by Fastify Zod plugin.
  */
 function handleUseCaseError(error: FastifyError, reply: FastifyReply): boolean {
@@ -62,11 +77,18 @@ function handleUseCaseError(error: FastifyError, reply: FastifyReply): boolean {
 			USE_CASES_STATUS_CODE_MAP[error.uniqueCode] || 400;
 
 		const returnUseCaseErrorObj = {
-			code: error.uniqueCode,
+			error: error.uniqueCode,
 			message: error.message,
+			details: null,
 		};
 
-		reply.status(useCaseErrorStatusCode).send(returnUseCaseErrorObj);
+		// reply.status(useCaseErrorStatusCode).send(returnUseCaseErrorObj);
+
+		setReplySerializationError(
+			reply,
+			useCaseErrorStatusCode,
+			returnUseCaseErrorObj,
+		);
 
 		return true;
 	}
@@ -130,6 +152,14 @@ export async function errorHandler(
 ) {
 	try {
 		request.log.error(error);
+
+		const hasAuthMiddlewareErrorHandled = handleAuthMiddleareError(
+			error,
+			reply,
+		);
+		if (hasAuthMiddlewareErrorHandled) {
+			return reply;
+		}
 
 		const hasUseCaseErrorHandled = handleUseCaseError(error, reply);
 		if (hasUseCaseErrorHandled) {
