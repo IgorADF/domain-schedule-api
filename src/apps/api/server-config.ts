@@ -1,11 +1,16 @@
+import swagger from "@fastify/swagger";
+import swaggerUI from "@fastify/swagger-ui";
 import cookie from "cookie";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import {
+	jsonSchemaTransform,
+	jsonSchemaTransformObject,
 	serializerCompiler,
 	validatorCompiler,
 	type ZodTypeProvider,
 } from "fastify-type-provider-zod";
 import jwt from "jsonwebtoken";
+import z from "zod";
 import { Envs } from "@/infra/envs/envs.js";
 import type { AuthSeller } from "./@types/auth-seller.js";
 import type { FastifyZodInstance } from "./@types/fastity-instance.js";
@@ -14,8 +19,34 @@ import { initRoutes } from "./routes/_init.js";
 
 function setFastifyInstanceDecorators(fastifyInstance: FastifyZodInstance) {
 	fastifyInstance.decorateRequest("authSeller", {
-		id: "",
-		email: "",
+		getter() {
+			if (!this?.authSeller) {
+				return {
+					id: "",
+					email: "",
+				};
+			}
+
+			return this.authSeller;
+		},
+		setter(value: AuthSeller) {
+			this.authSeller = value;
+		},
+	});
+
+	fastifyInstance.decorate("defaultSuccessSchema", {
+		getter() {
+			return z.object({ success: z.boolean() });
+		},
+	});
+
+	fastifyInstance.decorate("defaultErrorSchema", {
+		getter() {
+			return z.object({
+				code: z.string(),
+				message: z.string(),
+			});
+		},
 	});
 
 	fastifyInstance.decorate("authTokenData", {
@@ -171,7 +202,7 @@ function setFastifyInstanceDecorators(fastifyInstance: FastifyZodInstance) {
 	);
 }
 
-function createFastifyInstance() {
+async function createFastifyInstance() {
 	const fastifyInstance = Fastify({
 		logger: {
 			level: "info",
@@ -189,16 +220,48 @@ function createFastifyInstance() {
 	fastifyInstance.setValidatorCompiler(validatorCompiler);
 	fastifyInstance.setSerializerCompiler(serializerCompiler);
 
-	fastifyInstance.setErrorHandler(errorHandler);
-
 	setFastifyInstanceDecorators(fastifyInstance);
+
+	await fastifyInstance.register(swagger, {
+		openapi: {
+			openapi: "3.0.0",
+			info: {
+				title: "Swagger Documentation",
+				version: "0.1.0",
+			},
+			tags: [
+				{
+					name: "seller",
+					description:
+						"Seller related end-points, including authentication and management",
+				},
+			],
+			components: {
+				securitySchemes: {
+					cookieAuth: {
+						type: "apiKey",
+						in: "cookie",
+						name: fastifyInstance.authTokenData.name,
+					},
+				},
+			},
+		},
+		transform: jsonSchemaTransform,
+		transformObject: jsonSchemaTransformObject,
+	});
+
+	await fastifyInstance.register(swaggerUI, {
+		routePrefix: "/documentation",
+	});
+
+	fastifyInstance.setErrorHandler(errorHandler);
 
 	fastifyInstance.register(initRoutes);
 
 	return fastifyInstance;
 }
 
-export const fastifyInstance = createFastifyInstance();
+export const fastifyInstance = await createFastifyInstance();
 
 export function logInfoOnServer(message: string) {
 	fastifyInstance.log.info(message);

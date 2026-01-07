@@ -49,6 +49,12 @@ declare module "fastify" {
 			name: string;
 			expireInSeconds: number;
 		};
+
+		defaultSuccessSchema: z.ZodObject<{ success: z.ZodBoolean }>;
+		defaultErrorSchema: z.ZodObject<{
+			code: z.ZodString;
+			message: z.ZodString;
+		}>;
 	}
 
 	interface FastifyRequest {

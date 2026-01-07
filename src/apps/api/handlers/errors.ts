@@ -1,24 +1,83 @@
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 import z, { ZodError } from "zod";
+import { DefaultUseCaseError } from "@/domain/shared/errors/_default.js";
 import { EntityAlreadyExist } from "@/domain/shared/errors/entity-already-exist.js";
 import { EntityNotFound } from "@/domain/shared/errors/entity-not-found.js";
 import { InvalidCreantionData } from "@/domain/shared/errors/invalid-creation-data.js";
 import { InvalidCredentials } from "@/domain/shared/errors/invalid-credentials.js";
+import { ScheduleTooFarAhead } from "@/domain/shared/errors/schedule-too-far-ahead.js";
+import { ScheduleTooSoon } from "@/domain/shared/errors/schedule-too-soon.js";
+import { SendEmailError } from "@/domain/shared/errors/send-email.js";
 import { SlotNotAvailable } from "@/domain/shared/errors/slot-not-available.js";
 
-/**
- * Global error handler for Fastify API
- * Converts domain errors to appropriate HTTP responses
- */
-export async function errorHandler(
-	error: FastifyError,
-	request: FastifyRequest,
-	reply: FastifyReply,
-) {
-	// Log error for debugging
-	request.log.error(error);
+const USE_CASES_STATUS_CODE_MAP: Record<string, number> = {
+	// 400 - Bad Request → validation, business rules, default
+	[InvalidCreantionData.uniqueCode]: 400,
+	[ScheduleTooSoon.uniqueCode]: 400,
+	[ScheduleTooFarAhead.uniqueCode]: 400,
+	[SendEmailError.uniqueCode]: 400,
 
-	// Handle Zod validation errors
+	// 401 - Authentication failures
+	[InvalidCredentials.uniqueCode]: 401,
+
+	// 403 - Permission denied (if checking resource ownership)
+
+	// 404 - Resource doesn't exist
+	[EntityNotFound.uniqueCode]: 404,
+	SELLER_NOT_FOUND: 404,
+	AGENDA_NOT_FOUND: 404,
+
+	// 409 - Conflict with current state
+	[EntityAlreadyExist.uniqueCode]: 409,
+	[SlotNotAvailable.uniqueCode]: 409,
+};
+
+/**
+ * Overwrite Fastify reply to ensure serialization even in error cases
+ * Otherwise, Fastify Zod plugin may throw 500 errors if the body
+ * does not match the expected response schema definition on the route.
+ */
+function setReplySerializationError(
+	reply: FastifyReply,
+	statusCode: number,
+	body: {
+		error: string;
+		message: string;
+		details: Array<{ field: string; message: string }> | null;
+	},
+) {
+	reply
+		.status(statusCode)
+		.serializer((payload) => JSON.stringify(payload))
+		.send(body);
+}
+
+/**
+ * Reply body must have the same props as defaultErrorSchema
+ * otherwise an 500 error will be thrown by Fastify Zod plugin.
+ */
+function handleUseCaseError(error: FastifyError, reply: FastifyReply): boolean {
+	if (error instanceof DefaultUseCaseError) {
+		const useCaseErrorStatusCode =
+			USE_CASES_STATUS_CODE_MAP[error.uniqueCode] || 400;
+
+		const returnUseCaseErrorObj = {
+			code: error.uniqueCode,
+			message: error.message,
+		};
+
+		reply.status(useCaseErrorStatusCode).send(returnUseCaseErrorObj);
+
+		return true;
+	}
+
+	return false;
+}
+
+function handleZodRuntimeError(
+	error: FastifyError,
+	reply: FastifyReply,
+): boolean {
 	if (error instanceof ZodError) {
 		const flattenedErrors = z.flattenError(error);
 
@@ -29,78 +88,92 @@ export async function errorHandler(
 			}),
 		);
 
-		return reply.status(400).send({
+		setReplySerializationError(reply, 400, {
 			error: "Validation Error",
 			message: "Invalid request data",
 			details,
 		});
+
+		return true;
 	}
 
-	// Handle domain business logic errors
-	if (error instanceof EntityNotFound) {
-		return reply.status(404).send({
-			error: "Not Found",
-			message: error.message,
-		});
-	}
+	return false;
+}
 
-	if (error instanceof EntityAlreadyExist) {
-		return reply.status(409).send({
-			error: "Conflict",
-			message: error.message,
-		});
-	}
-
-	if (error instanceof InvalidCredentials) {
-		return reply.status(401).send({
-			error: "Unauthorized",
-			message: error.message,
-		});
-	}
-
-	if (error instanceof InvalidCreantionData) {
-		return reply.status(400).send({
-			error: "Bad Request",
-			message: error.message,
-		});
-	}
-
-	if (error instanceof SlotNotAvailable) {
-		return reply.status(409).send({
-			error: "Conflict",
-			message: error.message,
-		});
-	}
-
-	// Handle Fastify validation errors (from fastify-type-provider-zod)
-	if (error.validation) {
+function handleFastifyZodProviderError(
+	error: FastifyError,
+	reply: FastifyReply,
+): boolean {
+	if (error?.validation) {
 		const details = error.validation.map((err) => ({
-			field: err.instancePath.replace(/^\//, "").replace(/\//g, "."),
-			message: err.message,
-			expected: err.params?.expected,
+			field: err?.instancePath?.replace(/^\//, "")?.replace(/\//g, "."),
+			message: err?.message || "",
+			// expected: err?.params?.expected,
 		}));
 
-		return reply.status(400).send({
+		setReplySerializationError(reply, 400, {
 			error: "Validation Error",
-			message: `Invalid ${error.validationContext || "input"}`,
+			message: `Invalid ${error?.validationContext || "input"}`,
 			details,
 		});
+
+		return true;
 	}
 
-	// Handle generic HTTP errors
-	if (error.statusCode) {
-		return reply.status(error.statusCode).send({
-			error: error.name,
-			message: error.message,
+	return false;
+}
+
+export async function errorHandler(
+	error: FastifyError,
+	request: FastifyRequest,
+	reply: FastifyReply,
+) {
+	try {
+		request.log.error(error);
+
+		const hasUseCaseErrorHandled = handleUseCaseError(error, reply);
+		if (hasUseCaseErrorHandled) {
+			return reply;
+		}
+
+		const hasZodRuntimeErrorHandled = handleZodRuntimeError(error, reply);
+		if (hasZodRuntimeErrorHandled) {
+			return reply;
+		}
+
+		const hasFastifyZodProviderErrorHandled = handleFastifyZodProviderError(
+			error,
+			reply,
+		);
+		if (hasFastifyZodProviderErrorHandled) {
+			return reply;
+		}
+
+		if (error?.statusCode) {
+			setReplySerializationError(reply, error.statusCode, {
+				error: error?.name,
+				message: error?.message,
+				details: null,
+			});
+			return reply;
+		}
+
+		setReplySerializationError(reply, 500, {
+			error: "Internal Server Error",
+			message: "An unexpected error occurred",
+			details: null,
 		});
-	}
 
-	// Handle unknown errors
-	return reply.status(500).send({
-		error: "Internal Server Error",
-		message:
-			process.env.NODE_ENV === "production"
-				? "An unexpected error occurred"
-				: error.message,
-	});
+		return reply;
+	} catch (error) {
+		request.log.error(error);
+
+		setReplySerializationError(reply, 500, {
+			error: "Internal Server Error",
+			message: "An unexpected error occurred",
+			details: null,
+		});
+
+		return reply;
+	}
 }

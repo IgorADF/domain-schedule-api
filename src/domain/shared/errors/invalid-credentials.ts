@@ -1,7 +1,9 @@
 import { DefaultUseCaseError } from "./_default.js";
 
 export class InvalidCredentials extends DefaultUseCaseError {
+	static uniqueCode = "INVALID_CREDENTIALS";
+
 	constructor() {
-		super("Invalid credentials");
+		super(InvalidCredentials.uniqueCode, "Invalid credentials");
 	}
 }

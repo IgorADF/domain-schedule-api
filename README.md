@@ -20,8 +20,9 @@
 
 ### Tech
 
+- map all default-use-cases to erros to routes
+
 - Fastify log to redis reconnection
 - OTLP: https://www.youtube.com/watch?v=Wu0Ajkxh69Y
 - Passar o redis como prop no init da api
-- Organizar jwt como lib de jwt
 - add luxon to all project

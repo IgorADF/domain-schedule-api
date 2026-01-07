@@ -31,6 +31,8 @@
     "node": "24.x"
   },
   "dependencies": {
+    "@fastify/swagger": "9.6.1",
+    "@fastify/swagger-ui": "5.2.4",
     "amqplib": "0.10.9",
     "bcryptjs": "3.0.3",
     "cookie": "1.1.1",

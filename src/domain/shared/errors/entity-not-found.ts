@@ -1,7 +1,9 @@
 import { DefaultUseCaseError } from "./_default.js";
 
 export class EntityNotFound extends DefaultUseCaseError {
+	static uniqueCode = "ENTITY_NOT_FOUND";
+
 	constructor() {
-		super("Entity not found");
+		super(EntityNotFound.uniqueCode, "Entity not found");
 	}
 }
