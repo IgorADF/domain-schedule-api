@@ -2,8 +2,8 @@ import {
 	AgendaDayOfWeekSchema,
 	type AgendaDayOfWeekType,
 } from "@domain/entities/agenda-day-of-week.js";
-import type AgendaDayOfWeekModel from "../../database/models/agenda-day-of-week.js";
-import type { AgendaDayOfWeekModelType } from "../../database/models/agenda-day-of-week.js";
+import type AgendaDayOfWeekModel from "../../database/sequelize/models/agenda-day-of-week.js";
+import type { AgendaDayOfWeekModelType } from "../../database/sequelize/models/agenda-day-of-week.js";
 
 export function toModel(
 	dayOfWeek: AgendaDayOfWeekType,

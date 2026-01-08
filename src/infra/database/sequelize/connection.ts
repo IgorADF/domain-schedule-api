@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize-typescript";
 import { logInfoOnServer } from "@/apps/api/server-config.js";
-import { Envs } from "../envs/envs.js";
+import { Envs } from "../../envs/envs.js";
 import config from "./config/config.js";
 import type { SequelizeConfigType } from "./config/config-type.js";
 

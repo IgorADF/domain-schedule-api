@@ -4,7 +4,7 @@ import {
 	type AgendaScheduleType,
 } from "../entities/agenda-schedule.js";
 import { createEntity } from "../entities/helpers/creation.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import { ScheduleTooFarAhead } from "../shared/errors/schedule-too-far-ahead.js";
 import { ScheduleTooSoon } from "../shared/errors/schedule-too-soon.js";
 import { SlotNotAvailable } from "../shared/errors/slot-not-available.js";

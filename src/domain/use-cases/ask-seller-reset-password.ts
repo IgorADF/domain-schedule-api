@@ -1,6 +1,6 @@
 import type z from "zod";
 import { SellerSchema } from "../entities/seller.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import type { ILogService } from "../services/log.interface.js";
 import type { iQueueService } from "../services/queue.interface.js";
 import {

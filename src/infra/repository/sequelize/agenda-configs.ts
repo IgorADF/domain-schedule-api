@@ -1,8 +1,8 @@
 import type { AgendaConfigType } from "@domain/entities/agenda-config.js";
 import type { IAgendaConfigsRepository } from "@domain/repositories/agenda-configs.interface.js";
-import { ClassRepository } from "@/infra/repository/_default.js";
-import AgendaConfigsModel from "../database/models/agenda-configs.js";
-import * as AgendaConfigsMapper from "../entities/mappers/agenda-configs.js";
+import { ClassRepository } from "@/infra/repository/sequelize/_default.js";
+import AgendaConfigsModel from "../../database/sequelize/models/agenda-configs.js";
+import * as AgendaConfigsMapper from "../../entities/mappers/agenda-configs.js";
 
 export class AgendaConfigsRepository
 	extends ClassRepository

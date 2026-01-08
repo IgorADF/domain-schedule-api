@@ -1,13 +1,13 @@
 import { AskSellerResetPasswordUseCase } from "@/domain/use-cases/ask-seller-reset-password.js";
-import { createSequelizeUOW } from "@/infra/repository/uow/create-sequelize-unit-of-work.js";
-import { createQueueService } from "@/infra/services/factories/queue.js";
+import { SequelizeUnitOfWork } from "@/infra/repository/sequelize/uow/sequelize-unit-of-work.js";
+import { QueueService } from "@/infra/services/queue.js";
 import type { CreateFactoryFunction } from "./_default.js";
 
 export const askSellerResetPasswordFactory: CreateFactoryFunction<
 	AskSellerResetPasswordUseCase
 > = (logService) => {
-	const { uow } = createSequelizeUOW();
-	const queueService = createQueueService().service;
+	const uow = SequelizeUnitOfWork.create();
+	const queueService = QueueService.create();
 	const useCase = new AskSellerResetPasswordUseCase(
 		uow,
 		queueService,

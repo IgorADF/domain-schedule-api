@@ -10,8 +10,8 @@ import {
 	fromFormattedTimeString,
 	toFormattedTimeString,
 } from "@/domain/shared/value-objects/time.js";
-import type AgendaScheduleModel from "../../database/models/agenda-schedule.js";
-import type { AgendaScheduleModelType } from "../../database/models/agenda-schedule.js";
+import type AgendaScheduleModel from "../../database/sequelize/models/agenda-schedule.js";
+import type { AgendaScheduleModelType } from "../../database/sequelize/models/agenda-schedule.js";
 
 export function toModel(schedule: AgendaScheduleType): AgendaScheduleModelType {
 	const startTime = toFormattedTimeString(schedule.startTime);

@@ -1,7 +1,11 @@
 import bcrypt from "bcryptjs";
-import type { IPasswordService } from "@/domain/services/password.js";
+import type { IHashPasswordService } from "@/domain/services/password.js";
 
-export class PasswordService implements IPasswordService {
+export class HashPasswordService implements IHashPasswordService {
+	static create() {
+		return new HashPasswordService();
+	}
+
 	comparePassword(password: string, hashedPassword: string): boolean {
 		return bcrypt.compareSync(password, hashedPassword);
 	}

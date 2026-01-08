@@ -1,4 +1,4 @@
-import type { RedisCacheService } from "../../cache/service.js";
+import type { RedisCacheService } from "../../../cache/service.js";
 
 export class ClassCacheRepository<T> {
 	constructor(

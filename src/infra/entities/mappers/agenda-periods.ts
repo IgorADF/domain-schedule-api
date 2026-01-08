@@ -2,8 +2,8 @@ import {
 	AgendaPeriodSchema,
 	type AgendaPeriodType,
 } from "@domain/entities/agenda-periods.js";
-import type AgendaPeriodsModel from "../../database/models/agenda-periods.js";
-import type { AgendaPeriodsModelType } from "../../database/models/agenda-periods.js";
+import type AgendaPeriodsModel from "../../database/sequelize/models/agenda-periods.js";
+import type { AgendaPeriodsModelType } from "../../database/sequelize/models/agenda-periods.js";
 
 export function toModel(period: AgendaPeriodType): AgendaPeriodsModelType {
 	const startTime = `${String(period.startTime.hour).padStart(2, "0")}:${String(period.startTime.minute).padStart(2, "0")}:00`;

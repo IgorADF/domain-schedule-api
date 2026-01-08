@@ -6,8 +6,8 @@ import {
 	SellerWithPasswordSchema,
 	type SellerWithPasswordSchemaType,
 } from "../entities/seller.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
-import type { IPasswordService } from "../services/password.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
+import type { IHashPasswordService } from "../services/password.js";
 import { EntityAlreadyExist } from "../shared/errors/entity-already-exist.js";
 
 export const CreateSellerSchema = SellerWithPasswordSchema.pick({
@@ -24,7 +24,7 @@ export type CreateSellerType = z.infer<typeof CreateSellerSchema>;
 export class CreateSellerUseCase {
 	constructor(
 		private readonly uow: IUnitOfWork,
-		private readonly passwordService: IPasswordService,
+		private readonly passwordService: IHashPasswordService,
 	) {}
 
 	async execute(input: CreateSellerType): Promise<{ data: SellerType }> {

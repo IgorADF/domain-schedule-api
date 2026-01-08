@@ -1,4 +1,4 @@
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 
 export class GetAgendaConfigBySellerOrThrowUseCase {

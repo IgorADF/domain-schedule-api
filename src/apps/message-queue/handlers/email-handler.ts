@@ -1,5 +1,5 @@
 import z from "zod";
-import { createEmailService } from "@/infra/services/factories/email.js";
+import { EmailService } from "@/infra/services/email.js";
 
 export const EmailHandlerSchema = z.object({
 	to: z.email(),
@@ -10,7 +10,7 @@ export const EmailHandlerSchema = z.object({
 type EmailTaskType = z.infer<typeof EmailHandlerSchema>;
 
 export class EmailHandler {
-	private readonly emailService = createEmailService().service;
+	private readonly emailService = EmailService.create();
 
 	async handle(data: EmailTaskType): Promise<void> {
 		try {

@@ -2,8 +2,8 @@ import type { AgendaScheduleType } from "@domain/entities/agenda-schedule.js";
 import type { IAgendaScheduleRepository } from "@domain/repositories/agenda-schedule.interface.js";
 import type { DayType } from "@domain/shared/value-objects/day.js";
 import { Op } from "sequelize";
-import AgendaScheduleModel from "../database/models/agenda-schedule.js";
-import * as AgendaScheduleMapper from "../entities/mappers/agenda-schedule.js";
+import AgendaScheduleModel from "../../database/sequelize/models/agenda-schedule.js";
+import * as AgendaScheduleMapper from "../../entities/mappers/agenda-schedule.js";
 import { ClassRepository } from "./_default.js";
 
 export class AgendaScheduleRepository

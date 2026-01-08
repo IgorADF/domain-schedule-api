@@ -4,7 +4,7 @@ import {
 	type AgendaDayOfWeekType,
 } from "../entities/agenda-day-of-week.js";
 import { createEntity } from "../entities/helpers/creation.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 
 export const CreateAgendaDayOfWeekSchema = AgendaDayOfWeekSchema.pick({
 	agendaConfigId: true,

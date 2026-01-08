@@ -1,8 +1,8 @@
 import type z from "zod";
 import { SellerWithPasswordSchema } from "../entities/seller.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import type { ILogService } from "../services/log.interface.js";
-import type { IPasswordService } from "../services/password.js";
+import type { IHashPasswordService } from "../services/password.js";
 import { InvalidCredentials } from "../shared/errors/invalid-credentials.js";
 
 export const AuthSellerSchema = SellerWithPasswordSchema.pick({
@@ -15,7 +15,7 @@ export type AuthSellerType = z.infer<typeof AuthSellerSchema>;
 export class AuthSellerUseCase {
 	constructor(
 		private readonly uow: IUnitOfWork,
-		private readonly passwordService: IPasswordService,
+		private readonly passwordService: IHashPasswordService,
 		private readonly logService?: ILogService,
 	) {}
 

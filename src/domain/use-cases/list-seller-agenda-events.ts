@@ -1,6 +1,6 @@
 import z from "zod";
 import type { AgendaEventType } from "../entities/agenda-event.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import type { GetAgendaConfigBySellerOrThrowUseCase } from "./get-agenda-config-by-seller-or-throw.js";
 
 export const ListSellerAgendaEventsSchema = z.object({

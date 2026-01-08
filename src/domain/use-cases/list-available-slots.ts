@@ -1,5 +1,5 @@
 import z from "zod";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import type { DaySlots, GenerateSlotsUseCase } from "./generate-slots.js";
 import type { GetAgendaConfigBySellerOrThrowUseCase } from "./get-agenda-config-by-seller-or-throw.js";
 

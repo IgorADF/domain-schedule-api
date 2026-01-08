@@ -1,4 +1,4 @@
-import { Envs } from "../../envs/envs.js";
+import { Envs } from "../../../envs/envs.js";
 
 export default {
 	development: {

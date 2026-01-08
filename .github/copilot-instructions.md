@@ -34,16 +34,15 @@ src/
 **Infrastructure Layer (`src/infra/`):**
 
 - `cache/` - Redis client and service
-- `database/models/` - Sequelize models
-- `database/migrations/` - Database migrations (`.cjs` files)
+- `database/sequelize/` - Sequelize connection, config, models, migrations, seeders
 - `entities/mappers/` - Domain ↔ Model mappers
 - `envs/` - Environment configuration
 - `queue/` - RabbitMQ connection, publishers, message schema
 - `repository/` - Repository implementations
-- `repository/uow/` - SequelizeUnitOfWork implementation
-- `repository/cache/` - Cached repository decorators
+- `repository/sequelize/` - Sequelize repository implementations
+- `repository/sequelize/uow/` - SequelizeUnitOfWork implementation
+- `repository/sequelize/cache/` - Cached repository decorators
 - `services/` - Service implementations
-- `services/factories/` - Service factory functions
 - `use-cases/factories/` - Use-case factory functions
 
 **Apps Layer (`src/apps/`):**
@@ -59,7 +58,7 @@ src/
 ```typescript
 // ✅ CORRECT
 import { CreateSellerUseCase } from "@domain/use-cases/create-seller.js";
-import { SequelizeUnitOfWork } from "@infra/repository/uow/sequelize-unit-of-work.js";
+import { SequelizeUnitOfWork } from "@infra/repository/sequelize/uow/sequelize-unit-of-work.js";
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 
 // ❌ WRONG
@@ -74,8 +73,8 @@ Uses **Sequelize ORM** with TypeScript decorators.
 
 **CRITICAL:**
 
-- Migrations use `.cjs` extension: `src/infra/database/migrations/TIMESTAMP-name.cjs`
-- Models are auto-loaded from `src/infra/database/models/` directory
+- Migrations use `.cjs` extension: `src/infra/database/sequelize/migrations/TIMESTAMP-name.cjs`
+- Models are auto-loaded from `src/infra/database/sequelize/models/` directory
 - **ALWAYS create a migration when changing anything database-related**
 - **Timestamp fields:** `creationDate` and `updateDate` (not Sequelize defaults)
 
@@ -159,8 +158,8 @@ try {
 **Steps to create:**
 
 1. Define interface in `src/domain/repositories/[name].interface.ts`
-2. Implement in `src/infra/repository/[name].repository.ts` extending `ClassRepository`
-3. Add getter to `IUnitOfWork` interface
+2. Implement in `src/infra/repository/sequelize/[name].ts` extending `ClassRepository`
+3. Add getter to `IUnitOfWork` interface (`src/domain/repositories/uow/unit-of-work.interface.ts`)
 4. Add getter to `SequelizeUnitOfWork` implementation
 
 **CRITICAL:**
@@ -224,14 +223,21 @@ fastify.register(initEntityRoutes(logger, ["tag-name"]), {
 Located in `src/infra/use-cases/factories/`. Follow `CreateFactoryFunction` type:
 
 ```typescript
+import { SequelizeUnitOfWork } from "@infra/repository/sequelize/uow/sequelize-unit-of-work.js";
+
 export const createEntityFactory: CreateFactoryFunction<CreateEntityUseCase> = (
   logService
 ) => {
-  const { uow } = createSequelizeUOW();
+  const uow = SequelizeUnitOfWork.create();
   const useCase = new CreateEntityUseCase(uow);
   return { uow, useCase };
 };
 ```
+
+**CRITICAL:**
+
+- Do **NOT** use `createSequelizeUOW()` (removed)
+- Always instantiate the UoW with `const uow = SequelizeUnitOfWork.create();`
 
 ## Error Handling
 
@@ -265,7 +271,10 @@ Errors are thrown from use-cases; global handler converts to HTTP responses.
 
 1. Interface in `src/domain/services/[name].interface.ts`
 2. Implementation in `src/infra/services/[name].ts`
-3. Factory in `src/infra/services/factories/[name].ts`
+
+**CRITICAL:**
+
+- Prefer a `static create(...)` constructor on service implementations (factories were removed)
 
 ## Dev Workflow
 

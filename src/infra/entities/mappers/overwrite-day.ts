@@ -6,8 +6,8 @@ import {
 	dayToISOString,
 	isoStringToDay,
 } from "@/domain/shared/value-objects/day.js";
-import type OverwriteDayModel from "../../database/models/overwrite-day.js";
-import type { OverwriteDayModelType } from "../../database/models/overwrite-day.js";
+import type OverwriteDayModel from "../../database/sequelize/models/overwrite-day.js";
+import type { OverwriteDayModelType } from "../../database/sequelize/models/overwrite-day.js";
 
 export function toModel(overwriteDay: OverwriteDayType): OverwriteDayModelType {
 	const { year, month, day } = overwriteDay.day;

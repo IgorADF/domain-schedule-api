@@ -4,7 +4,7 @@ import {
 	type AgendaPeriodType,
 } from "../entities/agenda-periods.js";
 import { createEntity } from "../entities/helpers/creation.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 
 export const CreateAgendaPeriodsSchema = z.array(
 	AgendaPeriodSchema.pick({

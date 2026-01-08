@@ -1,13 +1,13 @@
 import { CreateSellerUseCase } from "@domain/use-cases/create-seller.js";
-import { createSequelizeUOW } from "@/infra/repository/uow/create-sequelize-unit-of-work.js";
-import { createPasswordService } from "@/infra/services/factories/password.js";
+import { SequelizeUnitOfWork } from "@/infra/repository/sequelize/uow/sequelize-unit-of-work.js";
+import { HashPasswordService } from "@/infra/services/password.js";
 import type { CreateFactoryFunction } from "./_default.js";
 
 export const createSellerFactory: CreateFactoryFunction<
 	CreateSellerUseCase
 > = () => {
-	const { uow } = createSequelizeUOW();
-	const { service } = createPasswordService();
+	const uow = SequelizeUnitOfWork.create();
+	const service = HashPasswordService.create();
 	const useCase = new CreateSellerUseCase(uow, service);
 
 	return {

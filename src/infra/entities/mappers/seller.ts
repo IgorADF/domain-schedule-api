@@ -4,8 +4,8 @@ import {
 	SellerWithPasswordSchema,
 	type SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
-import type SellerModel from "../../database/models/seller.js";
-import type { SellerModelType } from "../../database/models/seller.js";
+import type SellerModel from "../../database/sequelize/models/seller.js";
+import type { SellerModelType } from "../../database/sequelize/models/seller.js";
 
 export function toModel(sup: SellerWithPasswordSchemaType): SellerModelType {
 	return {

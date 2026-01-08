@@ -8,7 +8,7 @@ import {
 	OverwriteDaySchema,
 	type OverwriteDayType,
 } from "../entities/overwrite-day.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
+import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 
 export const CreateOverwriteDaysSchema = z.object({

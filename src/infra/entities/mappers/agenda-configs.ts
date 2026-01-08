@@ -2,8 +2,8 @@ import {
 	AgendaConfigSchema,
 	type AgendaConfigType,
 } from "@domain/entities/agenda-config.js";
-import type AgendaConfigsModel from "../../database/models/agenda-configs.js";
-import type { AgendaConfigsModelType } from "../../database/models/agenda-configs.js";
+import type AgendaConfigsModel from "../../database/sequelize/models/agenda-configs.js";
+import type { AgendaConfigsModelType } from "../../database/sequelize/models/agenda-configs.js";
 
 export function toModel(
 	agendaConfig: AgendaConfigType,

@@ -16,6 +16,10 @@ export class EmailService {
 		});
 	}
 
+	static create() {
+		return new EmailService();
+	}
+
 	async send(
 		to: string,
 		subject: string,
