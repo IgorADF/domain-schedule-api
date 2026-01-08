@@ -1,7 +1,7 @@
 import z from "zod";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
-import type { DaySlots, GenerateSlotsUseCase } from "./generate-slots.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
+import type { DaySlots, GenerateSlotsUseCase } from "./generate-slots.js";
 
 export const ListAvailableSlotsSchema = z.object({
 	agendaConfigId: z.uuid(),
