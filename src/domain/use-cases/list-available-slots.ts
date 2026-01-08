@@ -1,10 +1,10 @@
 import z from "zod";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import type { DaySlots, GenerateSlotsUseCase } from "./generate-slots.js";
-import type { GetAgendaConfigBySellerOrThrowUseCase } from "./get-agenda-config-by-seller-or-throw.js";
+import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 
 export const ListAvailableSlotsSchema = z.object({
-	sellerId: z.uuid(),
+	agendaConfigId: z.uuid(),
 	initialDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 	finalDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
@@ -19,11 +19,10 @@ export class ListAvailableSlotsUseCase {
 	constructor(
 		private readonly uow: IUnitOfWork,
 		private readonly generateSlotsUseCase: GenerateSlotsUseCase,
-		private readonly getAgendaConfigBySellerOrThrowUseCase: GetAgendaConfigBySellerOrThrowUseCase,
 	) {}
 
 	async execute({
-		sellerId,
+		agendaConfigId,
 		initialDate: initialDateString,
 		finalDate: finalDateString,
 	}: ListAvailableSlotsInput): Promise<AvailableSlotsOutput> {
@@ -33,7 +32,11 @@ export class ListAvailableSlotsUseCase {
 			this.generateSlotsUseCase.parseDateString(finalDateString);
 
 		const agendaConfig =
-			await this.getAgendaConfigBySellerOrThrowUseCase.execute(sellerId);
+			await this.uow.agendaConfigsRepository.getById(agendaConfigId);
+
+		if (!agendaConfig) {
+			throw new EntityNotFound();
+		}
 
 		const daysOfWeek =
 			await this.uow.agendaDayOfWeekRepository.getByAgendaConfigId(

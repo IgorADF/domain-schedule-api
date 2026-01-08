@@ -44,7 +44,7 @@ export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
 			"/available-slots",
 			{
 				schema: {
-					querystring: ListAvailableSlotsSchema.omit({ sellerId: true }),
+					querystring: ListAvailableSlotsSchema,
 					tags,
 					description:
 						"List available slots in the agenda for public scheduling",
@@ -57,9 +57,8 @@ export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
 			async (request) => {
 				const { useCase } = listAvailableSlotsFactory();
 
-				const sellerId = request.authSeller.id;
 				const result = await useCase.execute({
-					sellerId,
+					agendaConfigId: request.query.agendaConfigId,
 					initialDate: request.query.initialDate,
 					finalDate: request.query.finalDate,
 				});
