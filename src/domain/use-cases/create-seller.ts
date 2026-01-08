@@ -38,19 +38,11 @@ export class CreateSellerUseCase {
 
 		const formattedNewSeller = this.formatNewSeller(input);
 
-		try {
-			await this.uow.beginTransaction();
+		const newSeller = await this.uow.withTransaction(async () => {
+			return await this.uow.sellerRepository.create(formattedNewSeller);
+		});
 
-			const newSeller =
-				await this.uow.sellerRepository.create(formattedNewSeller);
-
-			await this.uow.commitTransaction();
-
-			return { data: newSeller };
-		} catch (err) {
-			await this.uow.rollbackTransaction();
-			throw err;
-		}
+		return { data: newSeller };
 	}
 
 	formatNewSeller(newSeller: CreateSellerType): SellerWithPasswordSchemaType {

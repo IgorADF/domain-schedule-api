@@ -77,9 +77,7 @@ export class CreateCompleteAgendaUseCase {
 		daysOfWeek,
 		agendaConfig,
 	}: CreateCompleteAgendaType) {
-		try {
-			await this.uow.beginTransaction();
-
+		const createdConfig = await this.uow.withTransaction(async () => {
 			await this.getAgendaConfigBySellerOrThrowUseCase.execute(sellerId);
 
 			const { data: createdConfig } = await this.createAgendaConfig(
@@ -89,13 +87,10 @@ export class CreateCompleteAgendaUseCase {
 
 			await this.createDaysOfWeek(createdConfig.id, daysOfWeek);
 
-			await this.uow.commitTransaction();
+			return createdConfig;
+		});
 
-			return { data: createdConfig };
-		} catch (error) {
-			await this.uow.rollbackTransaction();
-			throw error;
-		}
+		return { data: createdConfig };
 	}
 
 	private async createAgendaConfig(

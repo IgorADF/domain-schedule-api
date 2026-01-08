@@ -73,6 +73,19 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 		this.resetTransaction();
 	}
 
+	async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
+		await this.beginTransaction();
+
+		try {
+			const result = await fn();
+			await this.commitTransaction();
+			return result;
+		} catch (error) {
+			await this.rollbackTransaction();
+			throw error;
+		}
+	}
+
 	private createAndGetRepository<T>(
 		ClassDef: Class,
 		propName: keyof this,

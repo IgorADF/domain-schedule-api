@@ -85,9 +85,7 @@ export class CreateOverwriteDaysUseCase {
 			}
 		}
 
-		await this.uow.beginTransaction();
-
-		try {
+		const createdOverwriteDays = await this.uow.withTransaction(async () => {
 			const createdOverwriteDays =
 				await this.uow.overwriteDayRepository.bulkCreate(
 					formattedOverwriteDays,
@@ -97,11 +95,9 @@ export class CreateOverwriteDaysUseCase {
 				await this.uow.agendaPeriodsRepository.bulkCreate(allPeriods);
 			}
 
-			await this.uow.commitTransaction();
-			return { data: createdOverwriteDays };
-		} catch (error) {
-			await this.uow.rollbackTransaction();
-			throw error;
-		}
+			return createdOverwriteDays;
+		});
+
+		return { data: createdOverwriteDays };
 	}
 }

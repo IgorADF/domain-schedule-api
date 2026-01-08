@@ -36,17 +36,10 @@ export class CreateAgendaEventUseCase {
 
 		const parsedAgendaEvent = AgendaEventSchema.parse(agendaEvent);
 
-		await this.uow.beginTransaction();
+		const createdAgendaEvent = await this.uow.withTransaction(async () => {
+			return await this.uow.agendaEventRepository.create(parsedAgendaEvent);
+		});
 
-		try {
-			const createdAgendaEvent =
-				await this.uow.agendaEventRepository.create(parsedAgendaEvent);
-
-			await this.uow.commitTransaction();
-			return { data: createdAgendaEvent };
-		} catch (error) {
-			await this.uow.rollbackTransaction();
-			throw error;
-		}
+		return { data: createdAgendaEvent };
 	}
 }

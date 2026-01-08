@@ -43,18 +43,11 @@ export class CreateAgendaScheduleUseCase {
 
 		const parsedSchedule = AgendaScheduleSchema.parse(agendaSchedule);
 
-		await this.uow.beginTransaction();
+		const newSchedule = await this.uow.withTransaction(async () => {
+			return await this.uow.agendaScheduleRepository.create(parsedSchedule);
+		});
 
-		try {
-			const newSchedule =
-				await this.uow.agendaScheduleRepository.create(parsedSchedule);
-
-			await this.uow.commitTransaction();
-			return { data: newSchedule };
-		} catch (error) {
-			await this.uow.rollbackTransaction();
-			throw error;
-		}
+		return { data: newSchedule };
 	}
 
 	private async validateSlotAvailability(
