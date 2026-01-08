@@ -1,21 +1,17 @@
 {
   "rest-client.environmentVariables": {
     "$shared": {
-      "BASE_URL": "http://localhost:3000",
-      "TOKEN": ""
+      "BASE_URL": "http://localhost:3000"
     },
     "local": {
       "BASE_URL": "http://localhost:3000",
-      "TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAxOWI4NjU0LTlhYmMtNzBkOC1iZTc4LWY1NmVjYjBhOTU1NCIsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3Njc0ODUzMjgsImV4cCI6MTc2NzQ4ODkyOH0.jRhjfmZCZkxyGgoYquaaXHEHogFKhZJbHNsXrqapbY0",
       "AGENDA_CONFIG_ID": "019b8656-62b6-777a-bea5-f64b7c1a350f"
     },
     "development": {
-      "BASE_URL": "https://dev-api.yourdomain.com",
-      "TOKEN": ""
+      "BASE_URL": "https://dev-api.yourdomain.com"
     },
     "production": {
-      "BASE_URL": "https://api.yourdomain.com",
-      "TOKEN": ""
+      "BASE_URL": "https://api.yourdomain.com"
     }
   },
   "rest-client.timeoutinmilliseconds": 1000000,

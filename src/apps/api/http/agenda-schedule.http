@@ -2,7 +2,6 @@
 
 # @name ListSellerSchedules
 GET {{BASE_URL}}/agenda-schedules?initialDate=2026-01-01&finalDate=2026-01-31
-Authorization: Bearer {{TOKEN}}
 
 ###
 

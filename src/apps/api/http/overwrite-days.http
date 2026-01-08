@@ -3,7 +3,6 @@
 # @name CreateOverwriteDaysWithPeriods
 POST {{BASE_URL}}/overwrite-days
 Content-Type: application/json
-Authorization: Bearer {{TOKEN}}
 
 {
 	"agendaConfigId": "{{AGENDA_CONFIG_ID}}",
