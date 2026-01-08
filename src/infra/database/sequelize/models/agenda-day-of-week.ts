@@ -15,7 +15,7 @@ export type AgendaDayOfWeekModelType = InferAttributes<AgendaDayOfWeekModel>;
 export type AgendaDayOfWeekModelCreationType =
 	InferCreationAttributes<AgendaDayOfWeekModel>;
 
-@Table({ tableName: "AgendaDayOfWeek", timestamps: false })
+@Table({ tableName: "AgendaDayOfWeek" })
 class AgendaDayOfWeekModel extends Model<
 	AgendaDayOfWeekModelType,
 	AgendaDayOfWeekModelCreationType

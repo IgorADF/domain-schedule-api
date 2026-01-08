@@ -14,7 +14,7 @@ export type AgendaPeriodsModelType = InferAttributes<AgendaPeriodsModel>;
 export type AgendaPeriodsModelCreationType =
 	InferCreationAttributes<AgendaPeriodsModel>;
 
-@Table({ tableName: "AgendaPeriods", timestamps: false })
+@Table({ tableName: "AgendaPeriods" })
 class AgendaPeriodsModel extends Model<
 	AgendaPeriodsModelType,
 	AgendaPeriodsModelCreationType

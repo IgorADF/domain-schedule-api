@@ -15,7 +15,7 @@ export type OverwriteDayModelType = InferAttributes<OverwriteDayModel>;
 export type OverwriteDayModelCreationType =
 	InferCreationAttributes<OverwriteDayModel>;
 
-@Table({ tableName: "OverwriteDay", timestamps: false })
+@Table({ tableName: "OverwriteDay" })
 class OverwriteDayModel extends Model<
 	OverwriteDayModelType,
 	OverwriteDayModelCreationType

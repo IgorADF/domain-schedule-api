@@ -7,5 +7,5 @@ export type SequelizeConfigType = {
 	host: string;
 	port: number;
 	dialect: Dialect;
-	seederStorage?: string;
+	seederStorage: string | undefined;
 };

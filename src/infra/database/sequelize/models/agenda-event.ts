@@ -13,7 +13,7 @@ export type AgendaEventModelType = InferAttributes<AgendaEventModel>;
 export type AgendaEventModelCreationType =
 	InferCreationAttributes<AgendaEventModel>;
 
-@Table({ tableName: "AgendaEvents", timestamps: false })
+@Table({ tableName: "AgendaEvents" })
 class AgendaEventModel extends Model<
 	AgendaEventModelType,
 	AgendaEventModelCreationType

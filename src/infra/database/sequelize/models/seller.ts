@@ -8,7 +8,6 @@ export type SellerModelCreationType = InferCreationAttributes<SellerModel>;
 @Table({
 	tableName: "Sellers",
 	paranoid: true,
-	timestamps: false,
 	defaultScope: { attributes: { exclude: ["password"] } },
 })
 class SellerModel extends Model<SellerModelType, SellerModelCreationType> {

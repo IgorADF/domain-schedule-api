@@ -2,6 +2,7 @@ import { Envs } from "../../../envs/envs.js";
 
 /* For runtime code/db connection, this config file/format is not necessary */
 /* Otherwise, this config file format integrates with and is used by Sequelize CLI */
+/* Change type file if this was changed */
 
 export default {
 	development: {
@@ -20,6 +21,7 @@ export default {
 		host: Envs.DB_HOST,
 		port: Envs.DB_PORT,
 		dialect: "postgres",
+		seederStorage: undefined,
 	},
 	production: {
 		username: Envs.DB_USER,

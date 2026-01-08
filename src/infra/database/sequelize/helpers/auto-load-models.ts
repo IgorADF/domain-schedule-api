@@ -9,7 +9,7 @@ import type { ModelCtor } from "sequelize-typescript";
  * This autoload only works with ESM modules
  */
 export async function loadAllModels() {
-	const modelsPath = path.join(import.meta.dirname, "models");
+	const modelsPath = path.join(import.meta.dirname, "..", "models");
 
 	const files = fs
 		.readdirSync(modelsPath)
