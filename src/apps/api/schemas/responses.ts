@@ -1,6 +1,7 @@
 import z from "zod";
 import { AgendaConfigSchema } from "@/domain/entities/agenda-config.js";
 import { AgendaDayOfWeekSchema } from "@/domain/entities/agenda-day-of-week.js";
+import { AgendaEventSchema } from "@/domain/entities/agenda-event.js";
 import { AgendaPeriodSchema } from "@/domain/entities/agenda-periods.js";
 import { AgendaScheduleSchema } from "@/domain/entities/agenda-schedule.js";
 import { OverwriteDaySchema } from "@/domain/entities/overwrite-day.js";
@@ -68,4 +69,16 @@ export const GetAgendaSchedulesResponseSchema = z.object({
 
 export const CreateAgendaSchedulesResponseSchema = z.object({
 	data: AgendaScheduleSchema,
+});
+
+/* Agenda Event */
+
+export const ListSellerAgendaEventsResponseSchema = z.object({
+	data: z.object({
+		items: z.array(AgendaEventSchema),
+		total: z.number().int().min(0),
+		page: z.number().int().min(1),
+		pageSize: z.number().int().min(1),
+		totalPages: z.number().int().min(0),
+	}),
 });

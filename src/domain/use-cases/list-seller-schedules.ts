@@ -1,8 +1,8 @@
 import z from "zod";
 import type { AgendaScheduleType } from "../entities/agenda-schedule.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.js";
-import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 import type { DayType } from "../shared/value-objects/day.js";
+import type { GetAgendaConfigBySellerOrThrowUseCase } from "./get-agenda-config-by-seller-or-throw.js";
 
 export const ListSellerSchedulesSchema = z.object({
 	sellerId: z.uuid(),
@@ -22,7 +22,10 @@ export type ListSellerSchedulesResponseType = {
 };
 
 export class ListSellerSchedulesUseCase {
-	constructor(private uow: IUnitOfWork) {}
+	constructor(
+		private readonly uow: IUnitOfWork,
+		private readonly getAgendaConfigBySellerOrThrowUseCase: GetAgendaConfigBySellerOrThrowUseCase,
+	) {}
 
 	async execute({
 		sellerId,
@@ -32,11 +35,7 @@ export class ListSellerSchedulesUseCase {
 		data: ListSellerSchedulesResponseType;
 	}> {
 		const agendaConfig =
-			await this.uow.agendaConfigsRepository.getBySellerId(sellerId);
-
-		if (!agendaConfig) {
-			throw new EntityNotFound();
-		}
+			await this.getAgendaConfigBySellerOrThrowUseCase.execute(sellerId);
 
 		const initialDate = this.parseDateString(initialDateString);
 		const finalDate = this.parseDateString(finalDateString);

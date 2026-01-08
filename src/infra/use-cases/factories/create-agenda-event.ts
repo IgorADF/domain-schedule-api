@@ -1,15 +1,15 @@
-import { ListAgendaConfigUseCase } from "@domain/use-cases/list-agenda-config.js";
+import { CreateAgendaEventUseCase } from "@domain/use-cases/create-agenda-event.js";
 import { GetAgendaConfigBySellerOrThrowUseCase } from "@/domain/use-cases/get-agenda-config-by-seller-or-throw.js";
 import { createSequelizeUOW } from "@/infra/repository/uow/create-sequelize-unit-of-work.js";
 import type { CreateFactoryFunction } from "./_default.js";
 
-export const listAgendaConfigFactory: CreateFactoryFunction<
-	ListAgendaConfigUseCase
+export const createAgendaEventFactory: CreateFactoryFunction<
+	CreateAgendaEventUseCase
 > = () => {
 	const { uow } = createSequelizeUOW();
 	const getAgendaConfigBySellerOrThrowUseCase =
 		new GetAgendaConfigBySellerOrThrowUseCase(uow);
-	const useCase = new ListAgendaConfigUseCase(
+	const useCase = new CreateAgendaEventUseCase(
 		uow,
 		getAgendaConfigBySellerOrThrowUseCase,
 	);

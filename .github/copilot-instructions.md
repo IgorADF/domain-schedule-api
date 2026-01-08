@@ -14,23 +14,43 @@
 
 ```
 src/
+├── @types/           # Shared TypeScript types
 ├── domain/           # Business logic (entities, use-cases, interfaces)
 ├── infra/            # Infrastructure (database, cache, queue, services)
 └── apps/             # Entry points (api, message-queue, jobs)
 ```
 
+**Domain Layer (`src/domain/`):**
+
+- `entities/` - Zod schemas and types for domain entities
+- `entities/helpers/` - Entity creation/update helpers (`createEntity`, `updateEntity`)
+- `repositories/` - Repository interfaces
+- `repositories/uow/` - Unit of Work interface
+- `services/` - Service interfaces
+- `shared/errors/` - Domain error classes
+- `shared/value-objects/` - Reusable value objects (`IdObj`, `DayObj`, `TimeObj`, etc.)
+- `use-cases/` - Business logic classes
+
 **Infrastructure Layer (`src/infra/`):**
 
 - `cache/` - Redis client and service
-- `database/` - Sequelize models, migrations, seeders
+- `database/models/` - Sequelize models
+- `database/migrations/` - Database migrations (`.cjs` files)
 - `entities/mappers/` - Domain ↔ Model mappers
 - `envs/` - Environment configuration
-- `queue/` - RabbitMQ connection, publisher, message schema
+- `queue/` - RabbitMQ connection, publishers, message schema
 - `repository/` - Repository implementations
-- `services/` - Email, log, queue services + factories
+- `repository/uow/` - SequelizeUnitOfWork implementation
+- `repository/cache/` - Cached repository decorators
+- `services/` - Service implementations
+- `services/factories/` - Service factory functions
 - `use-cases/factories/` - Use-case factory functions
 
-**Critical:** Repositories are transaction-aware via `SequelizeUnitOfWork`.
+**Apps Layer (`src/apps/`):**
+
+- `api/` - Fastify HTTP server
+- `message-queue/` - RabbitMQ consumers and handlers
+- `jobs/` - Scheduled jobs (node-cron)
 
 ## Path Aliases
 
@@ -40,6 +60,7 @@ src/
 // ✅ CORRECT
 import { CreateSellerUseCase } from "@domain/use-cases/create-seller.js";
 import { SequelizeUnitOfWork } from "@infra/repository/uow/sequelize-unit-of-work.js";
+import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 
 // ❌ WRONG
 import { CreateSellerUseCase } from "../../../domain/use-cases/create-seller.js";
@@ -53,29 +74,28 @@ Uses **Sequelize ORM** with TypeScript decorators.
 
 **CRITICAL:**
 
-- Migrations/seeders use `.cjs` extension: `src/infra/database/migrations/TIMESTAMP-name.cjs`
-- All models registered in `src/infra/database/connection.ts`
-- **ALWAYS create a migration when changing anything database-related** (adding/removing/modifying columns, indexes, tables, etc.)
-- For existing tables, create an ALTER migration with timestamp: `YYYYMMDDHHMMSS-alter-table-name.cjs`
-- **Timestamp fields use custom names: `creationDate` and `updateDate`** (not Sequelize defaults `createdAt`/`updatedAt`)
-- All migrations must define timestamp columns as: `creationDate` and `updateDate`
+- Migrations use `.cjs` extension: `src/infra/database/migrations/TIMESTAMP-name.cjs`
+- Models are auto-loaded from `src/infra/database/models/` directory
+- **ALWAYS create a migration when changing anything database-related**
+- **Timestamp fields:** `creationDate` and `updateDate` (not Sequelize defaults)
 
 **Model Pattern:**
 
-1. Import decorators from `sequelize-typescript`
-2. Use `@Table({ tableName, timestamps: false })`
-3. **ALWAYS declare id with `@Column` decorator:** `@Column({ allowNull: false, type: DataType.UUID, primaryKey: true }) declare id: string;`
-4. Define columns with `@Column({ type: DataType.X, allowNull: true/false })`
-5. Declare timestamps: `creationDate`, `updateDate`
-6. Add associations: `@BelongsTo`, `@HasMany`, `@ForeignKey`
+```typescript
+@Table({ tableName: "TableName", timestamps: false })
+class EntityModel extends Model<...> {
+	@Column({ allowNull: false, type: DataType.UUID, primaryKey: true })
+	declare id: string;
 
-**CRITICAL:** Never use `declare id: string;` without `@Column` decorator - this causes SQL quoting issues with UUIDs.
+	@Column({ allowNull: false, type: DataType.DATE })
+	creationDate!: Date;
 
-**Mappers** (`src/infra/entities/mappers/`): Plain functions `toModel()` and `toEntity()` for conversion.
+	@Column({ allowNull: false, type: DataType.DATE })
+	updateDate!: Date;
+}
+```
 
-**Adding a field:** Entity → Migration (.cjs) → Model → Mapper
-
-**Modifying a field:** Migration (.cjs) → Model → Mapper (if needed)
+**Mappers** (`src/infra/entities/mappers/`): Functions `toModel()` and `toEntity()` for conversion. Always parse with Zod schema in `toEntity()`.
 
 ## Validation & Type Safety
 
@@ -83,120 +103,110 @@ Uses **Sequelize ORM** with TypeScript decorators.
 
 **Patterns:**
 
-- Strings: `z.string().min(1).max(50)`
-- Numbers: `z.number().positive().min(X).max(Y)`
-- Optional: Chain `.optional()` at END
-- Nullable: Chain `.nullable()` at END
 - Use `.pick()` to create input schemas from entity schemas
 - Use `.omit()` to exclude fields from schemas
 - Use `.refine()` for complex validations
 
-**Value Objects:** `IdObj`, `TimeObj`, `DayObj`, `Timestamp`, `ParanoidTimestamp`
+**Value Objects** (in `@domain/shared/value-objects/`): `IdObj`, `TimeObj`, `DayObj`, `Timestamp`, `ParanoidTimestamp`
 
-**Helper Functions:**
-
-- `dayToISOString(day)` - Convert DayObj to ISO date string (YYYY-MM-DD)
-- `isoStringToDay(string)` - Convert ISO date string to DayObj
-
-**CRITICAL:** Never use `any` type. Format data before passing to functions, not inline.
+**CRITICAL:** Never use `any` type.
 
 ## Use-Case Pattern
 
-All business logic in `src/domain/use-cases/`. Each class:
+All business logic in `src/domain/use-cases/`. Each use-case file contains:
 
-- Takes `IUnitOfWork` in constructor (some also take other use-cases for composition)
-- Receives pre-validated input
-- Has `execute()` as entry point
-- Throws custom errors from `src/domain/shared/errors/`
+1. Input schema (Zod) - derived from entity schema using `.pick()`
+2. Input type - `z.infer<typeof Schema>`
+3. Use-case class with `execute()` method
 
-**Return types:**
-
-- Query: `Promise<{ data: EntityType | EntityType[] }>`
-- Command: `Promise<{ data: EntityType }>`
-- Auth: Minimal data, NEVER passwords
-
-**Entity Creation:** Use `createEntity()` helper from `src/domain/entities/helpers/creation.ts` to automatically add `id`, `creationDate`, and `updateDate`:
+**Pattern:**
 
 ```typescript
-import { createEntity } from "../entities/helpers/creation.js";
-
-const entity = createEntity<EntityType>({
-  // ...entity fields (excluding id, creationDate, updateDate)
+export const CreateEntitySchema = EntitySchema.pick({
+  field1: true,
+  field2: true,
 });
+export type CreateEntityType = z.infer<typeof CreateEntitySchema>;
 
-const parsed = EntitySchema.parse(entity);
-```
+export class CreateEntityUseCase {
+  constructor(private readonly uow: IUnitOfWork) {}
 
-**Entity Update:** Use `updateEntity()` helper from `src/domain/entities/helpers/update.ts` to automatically update `updateDate`:
-
-```typescript
-import { updateEntity } from "../entities/helpers/update.js";
-
-const updatedData = updateEntity<EntityType>({
-  // ...fields to update (updateDate is automatically set)
-});
-```
-
-**Bulk operations:** Format all items first, then call `bulkCreate()` once. NEVER call repository inside loops.
-
-**Transactions:** Managed inside use-cases for write operations.
-
-```typescript
-async execute(input: InputType): Promise<void> {
-	try {
-		await this.uow.beginTransaction();
-		// ... business logic ...
-		await this.uow.commitTransaction();
-	} catch (err) {
-		await this.uow.rollbackTransaction();
-		throw err;
-	}
+  async execute(input: CreateEntityType): Promise<{ data: EntityType }> {
+    // Business logic
+  }
 }
 ```
 
-**Use-Case Composition:** Some use-cases depend on others (e.g., `GenerateSlotsUseCase` is injected into `ListAvailableSlotsUseCase` and `CreateAgendaScheduleUseCase`).
+**Entity Creation:** Use `createEntity<T>()` helper to add `id`, `creationDate`, `updateDate`.
+
+**Entity Update:** Use `updateEntity<T>()` helper to set `updateDate`.
+
+**Transactions:** Wrap write operations:
+
+```typescript
+try {
+  await this.uow.beginTransaction();
+  // operations
+  await this.uow.commitTransaction();
+} catch (err) {
+  await this.uow.rollbackTransaction();
+  throw err;
+}
+```
 
 ## Repository Pattern
 
-**4 steps to create:**
+**Steps to create:**
 
 1. Define interface in `src/domain/repositories/[name].interface.ts`
-2. Implement in `src/infra/repository/[name].repository.ts`
-3. Add getter to UoW interface in `src/domain/repositories/uow/unit-of-work.ts`
-4. Add getter to UoW implementation in `src/infra/repository/uow/sequelize-unit-of-work.ts`
+2. Implement in `src/infra/repository/[name].repository.ts` extending `ClassRepository`
+3. Add getter to `IUnitOfWork` interface
+4. Add getter to `SequelizeUnitOfWork` implementation
 
 **CRITICAL:**
 
 - Arrays return `[]` when empty, never `null`
-- Repositories don't throw errors; return `null` for not found
-- Use `Model.create(model, { transaction })` for single creates
-- Use `bulkCreate()` for multiple creates
+- Single entity queries return `null` for not found
 - Always pass `{ transaction: this.transaction }` to Sequelize operations
-
-**Common Repository Methods:**
-
-- `create(data)` - Create single entity
-- `bulkCreate(data[])` - Create multiple entities
-- `getById(id)` - Get by ID (returns null if not found)
-- `getByDateRange(configId, initialDate, finalDate)` - Query by date range
-- `getByXxxId(id)` or `getByXxxIds(ids[])` - Get by parent ID(s)
-
-## Cache Pattern
-
-**Structure:** `src/infra/cache/` (redis client, service) + `src/infra/repository/cache/` (cached repos)
-
-**Cache:** Read-heavy entities, computed data, configs. **Don't cache:** Auth queries, real-time data, transactional data.
-
-**Keys:** `entity:${id}`, invalidate on writes, use TTLs.
+- Avoid embedding business rules in repositories (e.g., default ordering). If ordering matters, accept it as an explicit parameter and let the use-case decide.
 
 ## API Routes
 
-Routes in `src/apps/api/routes/` use factories from `src/infra/use-cases/factories/`.
+Routes in `src/apps/api/routes/` follow the `InitRoute` pattern:
 
 ```typescript
-fastify.post("/", { schema: { body: Schema } }, async (request) => {
-  const { useCase } = createSellerFactory();
-  return await useCase.execute(request.body);
+export const initEntityRoutes: InitRoute = (logger: LogService, tags) => {
+  return async (fastify: FastifyZodInstance) => {
+    fastify.post(
+      "/",
+      {
+        schema: {
+          body: CreateSchema.omit({ sellerId: true }),
+          tags,
+          description: "Description for Swagger",
+          response: {
+            200: ResponseSchema,
+            400: DefaultErrorSchema,
+          },
+        },
+        onRequest: [fastify.authenticate], // For protected routes
+      },
+      async (request, reply) => {
+        const { useCase } = createEntityFactory(logger);
+        const sellerId = request.authSeller.id;
+        const result = await useCase.execute({ ...request.body, sellerId });
+        return result;
+      }
+    );
+  };
+};
+```
+
+**Route Registration** (`_init.ts`):
+
+```typescript
+fastify.register(initEntityRoutes(logger, ["tag-name"]), {
+  prefix: "entities",
 });
 ```
 
@@ -204,149 +214,58 @@ fastify.post("/", { schema: { body: Schema } }, async (request) => {
 
 - Routes NEVER instantiate UoW or use-cases directly - always use factories
 - Use `onRequest: [fastify.authenticate]` for protected routes
-- Register routes in `_init.ts` with plural prefixes
-- **ALWAYS create an HTTP test file in `src/apps/api/http/` for each new route**
+- For protected routes, also set Swagger cookie auth: `schema.security: [{ cookieAuth: [] }]`
+- Access authenticated user via `request.authSeller.id`
 - Use `.omit({ sellerId: true })` on schemas when sellerId comes from auth
+- `200` response schemas must be exported from `@api/schemas/responses.ts` (avoid inline `z.object(...)` inside route files)
 
-**Auth:** Access `request.authSeller?.id` on authenticated routes.
+## Use-Case Factories
 
-**Current Routes:**
-
-- `/sellers` - Authentication, registration, profile updates
-- `/agendas` - Agenda configuration and available slots
-- `/agenda-schedules` - Schedule management
-- `/overwrite-days` - Overwrite day management with periods
-
-**Protected Endpoint Pattern:**
+Located in `src/infra/use-cases/factories/`. Follow `CreateFactoryFunction` type:
 
 ```typescript
-fastify.post(
-  "/",
-  {
-    schema: { body: Schema.omit({ sellerId: true }) },
-    onRequest: [fastify.authenticate],
-  },
-  async (request) => {
-    const sellerId = request.authSeller?.id as string;
-    const { useCase } = factory();
-    return await useCase.execute({ ...request.body, sellerId });
-  }
-);
+export const createEntityFactory: CreateFactoryFunction<CreateEntityUseCase> = (
+  logService
+) => {
+  const { uow } = createSequelizeUOW();
+  const useCase = new CreateEntityUseCase(uow);
+  return { uow, useCase };
+};
 ```
-
-**Validation Pattern:** Always validate that resources belong to authenticated seller:
-
-```typescript
-const resource = await this.uow.repository.getById(id);
-if (!resource || resource.sellerId !== input.sellerId) {
-  throw new EntityNotFound();
-}
-```
-
-## Message Queue
-
-**Infrastructure** (`src/infra/queue/`):
-
-```
-├── connection.ts    # RabbitMQ singleton connection
-├── publisher.ts     # Message publisher
-└── message.ts       # MessageSchema (id, type, data)
-```
-
-**Application** (`src/apps/message-queue/`):
-
-```
-├── consumers/consumer.ts  # Consumes and routes to handlers
-├── handlers/
-│   ├── _main.ts           # Routes by message.type
-│   └── email-handler.ts   # Specific handler
-└── start-queue.ts         # Entry point
-```
-
-**Adding a handler:**
-
-1. Add type to `MessageSchema.type` enum
-2. Create handler in `handlers/[name]-handler.ts`
-3. Add case to `MainHandler.handle()`
-4. Inject in `Consumer` constructor
-
-**Patterns:** Singleton connection, `ack()` on success, `nack(msg, false, true)` to requeue on error.
-
-## Services Layer
-
-Services in `src/infra/services/` implement domain interfaces.
-
-```
-├── email.ts      # Nodemailer
-├── log.ts        # Logger abstraction
-├── queue.ts      # QueueService → uses Publisher
-└── factories/    # Service factories
-```
-
-**Adding a service:**
-
-1. Interface in `src/domain/services/[name].interface.ts`
-2. Implementation in `src/infra/services/[name].ts`
-3. Factory in `src/infra/services/factories/[name].ts`
 
 ## Error Handling
 
-**Errors** in `src/domain/shared/errors/`:
+**Errors** extend `DefaultUseCaseError` in `src/domain/shared/errors/`:
 
 - `EntityAlreadyExist` → 409
 - `EntityNotFound` → 404
 - `InvalidCredentials` → 401
 - `InvalidCreationData` → 400
 - `SlotNotAvailable` → 400
+- `ScheduleTooSoon` → 400
+- `ScheduleTooFarAhead` → 400
 
-Throw from use-cases; global handler converts to HTTP responses.
+Errors are thrown from use-cases; global handler converts to HTTP responses.
 
-## Domain Entities
+## Message Queue
 
-**Core Entities:**
+**Infrastructure** (`src/infra/queue/`): `queue-config.ts`, `publishers/`, `message.ts`
 
-- `Seller` - User/seller account
-- `AgendaConfig` - Main agenda configuration (belongs to Seller)
-- `AgendaDayOfWeek` - Weekly recurring schedule configuration
-- `AgendaPeriods` - Time periods with service duration/intervals (can belong to AgendaDayOfWeek OR OverwriteDay)
-- `OverwriteDay` - Date-specific schedule overrides
-- `AgendaSchedule` - Booked appointments
-- `AgendaEvent` - Calendar events
+**Application** (`src/apps/message-queue/`): `consumers/`, `handlers/`, `start-queue.ts`
 
-**Value Objects:** `IdObj`, `DayObj`, `TimeObj`, `Timestamp`, `ParanoidTimestamp`
+**Adding a handler:**
 
-**Key Relationships:**
+1. Add type to `MessageSchema.type` enum in `message.ts`
+2. Create handler in `handlers/[name]-handler.ts`
+3. Add case to `_main.ts` handler router
 
-- `AgendaPeriods` has nullable `agendaDayOfWeekId` OR nullable `overwriteDayId` (XOR constraint via Zod refine)
-- `OverwriteDay` can have multiple `AgendaPeriods` to define custom schedules for specific dates
-- If `OverwriteDay.cancelAllDay = true`, no periods needed (day is blocked)
+## Services
 
-## Slot Generation & Availability
+**Pattern:**
 
-**GenerateSlotsUseCase** centralizes slot logic:
-
-**Key Methods:**
-
-- `generateAllSlots(initialDate, finalDate, context)` - Generates all possible slots, considering overwrite days
-- `filterAvailableSlots(slots, context)` - Filters out booked/past slots
-- `groupSlotsByDay(slots)` - Groups slots by day (only days with slots)
-- `groupSlotsByDayRange(slots, initialDate, finalDate)` - Groups slots by day including ALL days in range (empty arrays for days without slots)
-- `fetchOverwriteContext(uow, agendaConfigId, initialDate, finalDate)` - Helper to fetch overwrite days and their periods
-- `isSlotAvailable(slot, context)` - Validates if a specific slot is available
-
-**Overwrite Day Priority:**
-
-1. Check if date has an `OverwriteDay`
-2. If yes and `cancelAllDay = true` → skip day (no slots)
-3. If yes and `cancelAllDay = false` → use overwrite periods (ignores regular day of week)
-4. If no overwrite day → use regular `AgendaDayOfWeek` periods
-
-**Slot Filtering:**
-
-- Respects `minHoursOfAdvancedNotice` from `AgendaConfig`
-- Respects `maxDaysOfAdvancedNotice` from `AgendaConfig`
-- Filters out already booked slots
-- Past slots are blocked if `minHoursOfAdvancedNotice` is set
+1. Interface in `src/domain/services/[name].interface.ts`
+2. Implementation in `src/infra/services/[name].ts`
+3. Factory in `src/infra/services/factories/[name].ts`
 
 ## Dev Workflow
 
@@ -356,10 +275,6 @@ Throw from use-cases; global handler converts to HTTP responses.
 - `npm run dev:queue` - Queue consumer
 - `npm run dev:jobs` - Scheduled jobs
 
-**Production:**
-
-- `npm run build` → `npm run start:api|queue|jobs`
-
 **Database:**
 
 - `npm run db:migrate` / `db:migrate:undo` / `db:seed` / `db:reset`
@@ -367,65 +282,3 @@ Throw from use-cases; global handler converts to HTTP responses.
 **Quality:**
 
 - `npm run lint` / `format` / `organize:all` / `ts:check` / `test`
-
-## Docker
-
-**Targets:** `api`, `queue`, `jobs`
-
-**Services:** postgres, redis, rabbitmq, api, queue, jobs
-
-```bash
-docker-compose up -d                              # Start all
-docker-compose up -d postgres redis rabbitmq      # Infra only
-docker-compose logs -f api                        # View logs
-```
-
-**Env vars:** `DB_*`, `REDIS_*`, `RABBITMQ_*`, `API_*`, `SMTP_*`
-
-## Authentication & Authorization
-
-**Cookie-based JWT auth** with dual-token system:
-
-- Auth token: 15 minutes (short-lived)
-- Refresh token: 7 days (long-lived)
-- Both stored as HTTP-only cookies with `SameSite=Lax`
-- Secure flag enabled in production
-
-**Auth Flow:**
-
-1. Login → sets both tokens as cookies
-2. Protected routes use `fastify.authenticate` decorator
-3. If auth token expired but refresh valid → auto-refresh both tokens
-4. Access authenticated user via `request.authSeller`
-
-**Custom Decorators:**
-
-- `fastify.authenticate` - Authentication middleware
-- `fastify.jwtSign(payload, secret, options)` - Sign JWT
-- `fastify.jwtVerify(token, secret)` - Verify JWT (returns `{ payload, error }`)
-- `fastify.createCookie(name, value, maxAge)` - Create cookie string
-- `fastify.setSignTokensToReply(reply, payload, authData, refreshData)` - Set auth cookies
-- `fastify.setLogoutTokensToReply(reply, authData, refreshData)` - Clear auth cookies
-
-**CRITICAL:** Always validate resource ownership in use-cases, not just routes.
-
-## Testing
-
-Tests in `src/apps/api/routes/tests/`. Use vitest + supertest.
-
-```typescript
-describe("POST /sellers", () => {
-  it("should create seller", async () => {
-    const res = await request(server).post("/sellers").send(data);
-    expect(res.status).toBe(200);
-  });
-});
-```
-
-Test: happy path, validation errors, business errors, edge cases.
-
-## Key Dependencies
-
-**Runtime:** fastify, sequelize, zod, bcryptjs, uuidv7, luxon, nodemailer, amqplib, ioredis, node-cron, jsonwebtoken, cookie
-
-**Dev:** vitest, tsx, typescript, @biomejs/biome
