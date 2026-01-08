@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 import { logInfoOnServer } from "@/apps/api/server-config.js";
 import { Envs } from "../../envs/envs.js";
+import { loadAllModels } from "./auto-load-models.js";
 import config from "./config/config.js";
 import type { SequelizeConfigType } from "./config/config-type.js";
 
@@ -14,8 +15,8 @@ if (!connectionConfig) {
 
 const { dialect, database, username, password, host, port } = connectionConfig;
 
-export function createSequelizeConnection() {
-	const modelsPath = `${import.meta.dirname}/models`;
+export async function createSequelizeConnection() {
+	const models = await loadAllModels();
 
 	return new Sequelize({
 		dialect,
@@ -24,13 +25,13 @@ export function createSequelizeConnection() {
 		password,
 		host,
 		port,
-		models: [modelsPath],
+		models,
 		logging: (msg) => logInfoOnServer(msg),
 		repositoryMode: true,
 	});
 }
 
-export const sequelizeConnection = createSequelizeConnection();
+export const sequelizeConnection = await createSequelizeConnection();
 
 export async function authenticateDbConnection(
 	logInfoCallback: (msg: string) => void,
