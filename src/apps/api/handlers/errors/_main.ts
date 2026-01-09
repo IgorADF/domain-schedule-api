@@ -1,6 +1,6 @@
 import type { FastifyError, FastifyReply, FastifyRequest } from "fastify";
 import z, { ZodError } from "zod";
-import { DefaultUseCaseError } from "@/domain/shared/errors/_default.js";
+import { DefaultUseCaseError } from "@/domain/shared/errors/_base-class.js";
 import { EntityAlreadyExist } from "@/domain/shared/errors/entity-already-exist.js";
 import { EntityNotFound } from "@/domain/shared/errors/entity-not-found.js";
 import { InvalidCreantionData } from "@/domain/shared/errors/invalid-creation-data.js";
@@ -9,7 +9,7 @@ import { ScheduleTooFarAhead } from "@/domain/shared/errors/schedule-too-far-ahe
 import { ScheduleTooSoon } from "@/domain/shared/errors/schedule-too-soon.js";
 import { SendEmailError } from "@/domain/shared/errors/send-email.js";
 import { SlotNotAvailable } from "@/domain/shared/errors/slot-not-available.js";
-import { AuthHandlerError } from "../auth/_handler.js";
+import { AuthHandlerError } from "../auth/_main.js";
 import type { ErrorSchemaType } from "./schema.js";
 
 const USE_CASES_STATUS_CODE_MAP: Record<string, number> = {

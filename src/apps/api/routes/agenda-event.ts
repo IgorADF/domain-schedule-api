@@ -6,7 +6,7 @@ import { listSellerAgendaEventsFactory } from "@/infra/use-cases-factories/list-
 import {
 	DefaultErrorSchema,
 	ListSellerAgendaEventsResponseSchema,
-} from "../schemas/responses.js";
+} from "./schemas/responses.js";
 
 export const initAgendaEventRoutes: InitRoute = (logger: LogService, tags) => {
 	return async (fastify: FastifyZodInstance) => {

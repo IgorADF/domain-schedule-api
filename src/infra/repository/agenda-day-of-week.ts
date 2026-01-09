@@ -1,8 +1,8 @@
 import type { AgendaDayOfWeekType } from "@domain/entities/agenda-day-of-week.js";
 import type { IAgendaDayOfWeekRepository } from "@domain/repositories/agenda-day-of-week.interface.js";
-import * as AgendaDayOfWeekMapper from "../../entities/mappers/agenda-day-of-week.js";
+import * as AgendaDayOfWeekMapper from "@infra/entities-mappers/agenda-day-of-week.js";
 import AgendaDayOfWeekModel from "../database/models/agenda-day-of-week.js";
-import { ClassRepository } from "./_default.js";
+import { ClassRepository } from "./_base-class.js";
 
 export class AgendaDayOfWeekRepository
 	extends ClassRepository

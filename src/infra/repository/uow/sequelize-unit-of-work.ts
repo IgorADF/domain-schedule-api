@@ -15,7 +15,7 @@ import { AgendaDayOfWeekRepository } from "../agenda-day-of-week.js";
 import { AgendaEventRepository } from "../agenda-event.js";
 import { AgendaPeriodsRepository } from "../agenda-periods.js";
 import { AgendaScheduleRepository } from "../agenda-schedule.js";
-import { CachedSellerRepository } from "../cache/seller.js";
+import { CachedSellerRepository } from "../cached/seller.js";
 import { OverwriteDayRepository } from "../overwrite-day.js";
 import { SellerRepository } from "../seller.js";
 

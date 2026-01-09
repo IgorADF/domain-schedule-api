@@ -12,13 +12,13 @@ import z from "zod";
 import { Envs } from "@/infra/envs/envs.js";
 import type { AuthSeller } from "./@types/auth-seller.js";
 import type { FastifyZodInstance } from "./@types/fastity-instance.js";
-import { authHandler } from "./handlers/auth/_handler.js";
+import { authHandler } from "./handlers/auth/_main.js";
 import { jwtSign } from "./handlers/auth/jwt.js";
 import {
 	authTokenData,
 	refreshTokenData,
 } from "./handlers/auth/tokens-config.js";
-import { errorHandler } from "./handlers/errors/_handler.js";
+import { errorHandler } from "./handlers/errors/_main.js";
 import { ErrorSchema } from "./handlers/errors/schema.js";
 import { initRoutes } from "./routes/_init.js";
 

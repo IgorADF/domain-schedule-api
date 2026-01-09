@@ -14,7 +14,7 @@ import {
 	CreateSellerResponseSchema,
 	DefaultErrorSchema,
 	DefaultSuccessSchema,
-} from "../schemas/responses.js";
+} from "./schemas/responses.js";
 
 export const initSellerRoutes: InitRoute = (logger: LogService, tags) => {
 	return async (fastify: FastifyZodInstance) => {

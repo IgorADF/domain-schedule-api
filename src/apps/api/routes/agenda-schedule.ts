@@ -9,7 +9,7 @@ import {
 	CreateAgendaSchedulesResponseSchema,
 	GetAgendaSchedulesResponseSchema,
 	NoAgendaConfiguredErrorSchema,
-} from "../schemas/responses.js";
+} from "./schemas/responses.js";
 
 export const initAgendaScheduleRoutes: InitRoute = (
 	logger: LogService,

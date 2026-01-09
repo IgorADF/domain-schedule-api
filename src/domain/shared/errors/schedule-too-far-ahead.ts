@@ -1,4 +1,4 @@
-import { DefaultUseCaseError } from "./_default.js";
+import { DefaultUseCaseError } from "./_base-class.js";
 
 export class ScheduleTooFarAhead extends DefaultUseCaseError {
 	static uniqueCode = "SCHEDULE_TOO_FAR_AHEAD";

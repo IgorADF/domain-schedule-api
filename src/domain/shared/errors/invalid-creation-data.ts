@@ -1,4 +1,4 @@
-import { DefaultUseCaseError } from "./_default.js";
+import { DefaultUseCaseError } from "./_base-class.js";
 
 export class InvalidCreantionData extends DefaultUseCaseError {
 	static uniqueCode = "INVALID_CREATION_DATA";

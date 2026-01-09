@@ -1,4 +1,4 @@
-import { DefaultUseCaseError } from "./_default.js";
+import { DefaultUseCaseError } from "./_base-class.js";
 
 export class EntityNotFound extends DefaultUseCaseError {
 	static uniqueCode = "ENTITY_NOT_FOUND";

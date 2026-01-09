@@ -3,7 +3,7 @@ import type {
 	SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
-import { ClassCacheRepository } from "@/infra/repository/cache/_default.js";
+import { ClassCacheRepository } from "./_base-class.js";
 
 export class CachedSellerRepository
 	extends ClassCacheRepository<ISellerRepository>

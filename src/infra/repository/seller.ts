@@ -3,9 +3,9 @@ import type {
 	SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
-import * as SellerMapper from "../../entities/mappers/seller.js";
+import * as SellerMapper from "@infra/entities-mappers/seller.js";
 import SellerModel from "../database/models/seller.js";
-import { ClassRepository } from "./_default.js";
+import { ClassRepository } from "./_base-class.js";
 
 export class SellerRepository
 	extends ClassRepository

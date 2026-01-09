@@ -11,7 +11,7 @@ import {
 	GetAgendaAvailableSlotsResponseSchema,
 	GetAgendaResponseSchema,
 	NoAgendaConfiguredErrorSchema,
-} from "../schemas/responses.js";
+} from "./schemas/responses.js";
 
 export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
 	return async (fastify: FastifyZodInstance) => {

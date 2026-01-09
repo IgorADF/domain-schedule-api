@@ -1,4 +1,4 @@
-import { DefaultUseCaseError } from "./_default.js";
+import { DefaultUseCaseError } from "./_base-class.js";
 
 export class SendEmailError extends DefaultUseCaseError {
 	static uniqueCode = "SEND_EMAIL_ERROR";
