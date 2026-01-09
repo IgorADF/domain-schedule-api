@@ -7,11 +7,23 @@ if (Envs.NODE_ENV !== "test") {
 	);
 }
 
+async function dropSchema() {
+	await sequelizeConnection.dropSchema(testSchemaName, {});
+}
+
 export async function runInitTestDbConfigs() {
+	const existingSchemas: unknown[] = await sequelizeConnection.showAllSchemas(
+		{},
+	);
+
+	if ((existingSchemas as string[]).includes(testSchemaName)) {
+		await dropSchema();
+	}
+
 	await sequelizeConnection.createSchema(testSchemaName, {});
 	await sequelizeConnection.sync({ force: true });
 }
 
 export async function runFinalTestDbConfigs() {
-	await sequelizeConnection.dropSchema(testSchemaName, {});
+	await dropSchema();
 }

@@ -101,25 +101,10 @@ function setFastifyInstanceDecorators(fastifyInstance: FastifyZodInstance) {
 	fastifyInstance.decorate("authenticate", authHandler(fastifyInstance));
 }
 
-async function createFastifyInstance() {
-	const fastifyInstance = Fastify({
-		logger: {
-			level: "info",
-			transport: {
-				target: "pino-pretty",
-				options: {
-					colorize: true,
-					translateTime: "SYS:standard",
-					ignore: "pid,hostname",
-				},
-			},
-		},
-	}).withTypeProvider<ZodTypeProvider>();
-
-	fastifyInstance.setValidatorCompiler(validatorCompiler);
-	fastifyInstance.setSerializerCompiler(serializerCompiler);
-
-	setFastifyInstanceDecorators(fastifyInstance);
+async function setSwaggerConfig(fastifyInstance: FastifyZodInstance) {
+	if (Envs.NODE_ENV === "test") {
+		return;
+	}
 
 	await fastifyInstance.register(swagger, {
 		openapi: {
@@ -167,6 +152,29 @@ async function createFastifyInstance() {
 	await fastifyInstance.register(swaggerUI, {
 		routePrefix: "/documentation",
 	});
+}
+
+async function createFastifyInstance() {
+	const fastifyInstance = Fastify({
+		logger: {
+			level: "info",
+			transport: {
+				target: "pino-pretty",
+				options: {
+					colorize: true,
+					translateTime: "SYS:standard",
+					ignore: "pid,hostname",
+				},
+			},
+		},
+	}).withTypeProvider<ZodTypeProvider>();
+
+	fastifyInstance.setValidatorCompiler(validatorCompiler);
+	fastifyInstance.setSerializerCompiler(serializerCompiler);
+
+	setFastifyInstanceDecorators(fastifyInstance);
+
+	await setSwaggerConfig(fastifyInstance);
 
 	fastifyInstance.setErrorHandler(errorHandler);
 
