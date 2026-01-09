@@ -20,39 +20,17 @@
 
 ### Tech
 
-- map all default-use-cases to erros to routes
-
+- Better route descriptions
 - Fastify log to redis reconnection
 - OTLP: https://www.youtube.com/watch?v=Wu0Ajkxh69Y
 - Passar o redis como prop no init da api
-- add luxon to all project
+- Add luxon to all project
 
 ---
 
 Suggestion GPT 5
 
 Here are concrete, “nice-to-create” refactors after actually scanning your real domain use-cases.
-
-1. A shared transaction wrapper
-   You repeat the same beginTransaction → try → commit/rollback pattern in several write use-cases:
-
-create-agenda-schedule.ts
-create-complete-agenda.ts
-create-overwrite-days.ts
-create-seller.ts
-create-agenda-event.ts
-Suggestion: a helper like withTransaction(uow, fn) (in domain) so each use-case only expresses the business steps.
-
-2. A shared “seller agenda config resolver”
-   This same lookup + EntityNotFound happens in multiple places:
-
-list-available-slots.ts
-list-seller-schedules.ts
-list-agenda-config.ts
-list-seller-agenda-events.ts
-create-agenda-event.ts
-create-complete-agenda.ts
-Suggestion: getAgendaConfigBySellerIdOrThrow(uow, sellerId) so ownership/scoping stays consistent everywhere.
 
 3. Date parsing should be centralized
    You have at least two patterns:

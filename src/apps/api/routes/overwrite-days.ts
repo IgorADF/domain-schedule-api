@@ -2,7 +2,7 @@ import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
 import { CreateOverwriteDaysSchema } from "@domain/use-cases/create-overwrite-days.js";
 import type { LogService } from "@/infra/services/log.js";
-import { createOverwriteDaysFactory } from "@/infra/use-cases/factories/create-overwrite-days.js";
+import { createOverwriteDaysFactory } from "@/infra/use-cases-factories/create-overwrite-days.js";
 import {
 	CreateOverwriteDaysResponseSchema,
 	NoAgendaConfiguredErrorSchema,

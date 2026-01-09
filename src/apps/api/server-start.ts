@@ -1,5 +1,5 @@
 import { testRedisConnection } from "@/infra/cache/redis.js";
-import { authenticateDbConnection } from "@/infra/database/sequelize/helpers/authenticate-connection.js";
+import { authenticateDbConnection } from "@/infra/database/helpers/authenticate-connection.js";
 import { Envs } from "@/infra/envs/envs.js";
 import { fastifyInstance, logInfoOnServer } from "./server-config.js";
 

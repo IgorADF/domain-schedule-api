@@ -5,10 +5,10 @@ import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
 import { AskSellerResetPasswordSchema } from "@/domain/use-cases/ask-seller-reset-password.js";
 import { Envs } from "@/infra/envs/envs.js";
 import type { LogService } from "@/infra/services/log.js";
-import { askSellerResetPasswordFactory } from "@/infra/use-cases/factories/ask-seller-reset-password.js";
-import { authSellerFactory } from "@/infra/use-cases/factories/auth-seller.js";
-import { createSellerFactory } from "@/infra/use-cases/factories/create-seller.js";
-import { updateSellerFactory } from "@/infra/use-cases/factories/update-seller.js";
+import { askSellerResetPasswordFactory } from "@/infra/use-cases-factories/ask-seller-reset-password.js";
+import { authSellerFactory } from "@/infra/use-cases-factories/auth-seller.js";
+import { createSellerFactory } from "@/infra/use-cases-factories/create-seller.js";
+import { updateSellerFactory } from "@/infra/use-cases-factories/update-seller.js";
 import { jwtSign } from "../handlers/auth/jwt.js";
 import {
 	CreateSellerResponseSchema,

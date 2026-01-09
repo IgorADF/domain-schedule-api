@@ -3,9 +3,9 @@ import type { InitRoute } from "@api/@types/init-routes.js";
 import { CreateCompleteAgendaSchema } from "@domain/use-cases/create-complete-agenda.js";
 import { ListAvailableSlotsSchema } from "@domain/use-cases/list-available-slots.js";
 import type { LogService } from "@/infra/services/log.js";
-import { createCompleteAgendaFactory } from "@/infra/use-cases/factories/create-complete-agenda.js";
-import { listAgendaConfigFactory } from "@/infra/use-cases/factories/list-agenda-config.js";
-import { listAvailableSlotsFactory } from "@/infra/use-cases/factories/list-available-slots.js";
+import { createCompleteAgendaFactory } from "@/infra/use-cases-factories/create-complete-agenda.js";
+import { listAgendaConfigFactory } from "@/infra/use-cases-factories/list-agenda-config.js";
+import { listAvailableSlotsFactory } from "@/infra/use-cases-factories/list-available-slots.js";
 import {
 	DefaultSuccessSchema,
 	GetAgendaAvailableSlotsResponseSchema,

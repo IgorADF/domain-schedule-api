@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
 	runFinalTestDbConfigs,
 	runInitTestDbConfigs,
-} from "@/infra/database/sequelize/helpers/run-test-enviroment.js";
+} from "@/infra/database/helpers/run-test-enviroment.js";
 import { fastifyInstance } from "../../server-config.js";
 
 describe("Seller Routes", () => {

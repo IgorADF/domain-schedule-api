@@ -34,16 +34,15 @@ src/
 **Infrastructure Layer (`src/infra/`):**
 
 - `cache/` - Redis client and service
-- `database/sequelize/` - Sequelize connection, config, models, migrations, seeders
-- `entities/mappers/` - Domain ↔ Model mappers
+- `database/` - Sequelize connection, config, models, migrations, seeders, helpers
+- `entities-mappers/` - Domain ↔ Model mappers
 - `envs/` - Environment configuration
-- `queue/` - RabbitMQ connection, publishers, message schema
+- `queue/` - RabbitMQ connection, publisher, message schema
 - `repository/` - Repository implementations
-- `repository/sequelize/` - Sequelize repository implementations
-- `repository/sequelize/uow/` - SequelizeUnitOfWork implementation
-- `repository/sequelize/cache/` - Cached repository decorators
+- `repository/uow/` - SequelizeUnitOfWork implementation
+- `repository/cached/` - Cached repository decorators
 - `services/` - Service implementations
-- `use-cases/factories/` - Use-case factory functions
+- `use-cases-factories/` - Use-case factory functions
 
 **Apps Layer (`src/apps/`):**
 
@@ -58,7 +57,7 @@ src/
 ```typescript
 // ✅ CORRECT
 import { CreateSellerUseCase } from "@domain/use-cases/create-seller.js";
-import { SequelizeUnitOfWork } from "@infra/repository/sequelize/uow/sequelize-unit-of-work.js";
+import { SequelizeUnitOfWork } from "@infra/repository/uow/sequelize-unit-of-work.js";
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 
 // ❌ WRONG
@@ -73,8 +72,8 @@ Uses **Sequelize ORM** with TypeScript decorators.
 
 **CRITICAL:**
 
-- Migrations use `.cjs` extension: `src/infra/database/sequelize/migrations/TIMESTAMP-name.cjs`
-- Models are auto-loaded from `src/infra/database/sequelize/models/` directory
+- Migrations use `.cjs` extension: `src/infra/database/migrations/TIMESTAMP-name.cjs`
+- Models are auto-loaded from `src/infra/database/models/` directory
 - **ALWAYS create a migration when changing anything database-related**
 - **Timestamp fields:** `creationDate` and `updateDate` (not Sequelize defaults)
 
@@ -94,7 +93,7 @@ class EntityModel extends Model<...> {
 }
 ```
 
-**Mappers** (`src/infra/entities/mappers/`): Functions `toModel()` and `toEntity()` for conversion. Always parse with Zod schema in `toEntity()`.
+**Mappers** (`src/infra/entities-mappers/`): Functions `toModel()` and `toEntity()` for conversion. Always parse with Zod schema in `toEntity()`.
 
 ## Validation & Type Safety
 
@@ -153,14 +152,16 @@ try {
 }
 ```
 
+If available, prefer `await this.uow.withTransaction(async () => { ... })` to keep use-cases concise.
+
 ## Repository Pattern
 
 **Steps to create:**
 
 1. Define interface in `src/domain/repositories/[name].interface.ts`
-2. Implement in `src/infra/repository/sequelize/[name].ts` extending `ClassRepository`
+2. Implement in `src/infra/repository/[name].ts` extending `ClassRepository`
 3. Add getter to `IUnitOfWork` interface (`src/domain/repositories/uow/unit-of-work.interface.ts`)
-4. Add getter to `SequelizeUnitOfWork` implementation
+4. Add getter to `SequelizeUnitOfWork` implementation (`src/infra/repository/uow/sequelize-unit-of-work.ts`)
 
 **CRITICAL:**
 
@@ -216,14 +217,14 @@ fastify.register(initEntityRoutes(logger, ["tag-name"]), {
 - For protected routes, also set Swagger cookie auth: `schema.security: [{ cookieAuth: [] }]`
 - Access authenticated user via `request.authSeller.id`
 - Use `.omit({ sellerId: true })` on schemas when sellerId comes from auth
-- `200` response schemas must be exported from `@api/schemas/responses.ts` (avoid inline `z.object(...)` inside route files)
+- `200` response schemas must be exported from `@api/routes/schemas/responses.ts` (avoid inline `z.object(...)` inside route files)
 
 ## Use-Case Factories
 
-Located in `src/infra/use-cases/factories/`. Follow `CreateFactoryFunction` type:
+Located in `src/infra/use-cases-factories/`. Follow `CreateFactoryFunction` type:
 
 ```typescript
-import { SequelizeUnitOfWork } from "@infra/repository/sequelize/uow/sequelize-unit-of-work.js";
+import { SequelizeUnitOfWork } from "@infra/repository/uow/sequelize-unit-of-work.js";
 
 export const createEntityFactory: CreateFactoryFunction<CreateEntityUseCase> = (
   logService
@@ -255,9 +256,9 @@ Errors are thrown from use-cases; global handler converts to HTTP responses.
 
 ## Message Queue
 
-**Infrastructure** (`src/infra/queue/`): `queue-config.ts`, `publishers/`, `message.ts`
+**Infrastructure** (`src/infra/queue/`): `queue-config.ts`, `publisher.ts`, `message.ts`
 
-**Application** (`src/apps/message-queue/`): `consumers/`, `handlers/`, `start-queue.ts`
+**Application** (`src/apps/message-queue/`): `consumer.ts`, `handlers/`, `start-queue.ts`
 
 **Adding a handler:**
 
