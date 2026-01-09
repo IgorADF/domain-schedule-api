@@ -5,8 +5,8 @@ import {
 	dayToISOString,
 } from "@domain/shared/value-objects/day.js";
 import { Op } from "sequelize";
-import OverwriteDayModel from "../database/models/overwrite-day.js";
 import * as OverwriteDayMapper from "../../entities/mappers/overwrite-day.js";
+import OverwriteDayModel from "../database/models/overwrite-day.js";
 import { ClassRepository } from "./_default.js";
 
 export class OverwriteDayRepository

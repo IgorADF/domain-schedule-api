@@ -3,8 +3,8 @@ import type {
 	AgendaEventOrderBy,
 	IAgendaEventRepository,
 } from "@domain/repositories/agenda-event.interface.js";
-import AgendaEventModel from "../database/models/agenda-event.js";
 import * as AgendaEventMapper from "../../entities/mappers/agenda-event.js";
+import AgendaEventModel from "../database/models/agenda-event.js";
 import { ClassRepository } from "./_default.js";
 
 export class AgendaEventRepository
