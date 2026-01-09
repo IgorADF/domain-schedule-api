@@ -17,7 +17,7 @@ src/
 ├── @types/           # Shared TypeScript types
 ├── domain/           # Business logic (entities, use-cases, interfaces)
 ├── infra/            # Infrastructure (database, cache, queue, services)
-└── apps/             # Entry points (api, message-queue, jobs)
+└── apps/             # Entry points (api, queue, jobs)
 ```
 
 **Domain Layer (`src/domain/`):**
@@ -47,12 +47,18 @@ src/
 **Apps Layer (`src/apps/`):**
 
 - `api/` - Fastify HTTP server
-- `message-queue/` - RabbitMQ consumers and handlers
+- `queue/` - RabbitMQ consumers and handlers
 - `jobs/` - Scheduled jobs (node-cron)
 
 ## Path Aliases
 
-**CRITICAL:** Always use path aliases, NEVER relative paths.
+This repo supports path aliases via `tsconfig.json`.
+
+**CRITICAL (practical rule):**
+
+- Use **path aliases** for imports that cross top-level boundaries (`apps/`, `infra/`, `domain/`) or when importing from a distant folder.
+- Use **relative imports** only for _local, same-feature_ modules (e.g. inside `src/apps/api/**`) and for _domain-internal_ imports.
+- Avoid deep relative imports like `../../../...` across layers.
 
 ```typescript
 // ✅ CORRECT
@@ -64,7 +70,14 @@ import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import { CreateSellerUseCase } from "../../../domain/use-cases/create-seller.js";
 ```
 
-Aliases: `@/*` → `./src/*`, `@domain/*`, `@infra/*`, `@api/*`
+Aliases: `@/*` → `./src/*`, `@domain/*` → `./src/domain/*`, `@infra/*` → `./src/infra/*`, `@api/*` → `./src/apps/api/*`
+
+## ESM Imports
+
+**CRITICAL:** This project is ESM.
+
+- Always include the `.js` extension in import specifiers (even in `.ts` files).
+- Prefer `import type { ... }` for types.
 
 ## Database & Migrations
 
@@ -80,7 +93,7 @@ Uses **Sequelize ORM** with TypeScript decorators.
 **Model Pattern:**
 
 ```typescript
-@Table({ tableName: "TableName", timestamps: false })
+@Table({ tableName: "TableName" })
 class EntityModel extends Model<...> {
 	@Column({ allowNull: false, type: DataType.UUID, primaryKey: true })
 	declare id: string;
@@ -92,6 +105,11 @@ class EntityModel extends Model<...> {
 	updateDate!: Date;
 }
 ```
+
+Notes:
+
+- Timestamps are disabled at the Sequelize connection level via `define: { timestamps: false }`.
+- Models are auto-loaded using `src/infra/database/helpers/auto-load-models.ts` (ESM dynamic imports via file URLs).
 
 **Mappers** (`src/infra/entities-mappers/`): Functions `toModel()` and `toEntity()` for conversion. Always parse with Zod schema in `toEntity()`.
 
@@ -159,9 +177,11 @@ If available, prefer `await this.uow.withTransaction(async () => { ... })` to ke
 **Steps to create:**
 
 1. Define interface in `src/domain/repositories/[name].interface.ts`
-2. Implement in `src/infra/repository/[name].ts` extending `ClassRepository`
+2. Implement in `src/infra/repository/[name].ts` extending `ClassRepository` from `src/infra/repository/_base-class.ts`
 3. Add getter to `IUnitOfWork` interface (`src/domain/repositories/uow/unit-of-work.interface.ts`)
 4. Add getter to `SequelizeUnitOfWork` implementation (`src/infra/repository/uow/sequelize-unit-of-work.ts`)
+
+Cached repository decorators live in `src/infra/repository/cached/` and usually extend `ClassCacheRepository` from `src/infra/repository/cached/_base-class.ts`.
 
 **CRITICAL:**
 
@@ -223,6 +243,8 @@ fastify.register(initEntityRoutes(logger, ["tag-name"]), {
 
 Located in `src/infra/use-cases-factories/`. Follow `CreateFactoryFunction` type:
 
+Factory base type is defined in `src/infra/use-cases-factories/_base-type.ts`.
+
 ```typescript
 import { SequelizeUnitOfWork } from "@infra/repository/uow/sequelize-unit-of-work.js";
 
@@ -258,7 +280,7 @@ Errors are thrown from use-cases; global handler converts to HTTP responses.
 
 **Infrastructure** (`src/infra/queue/`): `queue-config.ts`, `publisher.ts`, `message.ts`
 
-**Application** (`src/apps/message-queue/`): `consumer.ts`, `handlers/`, `start-queue.ts`
+**Application** (`src/apps/queue/`): `consumer.ts`, `handlers/`, `start-queue.ts`
 
 **Adding a handler:**
 

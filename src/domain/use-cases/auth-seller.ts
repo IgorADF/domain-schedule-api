@@ -1,13 +1,12 @@
-import type z from "zod";
-import { SellerWithPasswordSchema } from "../entities/seller.js";
+import z from "zod";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import type { ILogService } from "../services/log.interface.js";
 import type { IHashPasswordService } from "../services/password.js";
 import { InvalidCredentials } from "../shared/errors/invalid-credentials.js";
 
-export const AuthSellerSchema = SellerWithPasswordSchema.pick({
-	email: true,
-	password: true,
+export const AuthSellerSchema = z.object({
+	email: z.email(),
+	password: z.string(),
 });
 
 export type AuthSellerType = z.infer<typeof AuthSellerSchema>;
