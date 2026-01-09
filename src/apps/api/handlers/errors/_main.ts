@@ -44,6 +44,7 @@ function setReplySerializationError(
 ) {
 	reply
 		.status(statusCode)
+		.headers({ "Content-Type": "application/json" })
 		.serializer((payload) => JSON.stringify(payload))
 		.send(body);
 }
