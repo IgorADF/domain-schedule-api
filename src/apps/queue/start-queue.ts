@@ -1,4 +1,4 @@
-import { closeConnection } from "../../infra/queue/queue-config.js";
+import { closeConnection } from "@infra/queue/queue-config.js";
 import { QueueConsumer } from "./consumer.js";
 
 async function startQueue() {

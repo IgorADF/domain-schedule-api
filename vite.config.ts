@@ -11,6 +11,7 @@ export default defineConfig({
 			"@domain": resolve(__dirname, "./src/domain"),
 			"@infra": resolve(__dirname, "./src/infra"),
 			"@api": resolve(__dirname, "./src/apps/api"),
+			"@queue": resolve(__dirname, "./src/apps/queue"),
 		},
 	},
 });

@@ -15,7 +15,8 @@
       "@/*": ["./src/*"],
       "@domain/*": ["./src/domain/*"],
       "@infra/*": ["./src/infra/*"],
-      "@api/*": ["./src/apps/api/*"]
+      "@api/*": ["./src/apps/api/*"],
+      "@queue/*": ["./src/apps/queue/*"]
     }
   },
   "exclude": ["src/**/*.js", "src/**/*.cjs"]

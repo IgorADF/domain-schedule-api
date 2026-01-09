@@ -5,11 +5,11 @@
   "main": "test.js",
   "scripts": {
     "dev:server": "tsx watch ./src/apps/api/server-start.ts",
-    "dev:queue": "tsx watch ./src/apps/message-queue/start-queue.ts",
+    "dev:queue": "tsx watch ./src/apps/queue/start-queue.ts",
     "dev:jobs": "tsx watch ./src/apps/jobs/start-jobs.ts",
     "build": "tsc",
     "start:api": "node dist/apps/api/server-start.js",
-    "start:queue": "node dist/apps/message-queue/start-queue.js",
+    "start:queue": "node dist/apps/queue/start-queue.js",
     "start:jobs": "node dist/apps/jobs/start-jobs.js",
     "db:create": "npx sequelize-cli db:create",
     "db:migrate": "npx sequelize-cli db:migrate",
