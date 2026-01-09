@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import type { ModelCtor } from "sequelize-typescript";
 
 /*
@@ -20,7 +21,8 @@ export async function loadAllModels() {
 	for (let indexFiles = 0; indexFiles < files.length; indexFiles++) {
 		const file = files[indexFiles];
 		const modelFilePath = path.join(modelsPath, file);
-		const model = await import(modelFilePath);
+		const pathToModelUrl = pathToFileURL(modelFilePath).href;
+		const model = await import(pathToModelUrl);
 		models.push(model.default);
 	}
 
