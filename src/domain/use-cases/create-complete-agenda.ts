@@ -78,7 +78,9 @@ export class CreateCompleteAgendaUseCase {
 		agendaConfig,
 	}: CreateCompleteAgendaType) {
 		const createdConfig = await this.uow.withTransaction(async () => {
-			await this.getAgendaConfigBySellerOrThrowUseCase.execute(sellerId);
+			await this.getAgendaConfigBySellerOrThrowUseCase.executeThrowIfFound(
+				sellerId,
+			);
 
 			const { data: createdConfig } = await this.createAgendaConfig(
 				agendaConfig,

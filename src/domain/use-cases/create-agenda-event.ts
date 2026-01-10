@@ -26,7 +26,9 @@ export class CreateAgendaEventUseCase {
 		input: CreateAgendaEventInput,
 	): Promise<{ data: AgendaEventType }> {
 		const agendaConfig =
-			await this.getAgendaConfigBySellerOrThrowUseCase.execute(input.sellerId);
+			await this.getAgendaConfigBySellerOrThrowUseCase.executeThrowIfNotFound(
+				input.sellerId,
+			);
 
 		const agendaEvent = createEntity<AgendaEventType>({
 			agendaConfigId: agendaConfig.id,

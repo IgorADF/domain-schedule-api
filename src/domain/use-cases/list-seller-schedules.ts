@@ -35,7 +35,9 @@ export class ListSellerSchedulesUseCase {
 		data: ListSellerSchedulesResponseType;
 	}> {
 		const agendaConfig =
-			await this.getAgendaConfigBySellerOrThrowUseCase.execute(sellerId);
+			await this.getAgendaConfigBySellerOrThrowUseCase.executeThrowIfNotFound(
+				sellerId,
+			);
 
 		const initialDate = this.parseDateString(initialDateString);
 		const finalDate = this.parseDateString(finalDateString);

@@ -19,17 +19,22 @@ describe("Agenda Routes", () => {
 	});
 
 	describe("POST /agendas", () => {
-		const defaultSellerEmail = "postagenda@example.com";
+		const defaultSellerEmail1 = "postagenda1@example.com";
+		const defaultSellerEmail2 = "postagenda2@example.com";
 
 		beforeAll(async () => {
 			await createDefaultTestSeller(server, {
-				email: defaultSellerEmail,
+				email: defaultSellerEmail1,
+			});
+
+			await createDefaultTestSeller(server, {
+				email: defaultSellerEmail2,
 			});
 		});
 
 		it("should create a new agenda with valid data", async () => {
 			const cookies = await authDefaultTestSeller(server, {
-				email: defaultSellerEmail,
+				email: defaultSellerEmail1,
 			});
 
 			const body = {
@@ -145,8 +150,7 @@ describe("Agenda Routes", () => {
 				.send(body);
 
 			expect(response.status).toBe(200);
-			expect(response.body).toHaveProperty("data");
-			expect(response.body.data.id).toBeDefined();
+			expect(response.body.success).toBe(true);
 		});
 	});
 });

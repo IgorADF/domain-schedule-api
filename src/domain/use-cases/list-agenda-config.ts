@@ -28,7 +28,9 @@ export class ListAgendaConfigUseCase {
 		data: ListAgendaConfigResponseType;
 	}> {
 		const agendaConfig =
-			await this.getAgendaConfigBySellerOrThrowUseCase.execute(sellerId);
+			await this.getAgendaConfigBySellerOrThrowUseCase.executeThrowIfNotFound(
+				sellerId,
+			);
 
 		const agendaDaysOfWeek =
 			await this.uow.agendaDayOfWeekRepository.getByAgendaConfigId(

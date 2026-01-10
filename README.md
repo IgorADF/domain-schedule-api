@@ -22,7 +22,7 @@
 
 - Continuos:
 
-  - Investigate 500 status error on agenda test
+  - Implemente tests to expire tokens (auth middlewere tests)
   - Create routines (jobs) to remove old test schemas
 
 - Better route descriptions

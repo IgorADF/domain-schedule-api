@@ -7,6 +7,7 @@ import { createCompleteAgendaFactory } from "@/infra/use-cases-factories/create-
 import { listAgendaConfigFactory } from "@/infra/use-cases-factories/list-agenda-config.js";
 import { listAvailableSlotsFactory } from "@/infra/use-cases-factories/list-available-slots.js";
 import {
+	DefaultErrorSchema,
 	DefaultSuccessSchema,
 	GetAgendaAvailableSlotsResponseSchema,
 	GetAgendaResponseSchema,
@@ -77,10 +78,10 @@ export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
 						"Create or update the complete agenda for the authenticated seller",
 					response: {
 						200: DefaultSuccessSchema,
-						400: fastify.DefaultErrorSchema.describe(
+						400: DefaultErrorSchema.describe(
 							"Invalid daysOfWeek length (must be 7) (INVALID_CREATION_DATA)",
 						),
-						409: fastify.DefaultErrorSchema.describe(
+						409: DefaultErrorSchema.describe(
 							"Agenda configuration already exists for the seller (ENTITY_ALREADY_EXIST)",
 						),
 					},

@@ -31,7 +31,9 @@ export class ListSellerAgendaEventsUseCase {
 		input: ListSellerAgendaEventsInput,
 	): Promise<{ data: ListSellerAgendaEventsResponse }> {
 		const agendaConfig =
-			await this.getAgendaConfigBySellerOrThrowUseCase.execute(input.sellerId);
+			await this.getAgendaConfigBySellerOrThrowUseCase.executeThrowIfNotFound(
+				input.sellerId,
+			);
 
 		const { items, total } =
 			await this.uow.agendaEventRepository.findByAgendaConfigIdPaginated(

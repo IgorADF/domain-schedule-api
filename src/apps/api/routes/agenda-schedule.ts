@@ -7,6 +7,7 @@ import { createAgendaScheduleFactory } from "@/infra/use-cases-factories/create-
 import { listSellerSchedulesFactory } from "@/infra/use-cases-factories/list-seller-schedules.js";
 import {
 	CreateAgendaSchedulesResponseSchema,
+	DefaultErrorSchema,
 	GetAgendaSchedulesResponseSchema,
 	NoAgendaConfiguredErrorSchema,
 } from "./schemas/responses.js";
@@ -56,10 +57,10 @@ export const initAgendaScheduleRoutes: InitRoute = (
 						"Create a new schedule in the agenda for the authenticated seller",
 					response: {
 						200: CreateAgendaSchedulesResponseSchema,
-						400: fastify.DefaultErrorSchema.describe(
+						400: DefaultErrorSchema.describe(
 							"Agenda config do not allow scheduling in this date/time (SCHEDULE_TOO_SOON or SCHEDULE_TOO_FAR_AHEAD)",
 						),
-						409: fastify.DefaultErrorSchema.describe(
+						409: DefaultErrorSchema.describe(
 							"Slot not available (SLOT_NOT_AVAILABLE)",
 						),
 					},

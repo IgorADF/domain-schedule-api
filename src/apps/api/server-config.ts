@@ -9,9 +9,7 @@ import {
 	validatorCompiler,
 	type ZodTypeProvider,
 } from "fastify-type-provider-zod";
-import z from "zod";
 import { Envs } from "@/infra/envs/envs.js";
-import type { AuthSeller } from "./@types/auth-seller.js";
 import type { FastifyZodInstance } from "./@types/fastity-instance.js";
 import { authHandler } from "./handlers/auth/_main.js";
 import { jwtSign } from "./handlers/auth/jwt.js";
@@ -20,36 +18,16 @@ import {
 	refreshTokenData,
 } from "./handlers/auth/tokens-config.js";
 import { errorHandler } from "./handlers/errors/_main.js";
-import { ErrorSchema } from "./handlers/errors/schema.js";
 import { initRoutes } from "./routes/_init.js";
 
 function setFastifyInstanceDecorators(fastifyInstance: FastifyZodInstance) {
-	fastifyInstance.decorateRequest("authSeller", {
-		getter() {
-			if (!this?.authSeller) {
-				return {
-					id: "",
-					email: "",
-				};
-			}
-
-			return this.authSeller;
-		},
-		setter(value: AuthSeller) {
-			this.authSeller = value;
-		},
-	});
-
-	fastifyInstance.decorate("DefaultSuccessSchema", {
-		getter() {
-			return z.object({ success: true });
-		},
-	});
-
-	fastifyInstance.decorate("DefaultErrorSchema", {
-		getter() {
-			return ErrorSchema;
-		},
+	// decorateRequest and authSeller implemented according docs patterns
+	fastifyInstance.decorateRequest("authSeller");
+	fastifyInstance.addHook("onRequest", async (req) => {
+		req.authSeller = {
+			id: "",
+			email: "",
+		};
 	});
 
 	fastifyInstance.decorate(

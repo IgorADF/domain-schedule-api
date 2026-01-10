@@ -1,6 +1,5 @@
 import type { AuthSeller } from "./auth-seller.ts";
 import "fastify";
-import type { ErrorSchema } from "../handlers/errors/schema.ts";
 
 declare module "fastify" {
 	interface FastifyInstance {
@@ -18,9 +17,6 @@ declare module "fastify" {
 			request: FastifyRequest,
 			reply: FastifyReply,
 		) => Promise<void>;
-
-		DefaultSuccessSchema: z.ZodObject<{ success: z.ZodBoolean }>;
-		DefaultErrorSchema: ErrorSchema;
 	}
 
 	interface FastifyRequest {
