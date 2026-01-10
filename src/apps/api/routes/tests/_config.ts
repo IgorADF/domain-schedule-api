@@ -1,7 +1,7 @@
 import {
 	runFinalTestDbConfigs,
 	runInitTestDbConfigs,
-} from "@/infra/database/helpers/run-test-enviroment.js";
+} from "@/infra/database/helpers/test-running-functions.js";
 import { fastifyInstance } from "../../server-config.js";
 
 export async function runInitTestConfigs() {
