@@ -20,6 +20,11 @@
 
 ### Tech
 
+- Continuos:
+
+  - Investigate 500 status error on agenda test
+  - Create routines (jobs) to remove old test schemas
+
 - Better route descriptions
 - Fastify log to redis reconnection
 - OTLP: https://www.youtube.com/watch?v=Wu0Ajkxh69Y

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { ModelOptions } from "sequelize";
 import { Sequelize } from "sequelize-typescript";
 import { logInfoOnServer } from "@/apps/api/server-config.js";
@@ -16,7 +17,9 @@ if (!connectionConfig) {
 
 const { dialect, database, username, password, host, port } = connectionConfig;
 
-export const testSchemaName = "test-schema";
+export const testSchemaName = Envs.isTestEnv
+	? "test-schema-" + randomUUID()
+	: "";
 
 async function createSequelizeConnection() {
 	const models = await loadAllModels();

@@ -1,5 +1,4 @@
 import type { Server } from "node:http";
-import cookie from "cookie";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import {
@@ -7,6 +6,7 @@ import {
 	refreshTokenData,
 } from "../../handlers/auth/tokens-config.js";
 import { runFinalTestConfigs, runInitTestConfigs } from "./_config.js";
+import { parseSellerCookies } from "./helpers/seller.js";
 
 const sendEmailMock = vi.fn().mockResolvedValue(undefined);
 vi.mock("@/infra/services/queue.js", () => {
@@ -107,10 +107,7 @@ describe("Seller Routes", () => {
 				password: "password123",
 			});
 
-			const cookieSatString = response?.headers?.["set-cookie"]?.[0];
-			const cookieSrtString = response?.headers?.["set-cookie"]?.[1];
-			const cookieSat = cookie.parseSetCookie(cookieSatString);
-			const cookieSrt = cookie.parseSetCookie(cookieSrtString);
+			const { cookieSat, cookieSrt } = parseSellerCookies(response);
 
 			expect(response.status).toBe(200);
 
@@ -163,10 +160,7 @@ describe("Seller Routes", () => {
 		it("should logout and expire cookies(auth/refresh)", async () => {
 			const response = await request(server).post("/sellers/logout").send();
 
-			const cookieSatString = response?.headers?.["set-cookie"]?.[0];
-			const cookieSrtString = response?.headers?.["set-cookie"]?.[1];
-			const cookieSat = cookie.parseSetCookie(cookieSatString);
-			const cookieSrt = cookie.parseSetCookie(cookieSrtString);
+			const { cookieSat, cookieSrt } = parseSellerCookies(response);
 
 			expect(response.status).toBe(200);
 
