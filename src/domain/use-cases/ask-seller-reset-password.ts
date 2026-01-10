@@ -2,11 +2,11 @@ import z from "zod";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import type { ILogService } from "../services/log.interface.js";
 import type { iQueueService } from "../services/queue.interface.js";
+import { SendEmailError } from "../shared/errors/send-email.js";
 import {
 	SystemLanguages,
 	type SystemLanguagesType,
 } from "../shared/value-objects/system-languages.js";
-import { SendEmailError } from "../shared/errors/send-email.js";
 
 export const AskSellerResetPasswordSchema = z
 	.object({
