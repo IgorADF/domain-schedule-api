@@ -1,5 +1,6 @@
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
+import cookie from "cookie";
 import Fastify from "fastify";
 import {
 	jsonSchemaTransform,
@@ -54,7 +55,15 @@ function setFastifyInstanceDecorators(fastifyInstance: FastifyZodInstance) {
 	fastifyInstance.decorate(
 		"createAuthCookie",
 		(tokenName, TokenValue, maxAge) => {
-			return `${tokenName}=${TokenValue}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax${Envs.NODE_ENV === "production" ? "; Secure" : ""}`;
+			const cookieString = cookie.serialize(tokenName, TokenValue, {
+				httpOnly: true,
+				path: "/",
+				maxAge,
+				sameSite: "lax",
+				secure: Envs.isProdEnv,
+			});
+
+			return cookieString;
 		},
 	);
 
@@ -102,7 +111,7 @@ function setFastifyInstanceDecorators(fastifyInstance: FastifyZodInstance) {
 }
 
 async function setSwaggerConfig(fastifyInstance: FastifyZodInstance) {
-	if (Envs.NODE_ENV === "test") {
+	if (Envs.isTestEnv) {
 		return;
 	}
 

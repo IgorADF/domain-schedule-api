@@ -73,6 +73,9 @@ export const initSellerRoutes: InitRoute = (logger: LogService, tags) => {
 						"Public route to ask for a password reset link to be sent to the seller's email",
 					response: {
 						200: DefaultSuccessSchema,
+						400: DefaultErrorSchema.describe(
+							"Error sending reset password email (SEND_EMAIL_ERROR)",
+						),
 					},
 				},
 			},

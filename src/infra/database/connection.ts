@@ -23,13 +23,10 @@ async function createSequelizeConnection() {
 
 	const defaultModelsConfig: ModelOptions = {
 		timestamps: false,
-		schema: Envs.NODE_ENV === "test" ? testSchemaName : undefined,
+		schema: Envs.isTestEnv ? testSchemaName : undefined,
 	};
 
-	if (
-		Envs.NODE_ENV !== "test" &&
-		defaultModelsConfig.schema === testSchemaName
-	) {
+	if (!Envs.isTestEnv && defaultModelsConfig.schema === testSchemaName) {
 		throw new Error("Cannot use test schema name in non-test environment");
 	}
 

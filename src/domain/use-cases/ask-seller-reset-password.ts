@@ -1,5 +1,4 @@
-import type z from "zod";
-import { SellerSchema } from "../entities/seller.js";
+import z from "zod";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
 import type { ILogService } from "../services/log.interface.js";
 import type { iQueueService } from "../services/queue.interface.js";
@@ -7,12 +6,15 @@ import {
 	SystemLanguages,
 	type SystemLanguagesType,
 } from "../shared/value-objects/system-languages.js";
+import { SendEmailError } from "../shared/errors/send-email.js";
 
-export const AskSellerResetPasswordSchema = SellerSchema.pick({
-	email: true,
-}).extend({
-	language: SystemLanguages,
-});
+export const AskSellerResetPasswordSchema = z
+	.object({
+		email: z.email(),
+	})
+	.extend({
+		language: SystemLanguages,
+	});
 
 export type AskSellerResetPasswordType = z.infer<
 	typeof AskSellerResetPasswordSchema
@@ -54,6 +56,8 @@ export class AskSellerResetPasswordUseCase {
 				"AskSellerResetPasswordUseCase: Error sending reset password email: " +
 					JSON.stringify(error),
 			);
+
+			throw new SendEmailError();
 		}
 	}
 

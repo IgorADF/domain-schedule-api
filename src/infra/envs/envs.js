@@ -1,41 +1,59 @@
+import path from "node:path";
 import { loadEnvFile } from "node:process";
 import z from "zod";
 
-loadEnvFile();
+let envFilePath = "/.env";
 
-export const EnvsSchema = z.object({
-	// General
-	NODE_ENV: z.enum(["development", "production", "test"]),
-	API_PORT: z.string().transform(Number),
-	API_AUTH_JWT_SECRET: z.string(),
-	API_REFRESH_JWT_SECRET: z.string(),
-	API_JWT_RESET_SECRET: z.string(),
+if (process.env.NODE_ENV === "production") {
+	envFilePath = "/.env.production";
+} else if (process.env.NODE_ENV === "test") {
+	envFilePath = "/.env.test";
+}
 
-	// DB
-	DB_NAME: z.string(),
-	DB_USER: z.string(),
-	DB_PASS: z.string(),
-	DB_HOST: z.string(),
-	DB_PORT: z.string().transform(Number),
+const fullEnvPath = path.join(process.cwd(), envFilePath);
 
-	REDIS_ENABLE: z.string().transform((val) => val === "true"),
-	REDIS_HOST: z.string(),
-	REDIS_PORT: z.string().transform(Number),
+loadEnvFile(fullEnvPath);
 
-	// Queue
-	RABBITMQ_HOST: z.string(),
-	RABBITMQ_PORT: z.string().transform(Number),
-	RABBITMQ_USER: z.string(),
-	RABBITMQ_PASS: z.string(),
-	RABBITMQ_MANAGEMENT_PORT: z.string().transform(Number),
+export const EnvsSchema = z
+	.object({
+		// General
+		NODE_ENV: z.enum(["development", "production", "test"]),
+		API_PORT: z.string().transform(Number),
+		API_AUTH_JWT_SECRET: z.string(),
+		API_REFRESH_JWT_SECRET: z.string(),
+		API_JWT_RESET_SECRET: z.string(),
 
-	//Email
-	SMTP_HOST: z.string(),
-	SMTP_PORT: z.string().transform(Number),
-	SMTP_USER: z.string(),
-	SMTP_PASS: z.string(),
-	EMAIL_FROM: z.string(),
-});
+		// DB
+		DB_NAME: z.string(),
+		DB_USER: z.string(),
+		DB_PASS: z.string(),
+		DB_HOST: z.string(),
+		DB_PORT: z.string().transform(Number),
+
+		REDIS_ENABLE: z.string().transform((val) => val === "true"),
+		REDIS_HOST: z.string(),
+		REDIS_PORT: z.string().transform(Number),
+
+		// Queue
+		RABBITMQ_HOST: z.string(),
+		RABBITMQ_PORT: z.string().transform(Number),
+		RABBITMQ_USER: z.string(),
+		RABBITMQ_PASS: z.string(),
+		RABBITMQ_MANAGEMENT_PORT: z.string().transform(Number),
+
+		//Email
+		SMTP_HOST: z.string(),
+		SMTP_PORT: z.string().transform(Number),
+		SMTP_USER: z.string(),
+		SMTP_PASS: z.string(),
+		EMAIL_FROM: z.string(),
+	})
+	.transform((envs) => ({
+		...envs,
+		isDevEnv: envs.NODE_ENV === "development",
+		isProdEnv: envs.NODE_ENV === "production",
+		isTestEnv: envs.NODE_ENV === "test",
+	}));
 
 const { success, data, error } = EnvsSchema.safeParse(process.env);
 

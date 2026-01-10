@@ -1,7 +1,7 @@
 import { Envs } from "@/infra/envs/envs.js";
 import { sequelizeConnection, testSchemaName } from "../connection.js";
 
-if (Envs.NODE_ENV !== "test") {
+if (!Envs.isTestEnv) {
 	throw new Error(
 		"Cannot run this setup because NODE_ENV is not set to 'test'",
 	);
