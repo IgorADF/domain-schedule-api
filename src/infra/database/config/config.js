@@ -1,4 +1,4 @@
-import { Envs } from "@/infra/envs/envs.js";
+import { Envs } from "../../envs/envs.js";
 
 /* For runtime code/db connection, this config file/format is not necessary */
 /* Otherwise, this config file format integrates with and is used by Sequelize CLI */
