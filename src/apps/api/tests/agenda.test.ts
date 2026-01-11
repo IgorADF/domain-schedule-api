@@ -1,7 +1,7 @@
 import type { Server } from "node:http";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { runFinalTestConfigs, runInitTestConfigs } from "./_config.js";
+import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/config.js";
 import {
 	authDefaultTestSeller,
 	createDefaultTestSeller,
@@ -33,9 +33,12 @@ describe("Agenda Routes", () => {
 		});
 
 		it("should create a new agenda with valid data", async () => {
-			const cookies = await authDefaultTestSeller(server, {
-				email: defaultSellerEmail1,
-			});
+			const { formattedCookies: cookies } = await authDefaultTestSeller(
+				server,
+				{
+					email: defaultSellerEmail1,
+				},
+			);
 
 			const body = {
 				agendaConfig: {

@@ -14,7 +14,7 @@ import {
 	CreateSellerResponseSchema,
 	DefaultErrorSchema,
 	DefaultSuccessSchema,
-} from "./schemas/responses.js";
+} from "./../schemas/responses.js";
 
 export const initSellerRoutes: InitRoute = (logger: LogService, tags) => {
 	return async (fastify: FastifyZodInstance) => {
@@ -43,6 +43,24 @@ export const initSellerRoutes: InitRoute = (logger: LogService, tags) => {
 					email: result.email,
 				});
 
+				return { success: true };
+			},
+		);
+
+		fastify.post(
+			"/validate-auth",
+			{
+				schema: {
+					tags,
+					description:
+						"Validate authentication by checking authentication middleware tokens in http cookies",
+					response: {
+						200: DefaultSuccessSchema,
+					},
+				},
+				onRequest: [fastify.authenticate],
+			},
+			(async) => {
 				return { success: true };
 			},
 		);

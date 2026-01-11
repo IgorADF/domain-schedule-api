@@ -13,7 +13,7 @@ export async function createDefaultTestSeller(
 	});
 }
 
-export function parseSellerCookies(response: Response) {
+export function parseResponseAuthCookies(response: Response) {
 	const cookieSatString = response?.headers?.["set-cookie"]?.[0];
 	const cookieSrtString = response?.headers?.["set-cookie"]?.[1];
 	const cookieSat = cookie.parseSetCookie(cookieSatString);
@@ -25,6 +25,13 @@ export function parseSellerCookies(response: Response) {
 	};
 }
 
+export function formatCookieToSetOnRequestHeader(cookieObj: {
+	name: string;
+	value: string | undefined;
+}) {
+	return cookieObj.name + "=" + cookieObj.value;
+}
+
 export async function authDefaultTestSeller(
 	server: Server,
 	userData: { email: string },
@@ -34,10 +41,21 @@ export async function authDefaultTestSeller(
 		password: "password123",
 	});
 
-	const { cookieSat, cookieSrt } = parseSellerCookies(response);
+	const { cookieSat, cookieSrt } = parseResponseAuthCookies(response);
 
-	const formattedCookieSat = cookieSat.name + "=" + cookieSat.value;
-	const formattedCookieSrt = cookieSrt.name + "=" + cookieSrt.value;
+	const formattedCookieSat = formatCookieToSetOnRequestHeader({
+		name: cookieSat.name,
+		value: cookieSat.value,
+	});
 
-	return [formattedCookieSat, formattedCookieSrt];
+	const formattedCookieSrt = formatCookieToSetOnRequestHeader({
+		name: cookieSrt.name,
+		value: cookieSrt.value,
+	});
+
+	return {
+		formattedCookies: [formattedCookieSat, formattedCookieSrt],
+		cookieSat: { name: cookieSat.name, value: cookieSat.value },
+		cookieSrt: { name: cookieSrt.name, value: cookieSrt.value },
+	};
 }

@@ -1,10 +1,12 @@
 import { resolve } from "node:path";
 import { defineConfig } from "vitest/config";
 
+const isTestEnv = process.env.NODE_ENV === "test";
+
 export default defineConfig({
 	test: {
-		testTimeout: 50_000,
-		hookTimeout: 30_000,
+		testTimeout: isTestEnv ? 50_000 : 5000,
+		hookTimeout: isTestEnv ? 30_000 : 10000,
 	},
 	resolve: {
 		alias: {

@@ -26,45 +26,55 @@ export class AuthHandlerError extends Error {
 
 export function authHandler(fastifyInstance: FastifyZodInstance) {
 	return async (request: FastifyRequest, reply: FastifyReply) => {
-		const cookiesHeader = request?.headers?.cookie;
-		if (!cookiesHeader) {
-			throw AuthHandlerError.createCookieNotFoundError();
-		}
-
-		const cookieObject = cookie.parseCookie(cookiesHeader);
-
-		const authCookiesToken = cookieObject?.[authTokenData.name];
-		if (!authCookiesToken) {
-			throw AuthHandlerError.createCookieNotFoundError();
-		}
-
-		const refreshCookiesToken = cookieObject?.[refreshTokenData.name];
-		if (!refreshCookiesToken) {
-			throw AuthHandlerError.createCookieNotFoundError();
-		}
-
-		const authVerify = jwtVerify<AuthSeller>(
-			authCookiesToken,
-			Envs.API_AUTH_JWT_SECRET,
-		);
-
-		if (authVerify.error) {
-			const refreshVerify = jwtVerify<AuthSeller>(
-				refreshCookiesToken,
-				Envs.API_REFRESH_JWT_SECRET,
-			);
-
-			if (refreshVerify.error) {
-				throw AuthHandlerError.createInvalidTokenError();
+		try {
+			const cookiesHeader = request?.headers?.cookie;
+			if (!cookiesHeader) {
+				throw AuthHandlerError.createCookieNotFoundError();
 			}
 
-			const payload: AuthSeller = refreshVerify.payload;
+			const cookieObject = cookie.parseCookie(cookiesHeader);
 
-			fastifyInstance.setSignTokensToReply(reply, payload);
+			const authCookiesToken = cookieObject?.[authTokenData.name];
+			if (!authCookiesToken) {
+				throw AuthHandlerError.createCookieNotFoundError();
+			}
 
-			request.authSeller = payload;
-		} else {
-			request.authSeller = authVerify.payload;
+			const refreshCookiesToken = cookieObject?.[refreshTokenData.name];
+			if (!refreshCookiesToken) {
+				throw AuthHandlerError.createCookieNotFoundError();
+			}
+
+			const authVerify = jwtVerify(authCookiesToken, Envs.API_AUTH_JWT_SECRET);
+
+			if (authVerify.error) {
+				const refreshVerify = jwtVerify(
+					refreshCookiesToken,
+					Envs.API_REFRESH_JWT_SECRET,
+				);
+
+				if (refreshVerify.error) {
+					throw AuthHandlerError.createInvalidTokenError();
+				}
+
+				const payload: AuthSeller = {
+					id: refreshVerify.payload.id,
+					email: refreshVerify.payload.email,
+				};
+
+				fastifyInstance.setSignTokensToReply(reply, payload);
+
+				request.authSeller = payload;
+			} else {
+				const payload: AuthSeller = {
+					id: authVerify.payload.id,
+					email: authVerify.payload.email,
+				};
+
+				request.authSeller = payload;
+			}
+		} catch (error) {
+			fastifyInstance.setLogoutTokensToReply(reply);
+			throw error;
 		}
 	};
 }

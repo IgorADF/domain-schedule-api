@@ -1,13 +1,18 @@
 import jwt, { type SignOptions, type VerifyOptions } from "jsonwebtoken";
+import type { AuthSeller } from "../../@types/auth-seller.js";
 
-export function jwtVerify<T>(
+type DefaultTokenProps = { iat: number; exp: number };
+
+export function jwtVerify(
 	token: string,
 	secretOrPrivateKey: string,
 	options?: VerifyOptions,
-): { payload: T; error: false } | { payload: null; error: true } {
+):
+	| { payload: AuthSeller & DefaultTokenProps; error: false }
+	| { payload: null; error: true } {
 	try {
 		const result = jwt.verify(token, secretOrPrivateKey, options);
-		return { payload: result as T, error: false };
+		return { payload: result as AuthSeller & DefaultTokenProps, error: false };
 	} catch {
 		return { payload: null, error: true };
 	}

@@ -8,7 +8,7 @@ import { OverwriteDaySchema } from "@/domain/entities/overwrite-day.js";
 import { SellerSchema } from "@/domain/entities/seller.js";
 import { DayObj } from "@/domain/shared/value-objects/day.js";
 import { TimeObj } from "@/domain/shared/value-objects/time.js";
-import { ErrorSchema } from "../../handlers/errors/schema.js";
+import { ErrorSchema } from "../handlers/errors/schema.js";
 
 export const DefaultSuccessSchema = z.object({ success: z.boolean() });
 export const DefaultErrorSchema = ErrorSchema;

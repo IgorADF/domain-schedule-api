@@ -6,7 +6,7 @@ import { createOverwriteDaysFactory } from "@/infra/use-cases-factories/create-o
 import {
 	CreateOverwriteDaysResponseSchema,
 	NoAgendaConfiguredErrorSchema,
-} from "./schemas/responses.js";
+} from "./../schemas/responses.js";
 
 export const initOverwriteDaysRoutes: InitRoute = (
 	logger: LogService,

@@ -4,9 +4,18 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import {
 	authTokenData,
 	refreshTokenData,
-} from "../../handlers/auth/tokens-config.js";
-import { runFinalTestConfigs, runInitTestConfigs } from "./_config.js";
-import { parseSellerCookies } from "./helpers/seller.js";
+} from "../handlers/auth/tokens-config.js";
+import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/config.js";
+import {
+	authDefaultTestSeller,
+	createDefaultTestSeller,
+	formatCookieToSetOnRequestHeader,
+	parseResponseAuthCookies,
+} from "./helpers/seller.js";
+import { jwtSign, jwtVerify } from "../handlers/auth/jwt.js";
+import { Envs } from "@/infra/envs/envs.js";
+import type { AuthSeller } from "../@types/auth-seller.js";
+import { awaitTimer } from "./helpers/await.js";
 
 const sendEmailMock = vi.fn().mockResolvedValue(undefined);
 vi.mock("@/infra/services/queue.js", () => {
@@ -107,7 +116,7 @@ describe("Seller Routes", () => {
 				password: "password123",
 			});
 
-			const { cookieSat, cookieSrt } = parseSellerCookies(response);
+			const { cookieSat, cookieSrt } = parseResponseAuthCookies(response);
 
 			expect(response.status).toBe(200);
 
@@ -124,6 +133,8 @@ describe("Seller Routes", () => {
 			expect(cookieSrt.path).toBe("/");
 			expect(cookieSrt.sameSite).toBe("lax");
 			expect(cookieSrt.maxAge).toBe(refreshTokenData.expireInSeconds);
+
+			expect(cookieSat.value).not.toBe(cookieSrt.value);
 		});
 
 		it("should fail with invalid password", async () => {
@@ -156,11 +167,176 @@ describe("Seller Routes", () => {
 		});
 	});
 
+	describe("POST /sellers/validate-auth", () => {
+		const email = "validate@example.com";
+
+		beforeAll(async () => {
+			await createDefaultTestSeller(server, {
+				email,
+			});
+		});
+
+		it("should authenticate seller with valid credentials", async () => {
+			const { formattedCookies } = await authDefaultTestSeller(server, {
+				email,
+			});
+
+			const response = await request(server)
+				.post("/sellers/validate-auth")
+				.set("Cookie", formattedCookies)
+				.send();
+
+			expect(response.status).toBe(200);
+		});
+
+		it("should authenticate via refresh with auth token expired and reset both tokens", async () => {
+			const { cookieSat: authCookieSat, cookieSrt: authCookieSrt } =
+				await authDefaultTestSeller(server, {
+					email,
+				});
+
+			const { payload, error } = jwtVerify(
+				authCookieSrt.value as string,
+				Envs.API_REFRESH_JWT_SECRET,
+			);
+
+			if (error) {
+				throw new Error("Failed to verify refresh token");
+			}
+
+			const newPayload: AuthSeller = {
+				id: payload.id,
+				email: payload.email,
+			};
+
+			const expiredAuthTokenValue = jwtSign(
+				newPayload,
+				Envs.API_AUTH_JWT_SECRET,
+				{
+					expiresIn: "-10s",
+				},
+			);
+
+			const formattedCookieSat = formatCookieToSetOnRequestHeader({
+				name: authCookieSat.name,
+				value: expiredAuthTokenValue,
+			});
+
+			const formattedCookieSrt = formatCookieToSetOnRequestHeader({
+				name: authCookieSrt.name,
+				value: authCookieSrt.value,
+			});
+
+			await awaitTimer(1100); // Wait to ensure old and new tokens do not match jwt exp iat
+
+			const response = await request(server)
+				.post("/sellers/validate-auth")
+				.set("Cookie", [formattedCookieSat, formattedCookieSrt])
+				.send();
+
+			const { cookieSat: responseCookieSat, cookieSrt: responseCookieSrt } =
+				parseResponseAuthCookies(response);
+
+			expect(response.status).toBe(200);
+
+			expect(responseCookieSat.name).toBeDefined();
+			expect(responseCookieSat.value).toBeDefined();
+			expect(responseCookieSat.httpOnly).toBe(true);
+			expect(responseCookieSat.maxAge).toBe(authTokenData.expireInSeconds);
+			expect(responseCookieSat.path).toBe("/");
+			expect(responseCookieSat.sameSite).toBe("lax");
+
+			expect(responseCookieSrt.name).toBeDefined();
+			expect(responseCookieSrt.value).toBeDefined();
+			expect(responseCookieSrt.httpOnly).toBe(true);
+			expect(responseCookieSrt.path).toBe("/");
+			expect(responseCookieSrt.sameSite).toBe("lax");
+			expect(responseCookieSrt.maxAge).toBe(refreshTokenData.expireInSeconds);
+
+			expect(authCookieSat.value !== responseCookieSat.value).toBe(true);
+			expect(expiredAuthTokenValue !== responseCookieSat.value).toBe(true);
+			expect(authCookieSrt.value !== responseCookieSrt.value).toBe(true);
+			expect(responseCookieSat.value).not.toBe(responseCookieSrt.value);
+		});
+
+		it("should throw error with auth and refresh token expired", async () => {
+			const { cookieSat: authCookieSat, cookieSrt: authCookieSrt } =
+				await authDefaultTestSeller(server, {
+					email,
+				});
+
+			const { payload, error } = jwtVerify(
+				authCookieSrt.value as string,
+				Envs.API_REFRESH_JWT_SECRET,
+			);
+
+			if (error) {
+				throw new Error("Failed to verify refresh token");
+			}
+
+			const newPayload: AuthSeller = {
+				id: payload.id,
+				email: payload.email,
+			};
+
+			const expiredAuthTokenValue = jwtSign(
+				newPayload,
+				Envs.API_AUTH_JWT_SECRET,
+				{
+					expiresIn: "-10s",
+				},
+			);
+
+			const expiredRefreshTokenValue = jwtSign(
+				newPayload,
+				Envs.API_REFRESH_JWT_SECRET,
+				{
+					expiresIn: "-10s",
+				},
+			);
+
+			const formattedCookieSat = formatCookieToSetOnRequestHeader({
+				name: authCookieSat.name,
+				value: expiredAuthTokenValue,
+			});
+
+			const formattedCookieSrt = formatCookieToSetOnRequestHeader({
+				name: authCookieSrt.name,
+				value: expiredRefreshTokenValue,
+			});
+
+			await awaitTimer(1100);
+
+			const response = await request(server)
+				.post("/sellers/validate-auth")
+				.set("Cookie", [formattedCookieSat, formattedCookieSrt])
+				.send();
+
+			const { cookieSat, cookieSrt } = parseResponseAuthCookies(response);
+
+			expect(response.status).toBe(401);
+			expect(response.body.error).toBe("Unauthorized");
+
+			expect(cookieSat.name).toBeDefined();
+			expect(cookieSat.value).toBe("");
+			expect(cookieSat.httpOnly).toBe(true);
+			expect(cookieSat.maxAge).toBe(0);
+			expect(cookieSat.path).toBe("/");
+			expect(cookieSat.sameSite).toBe("lax");
+
+			expect(cookieSrt.name).toBeDefined();
+			expect(cookieSrt.value).toBe("");
+			expect(cookieSrt.httpOnly).toBe(true);
+			expect(cookieSrt.path).toBe("/");
+			expect(cookieSrt.sameSite).toBe("lax");
+			expect(cookieSrt.maxAge).toBe(0);
+		});
+	});
 	describe("POST /sellers/logout", () => {
 		it("should logout and expire cookies(auth/refresh)", async () => {
 			const response = await request(server).post("/sellers/logout").send();
 
-			const { cookieSat, cookieSrt } = parseSellerCookies(response);
+			const { cookieSat, cookieSrt } = parseResponseAuthCookies(response);
 
 			expect(response.status).toBe(200);
 
