@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const ErrorSchema = z.object({
+export const ErrorHandlerSchema = z.object({
 	error: z.string(),
 	message: z.string(),
 	details: z
@@ -8,5 +8,4 @@ export const ErrorSchema = z.object({
 		.nullable(),
 });
 
-export type ErrorSchema = typeof ErrorSchema;
-export type ErrorSchemaType = z.infer<ErrorSchema>;
+export type ErrorHandlerSchemaType = z.infer<typeof ErrorHandlerSchema>;

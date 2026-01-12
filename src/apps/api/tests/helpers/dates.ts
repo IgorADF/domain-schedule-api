@@ -8,6 +8,6 @@ export function toDayObj(date: Date) {
 	};
 }
 
-export function toDateFormat(date: Date) {
-	return DateTime.fromJSDate(date).toFormat("yyyy-MM-dd");
+export function toDateFormat(date: Date, format?: string) {
+	return DateTime.fromJSDate(date).toFormat(format || "yyyy-MM-dd");
 }

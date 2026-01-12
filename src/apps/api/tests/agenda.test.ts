@@ -1,11 +1,11 @@
 import type { Server } from "node:http";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/_config.js";
 import {
 	createDefaultTestAgendaConfig,
 	defaultAgendaConfig,
 } from "./helpers/agenda.js";
-import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/config.js";
 import { authTestSeller, createTestSeller } from "./helpers/seller.js";
 import { setVitestSystemTime, useRealTimersVitest } from "./helpers/vitest.js";
 

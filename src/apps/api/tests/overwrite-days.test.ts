@@ -1,8 +1,8 @@
 import type { Server } from "node:http";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/_config.js";
 import { createDefaultTestAgendaConfig } from "./helpers/agenda.js";
-import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/config.js";
 import { toDayObj } from "./helpers/dates.js";
 import { createAndAuthTestSeller } from "./helpers/seller.js";
 

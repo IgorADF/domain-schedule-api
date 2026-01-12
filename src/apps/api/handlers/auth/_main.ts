@@ -3,26 +3,9 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { Envs } from "@/infra/envs/envs.js";
 import type { AuthSeller } from "../../@types/auth-seller.js";
 import type { FastifyZodInstance } from "../../@types/fastity-instance.js";
+import { AuthHandlerError } from "./error-class.js";
 import { jwtVerify } from "./jwt.js";
 import { authTokenData, refreshTokenData } from "./tokens-config.js";
-
-export class AuthHandlerError extends Error {
-	replyStatusCode = 401;
-	uniqueCode: string;
-
-	constructor(uniqueCode: string, message: string) {
-		super(message);
-		this.uniqueCode = uniqueCode;
-	}
-
-	static createCookieNotFoundError() {
-		return new AuthHandlerError("Unauthorized", "No cookies found");
-	}
-
-	static createInvalidTokenError() {
-		return new AuthHandlerError("Unauthorized", "Invalid token");
-	}
-}
 
 export function authHandler(fastifyInstance: FastifyZodInstance) {
 	return async (request: FastifyRequest, reply: FastifyReply) => {

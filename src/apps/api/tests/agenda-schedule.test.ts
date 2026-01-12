@@ -2,12 +2,12 @@ import type { Server } from "node:http";
 import { DateTime } from "luxon";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/_config.js";
 import { defaultAgendaConfig } from "./helpers/agenda.js";
-import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/config.js";
 import { toDateFormat, toDayObj } from "./helpers/dates.js";
 import {
 	createAndAuthTestSeller,
-	setSellerInitialTestData,
+	setSellerFullInitialTestData,
 } from "./helpers/seller.js";
 import { setVitestSystemTime, useRealTimersVitest } from "./helpers/vitest.js";
 
@@ -34,7 +34,7 @@ describe("Agenda Schedule Routes", () => {
 		});
 
 		it("should create a new schedule with valid data", async () => {
-			const { agendaConfigId } = await setSellerInitialTestData(server);
+			const { agendaConfigId } = await setSellerFullInitialTestData(server);
 
 			const date = DateTime.now().plus({ days: 10 }).toJSDate();
 
@@ -55,7 +55,7 @@ describe("Agenda Schedule Routes", () => {
 		});
 
 		it("should return SLOT_NOT_AVAILABLE when creating a slot that do not exist", async () => {
-			const { agendaConfigId } = await setSellerInitialTestData(server);
+			const { agendaConfigId } = await setSellerFullInitialTestData(server);
 
 			const date = DateTime.now().plus({ days: 10 }).toJSDate();
 
@@ -75,7 +75,7 @@ describe("Agenda Schedule Routes", () => {
 		});
 
 		it("should return SLOT_NOT_AVAILABLE when creating a duplicate schedule", async () => {
-			const { agendaConfigId } = await setSellerInitialTestData(server);
+			const { agendaConfigId } = await setSellerFullInitialTestData(server);
 
 			const date = DateTime.now().plus({ days: 10 }).toJSDate();
 
@@ -115,7 +115,7 @@ describe("Agenda Schedule Routes", () => {
 				periodToOverride
 			].minutesOfInterval = null;
 
-			const { agendaConfigId } = await setSellerInitialTestData(
+			const { agendaConfigId } = await setSellerFullInitialTestData(
 				server,
 				completeAgendaData,
 			);
@@ -153,7 +153,7 @@ describe("Agenda Schedule Routes", () => {
 
 			completeAgendaData.agendaConfig.minHoursOfAdvancedNotice = 500;
 
-			const { agendaConfigId } = await setSellerInitialTestData(
+			const { agendaConfigId } = await setSellerFullInitialTestData(
 				server,
 				completeAgendaData,
 			);
@@ -180,7 +180,7 @@ describe("Agenda Schedule Routes", () => {
 
 			completeAgendaData.agendaConfig.maxDaysOfAdvancedNotice = 4;
 
-			const { agendaConfigId } = await setSellerInitialTestData(
+			const { agendaConfigId } = await setSellerFullInitialTestData(
 				server,
 				completeAgendaData,
 			);
@@ -216,7 +216,7 @@ describe("Agenda Schedule Routes", () => {
 
 		it("should list schedules grouped by date for authenticated seller", async () => {
 			const { agendaConfigId, authData } =
-				await setSellerInitialTestData(server);
+				await setSellerFullInitialTestData(server);
 
 			const { formattedCookies: cookies } = authData;
 

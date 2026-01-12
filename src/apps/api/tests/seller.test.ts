@@ -8,13 +8,13 @@ import {
 	authTokenData,
 	refreshTokenData,
 } from "../handlers/auth/tokens-config.js";
+import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/_config.js";
 import { awaitTimer } from "./helpers/await.js";
-import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/config.js";
 import {
 	authTestSeller,
 	createTestSeller,
-	formatCookieToSetOnRequestHeader,
-	parseResponseAuthCookies,
+	formatSetHeaderCookie,
+	parseResponseSellerAuthCookies,
 } from "./helpers/seller.js";
 
 const sendEmailMock = vi.fn().mockResolvedValue(undefined);
@@ -116,7 +116,7 @@ describe("Seller Routes", () => {
 				password: "password123",
 			});
 
-			const { cookieSat, cookieSrt } = parseResponseAuthCookies(response);
+			const { cookieSat, cookieSrt } = parseResponseSellerAuthCookies(response);
 
 			expect(response.status).toBe(200);
 
@@ -217,12 +217,12 @@ describe("Seller Routes", () => {
 				},
 			);
 
-			const formattedCookieSat = formatCookieToSetOnRequestHeader({
+			const formattedCookieSat = formatSetHeaderCookie({
 				name: authCookieSat.name,
 				value: expiredAuthTokenValue,
 			});
 
-			const formattedCookieSrt = formatCookieToSetOnRequestHeader({
+			const formattedCookieSrt = formatSetHeaderCookie({
 				name: authCookieSrt.name,
 				value: authCookieSrt.value,
 			});
@@ -235,7 +235,7 @@ describe("Seller Routes", () => {
 				.send();
 
 			const { cookieSat: responseCookieSat, cookieSrt: responseCookieSrt } =
-				parseResponseAuthCookies(response);
+				parseResponseSellerAuthCookies(response);
 
 			expect(response.status).toBe(200);
 
@@ -295,12 +295,12 @@ describe("Seller Routes", () => {
 				},
 			);
 
-			const formattedCookieSat = formatCookieToSetOnRequestHeader({
+			const formattedCookieSat = formatSetHeaderCookie({
 				name: authCookieSat.name,
 				value: expiredAuthTokenValue,
 			});
 
-			const formattedCookieSrt = formatCookieToSetOnRequestHeader({
+			const formattedCookieSrt = formatSetHeaderCookie({
 				name: authCookieSrt.name,
 				value: expiredRefreshTokenValue,
 			});
@@ -312,7 +312,7 @@ describe("Seller Routes", () => {
 				.set("Cookie", [formattedCookieSat, formattedCookieSrt])
 				.send();
 
-			const { cookieSat, cookieSrt } = parseResponseAuthCookies(response);
+			const { cookieSat, cookieSrt } = parseResponseSellerAuthCookies(response);
 
 			expect(response.status).toBe(401);
 			expect(response.body.error).toBe("Unauthorized");
@@ -336,7 +336,7 @@ describe("Seller Routes", () => {
 		it("should logout and expire cookies(auth/refresh)", async () => {
 			const response = await request(server).post("/sellers/logout").send();
 
-			const { cookieSat, cookieSrt } = parseResponseAuthCookies(response);
+			const { cookieSat, cookieSrt } = parseResponseSellerAuthCookies(response);
 
 			expect(response.status).toBe(200);
 

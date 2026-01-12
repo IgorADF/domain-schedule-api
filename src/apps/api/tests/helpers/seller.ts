@@ -18,7 +18,7 @@ export async function createTestSeller(
 	});
 }
 
-export function parseResponseAuthCookies(response: Response) {
+export function parseResponseSellerAuthCookies(response: Response) {
 	const cookieSatString = response?.headers?.["set-cookie"]?.[0];
 	const cookieSrtString = response?.headers?.["set-cookie"]?.[1];
 	const cookieSat = cookie.parseSetCookie(cookieSatString);
@@ -30,7 +30,7 @@ export function parseResponseAuthCookies(response: Response) {
 	};
 }
 
-export function formatCookieToSetOnRequestHeader(cookieObj: {
+export function formatSetHeaderCookie(cookieObj: {
 	name: string;
 	value: string | undefined;
 }) {
@@ -46,14 +46,14 @@ export async function authTestSeller(
 		password: "password123",
 	});
 
-	const { cookieSat, cookieSrt } = parseResponseAuthCookies(response);
+	const { cookieSat, cookieSrt } = parseResponseSellerAuthCookies(response);
 
-	const formattedCookieSat = formatCookieToSetOnRequestHeader({
+	const formattedCookieSat = formatSetHeaderCookie({
 		name: cookieSat.name,
 		value: cookieSat.value,
 	});
 
-	const formattedCookieSrt = formatCookieToSetOnRequestHeader({
+	const formattedCookieSrt = formatSetHeaderCookie({
 		name: cookieSrt.name,
 		value: cookieSrt.value,
 	});
@@ -77,7 +77,10 @@ export async function createAndAuthTestSeller(server: Server) {
 	return authData;
 }
 
-export async function setSellerInitialTestData(
+/**
+ * Helper to create and authenticate a test seller, and create a default agenda config for them.
+ */
+export async function setSellerFullInitialTestData(
 	server: Server,
 	completeAgendaData?: CreationCompleteAgendaDataType,
 ) {
