@@ -13,7 +13,6 @@ import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 
 export const CreateOverwriteDaysSchema = z.object({
 	sellerId: z.uuid(),
-	agendaConfigId: z.uuid(),
 	overwriteDays: z.array(
 		z.object({
 			day: OverwriteDaySchema.shape.day,
@@ -42,11 +41,11 @@ export class CreateOverwriteDaysUseCase {
 	async execute(
 		input: CreateOverwriteDaysInput,
 	): Promise<{ data: OverwriteDayType[] }> {
-		const agendaConfig = await this.uow.agendaConfigsRepository.getById(
-			input.agendaConfigId,
+		const agendaConfig = await this.uow.agendaConfigsRepository.getBySellerId(
+			input.sellerId,
 		);
 
-		if (!agendaConfig || agendaConfig.sellerId !== input.sellerId) {
+		if (!agendaConfig) {
 			throw new EntityNotFound();
 		}
 
@@ -55,7 +54,7 @@ export class CreateOverwriteDaysUseCase {
 
 		for (const overwriteDay of input.overwriteDays) {
 			const formattedOverwriteDay = createEntity<OverwriteDayType>({
-				agendaConfigId: input.agendaConfigId,
+				agendaConfigId: agendaConfig.id,
 				day: overwriteDay.day,
 				cancelAllDay: overwriteDay.cancelAllDay,
 			});

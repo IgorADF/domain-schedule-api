@@ -1,21 +1,21 @@
 import type { Server } from "node:http";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { Envs } from "@/infra/envs/envs.js";
+import type { AuthSeller } from "../@types/auth-seller.js";
+import { jwtSign, jwtVerify } from "../handlers/auth/jwt.js";
 import {
 	authTokenData,
 	refreshTokenData,
 } from "../handlers/auth/tokens-config.js";
+import { awaitTimer } from "./helpers/await.js";
 import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/config.js";
 import {
-	authDefaultTestSeller,
-	createDefaultTestSeller,
+	authTestSeller,
+	createTestSeller,
 	formatCookieToSetOnRequestHeader,
 	parseResponseAuthCookies,
 } from "./helpers/seller.js";
-import { jwtSign, jwtVerify } from "../handlers/auth/jwt.js";
-import { Envs } from "@/infra/envs/envs.js";
-import type { AuthSeller } from "../@types/auth-seller.js";
-import { awaitTimer } from "./helpers/await.js";
 
 const sendEmailMock = vi.fn().mockResolvedValue(undefined);
 vi.mock("@/infra/services/queue.js", () => {
@@ -171,13 +171,13 @@ describe("Seller Routes", () => {
 		const email = "validate@example.com";
 
 		beforeAll(async () => {
-			await createDefaultTestSeller(server, {
+			await createTestSeller(server, {
 				email,
 			});
 		});
 
 		it("should authenticate seller with valid credentials", async () => {
-			const { formattedCookies } = await authDefaultTestSeller(server, {
+			const { formattedCookies } = await authTestSeller(server, {
 				email,
 			});
 
@@ -191,7 +191,7 @@ describe("Seller Routes", () => {
 
 		it("should authenticate via refresh with auth token expired and reset both tokens", async () => {
 			const { cookieSat: authCookieSat, cookieSrt: authCookieSrt } =
-				await authDefaultTestSeller(server, {
+				await authTestSeller(server, {
 					email,
 				});
 
@@ -261,7 +261,7 @@ describe("Seller Routes", () => {
 
 		it("should throw error with auth and refresh token expired", async () => {
 			const { cookieSat: authCookieSat, cookieSrt: authCookieSrt } =
-				await authDefaultTestSeller(server, {
+				await authTestSeller(server, {
 					email,
 				});
 

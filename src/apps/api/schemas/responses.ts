@@ -28,6 +28,10 @@ export const NoAgendaConfiguredErrorSchema = DefaultErrorSchema.describe(
 	"Seller has not agenda configured yet (ENTITY_NOT_FOUND)",
 );
 
+export const PostAgendaResponseSchema = z.object({
+	data: AgendaConfigSchema,
+});
+
 export const GetAgendaResponseSchema = z.object({
 	data: z.object({
 		agendaConfig: AgendaConfigSchema,

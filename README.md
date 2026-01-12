@@ -18,6 +18,9 @@
 
 - [x] Overwrite criar multiplos
 
+- All lists must be blocked
+- ListAvailable slots must block range o query
+
 ### Tech
 
 - Continuos:
@@ -25,11 +28,12 @@
   - Implemente tests to expire tokens (auth middlewere tests)
   - Create routines (jobs) to remove old test schemas
 
-- Better route descriptions
+- Better route descriptions and response returns
 - Fastify log to redis reconnection
 - OTLP: https://www.youtube.com/watch?v=Wu0Ajkxh69Y
 - Passar o redis como prop no init da api
 - Add luxon to all project
+- FUTURE: change sequelize sync on test to migrate (tryied but seams some issue inside sequelize-cli)
 
 ---
 

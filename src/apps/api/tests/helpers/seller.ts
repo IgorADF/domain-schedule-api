@@ -1,8 +1,13 @@
+import { randomUUID } from "node:crypto";
 import type { Server } from "node:http";
 import cookie from "cookie";
 import request, { type Response } from "supertest";
+import {
+	type CreationCompleteAgendaDataType,
+	createDefaultTestAgendaConfig,
+} from "./agenda.js";
 
-export async function createDefaultTestSeller(
+export async function createTestSeller(
 	server: Server,
 	userData: { email: string },
 ) {
@@ -32,7 +37,7 @@ export function formatCookieToSetOnRequestHeader(cookieObj: {
 	return cookieObj.name + "=" + cookieObj.value;
 }
 
-export async function authDefaultTestSeller(
+export async function authTestSeller(
 	server: Server,
 	userData: { email: string },
 ) {
@@ -58,4 +63,30 @@ export async function authDefaultTestSeller(
 		cookieSat: { name: cookieSat.name, value: cookieSat.value },
 		cookieSrt: { name: cookieSrt.name, value: cookieSrt.value },
 	};
+}
+
+export async function createAndAuthTestSeller(server: Server) {
+	const testSellerEmail = `${randomUUID()}@example.com`;
+
+	await createTestSeller(server, { email: testSellerEmail });
+
+	const authData = await authTestSeller(server, {
+		email: testSellerEmail,
+	});
+
+	return authData;
+}
+
+export async function setSellerInitialTestData(
+	server: Server,
+	completeAgendaData?: CreationCompleteAgendaDataType,
+) {
+	const authData = await createAndAuthTestSeller(server);
+	const agendaConfigId = await createDefaultTestAgendaConfig(
+		server,
+		authData.formattedCookies,
+		completeAgendaData,
+	);
+
+	return { authData, agendaConfigId };
 }

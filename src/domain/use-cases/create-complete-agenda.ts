@@ -3,7 +3,6 @@ import type { AgendaConfigType } from "../entities/agenda-config.js";
 import type { AgendaDayOfWeekType } from "../entities/agenda-day-of-week.js";
 import type { AgendaPeriodType } from "../entities/agenda-periods.js";
 import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
-import { InvalidCreantionData } from "../shared/errors/invalid-creation-data.js";
 import {
 	CreateAgendaConfigSchema,
 	type CreateAgendaConfigUseCase,
@@ -17,8 +16,6 @@ import {
 	CreateAgendaPeriodsUseCase,
 } from "./create-agenda-periods.js";
 import type { GetAgendaConfigBySellerOrThrowUseCase } from "./get-agenda-config-by-seller-or-throw.js";
-
-const qtDaysOfWeek = 7;
 
 export const CreateCompleteAgendaSchema = z.object({
 	sellerId: z.uuid(),
@@ -44,7 +41,7 @@ export const CreateCompleteAgendaSchema = z.object({
 				),
 			}),
 		)
-		.length(qtDaysOfWeek),
+		.length(7),
 });
 
 type _AgendaConfigType = z.infer<
@@ -113,10 +110,6 @@ export class CreateCompleteAgendaUseCase {
 		agendaConfigId: string,
 		daysOfWeek: _DaysOfWeekType,
 	): Promise<void> {
-		if (daysOfWeek.length !== qtDaysOfWeek) {
-			throw new InvalidCreantionData();
-		}
-
 		const daysOfWeekToCreate: AgendaDayOfWeekType[] = [];
 		const periodsOfWeekToCreate: AgendaPeriodType[] = [];
 

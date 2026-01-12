@@ -1,5 +1,5 @@
 import { Envs } from "@/infra/envs/envs.js";
-import { sequelizeConnection, schemaName } from "../connection.js";
+import { schemaName, sequelizeConnection } from "../connection.js";
 import { testSchemaPrefixName } from "./test-schema-name.js";
 
 async function dropSchema(_schemaName: string) {

@@ -34,9 +34,11 @@ async function createSequelizeConnection() {
 		host,
 		port,
 		models,
-		logging: (msg) => {
-			console.info(msg);
-		},
+		logging: Envs.isTestEnv
+			? false
+			: (msg) => {
+					console.info(msg);
+				},
 		repositoryMode: true,
 		schema: defaultModelsConfig.schema,
 		define: defaultModelsConfig,

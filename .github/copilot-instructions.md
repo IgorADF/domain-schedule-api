@@ -299,6 +299,51 @@ Errors are thrown from use-cases; global handler converts to HTTP responses.
 
 - Prefer a `static create(...)` constructor on service implementations (factories were removed)
 
+## Tests Pattern
+
+API tests live in `src/apps/api/tests/` and use **Vitest** + **Supertest**.
+
+**CRITICAL:**
+
+- Tests must be named `*.test.ts` and placed in `src/apps/api/tests/`
+- Keep ESM import specifiers with `.js` (even in test `.ts` files)
+- Follow existing patterns in `agenda.test.ts` and `seller.test.ts`
+
+**Test bootstrap (required):**
+
+```ts
+import type { Server } from "node:http";
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { runFinalTestConfigs, runInitTestConfigs } from "./helpers/config.js";
+
+let server: Server;
+
+beforeAll(async () => {
+  server = (await runInitTestConfigs()).server;
+});
+
+afterAll(async () => {
+  await runFinalTestConfigs();
+});
+```
+
+**Auth pattern (protected routes):**
+
+- Create a seller via `createTestSeller(server, { email })`
+- Authenticate via `authTestSeller(server, { email })`
+- Pass cookies with Supertest: `.set("Cookie", formattedCookies)`
+
+**Agenda setup (when tests depend on agendaConfig):**
+
+- Use `createDefaultTestAgendaConfig(server, cookies)` to create an agenda config and get `agendaConfigId`
+
+**Stability rules:**
+
+- Use unique emails per test suite to avoid collisions
+- Avoid hardcoding schedule dates near “now”; compute dates to satisfy min/max notice rules
+- Assert on `response.status` + `response.body.error` (when applicable), matching existing tests
+
 ## Dev Workflow
 
 **Development:**

@@ -8,10 +8,10 @@ import { listAgendaConfigFactory } from "@/infra/use-cases-factories/list-agenda
 import { listAvailableSlotsFactory } from "@/infra/use-cases-factories/list-available-slots.js";
 import {
 	DefaultErrorSchema,
-	DefaultSuccessSchema,
 	GetAgendaAvailableSlotsResponseSchema,
 	GetAgendaResponseSchema,
 	NoAgendaConfiguredErrorSchema,
+	PostAgendaResponseSchema,
 } from "./../schemas/responses.js";
 
 export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
@@ -77,10 +77,7 @@ export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
 					description:
 						"Create or update the complete agenda for the authenticated seller",
 					response: {
-						200: DefaultSuccessSchema,
-						400: DefaultErrorSchema.describe(
-							"Invalid daysOfWeek length (must be 7) (INVALID_CREATION_DATA)",
-						),
+						200: PostAgendaResponseSchema,
 						409: DefaultErrorSchema.describe(
 							"Agenda configuration already exists for the seller (ENTITY_ALREADY_EXIST)",
 						),
@@ -93,9 +90,9 @@ export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
 				const { useCase } = createCompleteAgendaFactory();
 
 				const sellerId = request.authSeller.id;
-				await useCase.execute({ ...request.body, sellerId });
+				const { data } = await useCase.execute({ ...request.body, sellerId });
 
-				return { success: true };
+				return { data };
 			},
 		);
 	};
