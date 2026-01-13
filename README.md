@@ -23,11 +23,6 @@
 
 ### Tech
 
-- Continuos:
-
-  - Implemente tests to expire tokens (auth middlewere tests)
-  - Create routines (jobs) to remove old test schemas
-
 - Better route descriptions and response returns
 - Fastify log to redis reconnection
 - OTLP: https://www.youtube.com/watch?v=Wu0Ajkxh69Y
