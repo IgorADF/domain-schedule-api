@@ -1,5 +1,5 @@
 import { AuthSellerUseCase } from "@domain/use-cases/auth-seller.js";
-import { SequelizeUnitOfWork } from "@/infra/repository/uow/sequelize-unit-of-work.js";
+import { SequelizeUnitOfWork } from "@/infra/repository/_uow.js";
 import { HashPasswordService } from "@/infra/services/password.js";
 import type { CreateFactoryFunction } from "./_base-type.js";
 

@@ -1,5 +1,5 @@
 import z from "zod";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
+import type { IUnitOfWork } from "../repositories/_uow.interface.js";
 import type { ILogService } from "../services/log.interface.js";
 import type { iQueueService } from "../services/queue.interface.js";
 import { SendEmailError } from "../shared/errors/send-email.js";

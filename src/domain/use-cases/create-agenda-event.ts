@@ -4,7 +4,7 @@ import {
 } from "@domain/entities/agenda-event.js";
 import { createEntity } from "@domain/entities/helpers/creation.js";
 import z from "zod";
-import type { IUnitOfWork } from "@/domain/repositories/uow/unit-of-work.interface.js";
+import type { IUnitOfWork } from "@/domain/repositories/_uow.interface.js";
 import type { GetAgendaConfigBySellerOrThrowUseCase } from "./get-agenda-config-by-seller-or-throw.js";
 
 export const CreateAgendaEventSchema = AgendaEventSchema.pick({

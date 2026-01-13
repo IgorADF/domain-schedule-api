@@ -1,5 +1,5 @@
 import z from "zod";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
+import type { IUnitOfWork } from "../repositories/_uow.interface.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 import type { DaySlots, GenerateSlotsUseCase } from "./generate-slots.js";
 

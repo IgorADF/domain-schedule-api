@@ -1,5 +1,5 @@
 import { CreateOverwriteDaysUseCase } from "@domain/use-cases/create-overwrite-days.js";
-import { SequelizeUnitOfWork } from "@/infra/repository/uow/sequelize-unit-of-work.js";
+import { SequelizeUnitOfWork } from "@/infra/repository/_uow.js";
 
 export function createOverwriteDaysFactory() {
 	const uow = SequelizeUnitOfWork.create();

@@ -1,10 +1,10 @@
-import type { IAgendaConfigsRepository } from "../agenda-configs.interface.js";
-import type { IAgendaDayOfWeekRepository } from "../agenda-day-of-week.interface.js";
-import type { IAgendaEventRepository } from "../agenda-event.interface.js";
-import type { IAgendaPeriodsRepository } from "../agenda-periods.interface.js";
-import type { IAgendaScheduleRepository } from "../agenda-schedule.interface.js";
-import type { IOverwriteDayRepository } from "../overwrite-day.interface.js";
-import type { ISellerRepository } from "../seller.interface.js";
+import type { IAgendaConfigsRepository } from "./agenda-configs.interface.js";
+import type { IAgendaDayOfWeekRepository } from "./agenda-day-of-week.interface.js";
+import type { IAgendaEventRepository } from "./agenda-event.interface.js";
+import type { IAgendaPeriodsRepository } from "./agenda-periods.interface.js";
+import type { IAgendaScheduleRepository } from "./agenda-schedule.interface.js";
+import type { IOverwriteDayRepository } from "./overwrite-day.interface.js";
+import type { ISellerRepository } from "./seller.interface.js";
 
 export interface IUnitOfWork {
 	resetTransaction(): void;

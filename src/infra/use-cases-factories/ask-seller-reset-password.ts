@@ -1,5 +1,5 @@
 import { AskSellerResetPasswordUseCase } from "@/domain/use-cases/ask-seller-reset-password.js";
-import { SequelizeUnitOfWork } from "@/infra/repository/uow/sequelize-unit-of-work.js";
+import { SequelizeUnitOfWork } from "@/infra/repository/_uow.js";
 import { QueueService } from "@/infra/services/queue.js";
 import type { CreateFactoryFunction } from "./_base-type.js";
 

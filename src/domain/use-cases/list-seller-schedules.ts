@@ -1,6 +1,6 @@
 import z from "zod";
 import type { AgendaScheduleType } from "../entities/agenda-schedule.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
+import type { IUnitOfWork } from "../repositories/_uow.interface.js";
 import type { DayType } from "../shared/value-objects/day.js";
 import type { GetAgendaConfigBySellerOrThrowUseCase } from "./get-agenda-config-by-seller-or-throw.js";
 

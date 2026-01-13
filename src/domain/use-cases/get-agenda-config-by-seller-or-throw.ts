@@ -1,5 +1,5 @@
 import type { AgendaConfigType } from "../entities/agenda-config.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
+import type { IUnitOfWork } from "../repositories/_uow.interface.js";
 import { EntityAlreadyExist } from "../shared/errors/entity-already-exist.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 

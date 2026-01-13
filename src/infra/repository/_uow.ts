@@ -7,17 +7,17 @@ import type { IOverwriteDayRepository } from "@domain/repositories/overwrite-day
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
 import type { Transaction as SequelizeTransaction } from "sequelize";
 import type { Class } from "@/@types/class.js";
-import type { IUnitOfWork } from "@/domain/repositories/uow/unit-of-work.interface.js";
+import type { IUnitOfWork } from "@/domain/repositories/_uow.interface.js";
 import { RedisCacheService } from "@/infra/cache/redis-service.js";
-import { sequelizeConnection } from "../../database/connection.js";
-import { AgendaConfigsRepository } from "../agenda-configs.js";
-import { AgendaDayOfWeekRepository } from "../agenda-day-of-week.js";
-import { AgendaEventRepository } from "../agenda-event.js";
-import { AgendaPeriodsRepository } from "../agenda-periods.js";
-import { AgendaScheduleRepository } from "../agenda-schedule.js";
-import { CachedSellerRepository } from "../cached/seller.js";
-import { OverwriteDayRepository } from "../overwrite-day.js";
-import { SellerRepository } from "../seller.js";
+import { sequelizeConnection } from "../database/connection.js";
+import { AgendaConfigsRepository } from "./agenda-configs.js";
+import { AgendaDayOfWeekRepository } from "./agenda-day-of-week.js";
+import { AgendaEventRepository } from "./agenda-event.js";
+import { AgendaPeriodsRepository } from "./agenda-periods.js";
+import { AgendaScheduleRepository } from "./agenda-schedule.js";
+import { CachedSellerRepository } from "./cached/seller.js";
+import { OverwriteDayRepository } from "./overwrite-day.js";
+import { SellerRepository } from "./seller.js";
 
 const breakCharIndex = 1;
 

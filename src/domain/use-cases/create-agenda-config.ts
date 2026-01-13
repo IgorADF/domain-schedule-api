@@ -4,7 +4,7 @@ import {
 	type AgendaConfigType,
 } from "../entities/agenda-config.js";
 import { createEntity } from "../entities/helpers/creation.js";
-import type { IUnitOfWork } from "../repositories/uow/unit-of-work.interface.js";
+import type { IUnitOfWork } from "../repositories/_uow.interface.js";
 
 export const CreateAgendaConfigSchema = AgendaConfigSchema.pick({
 	sellerId: true,
