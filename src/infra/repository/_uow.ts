@@ -5,11 +5,10 @@ import type { IAgendaPeriodsRepository } from "@domain/repositories/agenda-perio
 import type { IAgendaScheduleRepository } from "@domain/repositories/agenda-schedule.interface.js";
 import type { IOverwriteDayRepository } from "@domain/repositories/overwrite-day.interface.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
-import type { Transaction as SequelizeTransaction } from "sequelize";
 import type { Class } from "@/@types/class.js";
 import type { IUnitOfWork } from "@/domain/repositories/_uow.interface.js";
 import { RedisCacheService } from "@/infra/cache/redis-service.js";
-import { sequelizeConnection } from "../database/connection.js";
+import { drizzleConnection } from "../database/connection.js";
 import { AgendaConfigsRepository } from "./agenda-configs.js";
 import { AgendaDayOfWeekRepository } from "./agenda-day-of-week.js";
 import { AgendaEventRepository } from "./agenda-event.js";
@@ -34,9 +33,7 @@ type RepositoriesToCache = {
 	[K in CacheRepositoryNames]?: true;
 };
 
-export class SequelizeUnitOfWork implements IUnitOfWork {
-	private transaction: SequelizeTransaction | null = null;
-
+export class DrizzleUnitOfWork implements IUnitOfWork {
 	private _sellerRepository: ISellerRepository | null = null;
 	private _agendaPeriodsRepository: IAgendaPeriodsRepository | null = null;
 	private _agendaDayOfWeekRepository: IAgendaDayOfWeekRepository | null = null;
@@ -52,42 +49,13 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 	) {}
 
 	static create() {
-		return new SequelizeUnitOfWork();
-	}
-
-	resetTransaction() {
-		this.transaction = null;
-	}
-
-	async beginTransaction() {
-		this.transaction = await sequelizeConnection.transaction();
-	}
-
-	async commitTransaction() {
-		if (!this.transaction) return;
-
-		await this.transaction.commit();
-		this.resetTransaction();
-	}
-
-	async rollbackTransaction() {
-		if (!this.transaction) return;
-
-		await this.transaction.rollback();
-		this.resetTransaction();
+		return new DrizzleUnitOfWork();
 	}
 
 	async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
-		await this.beginTransaction();
-
-		try {
-			const result = await fn();
-			await this.commitTransaction();
-			return result;
-		} catch (error) {
-			await this.rollbackTransaction();
-			throw error;
-		}
+		return await drizzleConnection.transaction(async (tx) => {
+			return fn();
+		});
 	}
 
 	private createAndGetRepository<T>(
@@ -101,7 +69,7 @@ export class SequelizeUnitOfWork implements IUnitOfWork {
 					(propName as string).substring(breakCharIndex) as CacheRepositoryNames
 				] ?? false;
 
-			const classInstance = new ClassDef(this.transaction, sequelizeConnection);
+			const classInstance = new ClassDef(drizzleConnection);
 
 			if (shouldCreateCacheRep && CachedClassDef) {
 				const cacheService = RedisCacheService.createInstance();

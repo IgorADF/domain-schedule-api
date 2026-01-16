@@ -2,12 +2,12 @@ import {
 	AgendaConfigSchema,
 	type AgendaConfigType,
 } from "@domain/entities/agenda-config.js";
-import type AgendaConfigsModel from "../database/models/agenda-configs.js";
-import type { AgendaConfigsModelType } from "../database/models/agenda-configs.js";
+import type {
+	InsertAgendaConfigs,
+	SelectAgendaConfigs,
+} from "../database/types.js";
 
-export function toModel(
-	agendaConfig: AgendaConfigType,
-): AgendaConfigsModelType {
+export function toModel(agendaConfig: AgendaConfigType): InsertAgendaConfigs {
 	return {
 		id: agendaConfig.id,
 		sellerId: agendaConfig.sellerId,
@@ -19,9 +19,7 @@ export function toModel(
 	};
 }
 
-export function toEntity(_agendaConfig: AgendaConfigsModel): AgendaConfigType {
-	const agendaConfig = _agendaConfig.toJSON();
-
+export function toEntity(agendaConfig: SelectAgendaConfigs): AgendaConfigType {
 	const map: AgendaConfigType = {
 		id: agendaConfig.id,
 		sellerId: agendaConfig.sellerId,

@@ -1,48 +1,17 @@
-import type { ModelOptions } from "sequelize";
-import { Sequelize } from "sequelize-typescript";
+import { drizzle } from "drizzle-orm/node-postgres";
 import { Envs } from "../envs/envs.js";
-import config from "./config/config.js";
-import type { SequelizeConfigType } from "./config/config-type.js";
-import { loadAllModels } from "./helpers/auto-load-models.js";
-import { createTestSchemaName } from "./helpers/test-schema-name.js";
+import { relations } from "./relations.js";
 
-const connectionConfig = config[Envs.NODE_ENV] as
-	| SequelizeConfigType
-	| undefined;
-
-if (!connectionConfig) {
-	throw new Error("Unable to find database configuration");
-}
-
-const { dialect, database, username, password, host, port } = connectionConfig;
-
-export const schemaName = Envs.isTestEnv ? createTestSchemaName() : undefined;
-
-async function createSequelizeConnection() {
-	const models = await loadAllModels();
-
-	const defaultModelsConfig: ModelOptions = {
-		timestamps: false,
-		schema: schemaName,
-	};
-
-	return new Sequelize({
-		dialect,
-		database,
-		username,
-		password,
-		host,
-		port,
-		models,
-		logging: Envs.isTestEnv
-			? false
-			: (msg) => {
-					console.info(msg);
-				},
-		repositoryMode: true,
-		schema: defaultModelsConfig.schema,
-		define: defaultModelsConfig,
+async function createDrizzleConnection() {
+	const connectionString = Envs.DATABASE_URL;
+	const connection = drizzle({
+		connection: { connectionString },
+		relations,
 	});
+
+	return connection;
 }
 
-export const sequelizeConnection = await createSequelizeConnection();
+export const drizzleConnection = await createDrizzleConnection();
+
+export type DrizzleConnection = typeof drizzleConnection;

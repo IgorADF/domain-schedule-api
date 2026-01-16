@@ -1,9 +1,5 @@
-import type { Transaction } from "sequelize";
-import type { Sequelize } from "sequelize-typescript";
+import type { DrizzleConnection } from "../database/connection.js";
 
 export class ClassRepository {
-	constructor(
-		protected readonly transaction: Transaction | null,
-		protected readonly sequelizeConnection: Sequelize,
-	) {}
+	constructor(protected readonly connection: DrizzleConnection) {}
 }

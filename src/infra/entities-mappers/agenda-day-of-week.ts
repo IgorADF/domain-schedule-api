@@ -2,12 +2,12 @@ import {
 	AgendaDayOfWeekSchema,
 	type AgendaDayOfWeekType,
 } from "@domain/entities/agenda-day-of-week.js";
-import type AgendaDayOfWeekModel from "../database/models/agenda-day-of-week.js";
-import type { AgendaDayOfWeekModelType } from "../database/models/agenda-day-of-week.js";
+import type {
+	InsertAgendaDayOfWeek,
+	SelectAgendaDayOfWeek,
+} from "../database/types.js";
 
-export function toModel(
-	dayOfWeek: AgendaDayOfWeekType,
-): AgendaDayOfWeekModelType {
+export function toModel(dayOfWeek: AgendaDayOfWeekType): InsertAgendaDayOfWeek {
 	return {
 		id: dayOfWeek.id,
 		agendaConfigId: dayOfWeek.agendaConfigId,
@@ -19,10 +19,8 @@ export function toModel(
 }
 
 export function toEntity(
-	_dayOfWeek: AgendaDayOfWeekModel,
+	dayOfWeek: SelectAgendaDayOfWeek,
 ): AgendaDayOfWeekType {
-	const dayOfWeek = _dayOfWeek.toJSON();
-
 	const map: AgendaDayOfWeekType = {
 		id: dayOfWeek.id,
 		agendaConfigId: dayOfWeek.agendaConfigId,

@@ -1,12 +1,12 @@
 import { ListAvailableSlotsUseCase } from "@domain/use-cases/list-available-slots.js";
 import { GenerateSlotsUseCase } from "@/domain/use-cases/generate-slots.js";
-import { SequelizeUnitOfWork } from "@/infra/repository/_uow.js";
+import { DrizzleUnitOfWork } from "@/infra/repository/_uow.js";
 import type { CreateFactoryFunction } from "./_base-type.js";
 
 export const listAvailableSlotsFactory: CreateFactoryFunction<
 	ListAvailableSlotsUseCase
 > = () => {
-	const uow = SequelizeUnitOfWork.create();
+	const uow = DrizzleUnitOfWork.create();
 
 	const generateSlotsUseCase = new GenerateSlotsUseCase();
 

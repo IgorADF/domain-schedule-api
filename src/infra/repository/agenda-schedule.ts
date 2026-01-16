@@ -1,24 +1,21 @@
 import type { AgendaScheduleType } from "@domain/entities/agenda-schedule.js";
 import type { IAgendaScheduleRepository } from "@domain/repositories/agenda-schedule.interface.js";
 import type { DayType } from "@domain/shared/value-objects/day.js";
-import * as AgendaScheduleMapper from "@infra/entities-mappers/agenda-schedule.js";
-import { Op } from "sequelize";
-import AgendaScheduleModel from "../database/models/agenda-schedule.js";
+import * as AgendaScheduleMapper from "@/infra/entities-mappers/agenda-schedule.js";
+import { agendaSchedules } from "../database/schema.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class AgendaScheduleRepository
 	extends ClassRepository
 	implements IAgendaScheduleRepository
 {
-	private sequelizeRepository =
-		this.sequelizeConnection.getRepository(AgendaScheduleModel);
-
 	async create(data: AgendaScheduleType) {
 		const modelInstance = AgendaScheduleMapper.toModel(data);
-		const schedule = await this.sequelizeRepository.create(modelInstance, {
-			transaction: this.transaction,
-		});
-		return AgendaScheduleMapper.toEntity(schedule);
+		const schedule = await this.connection
+			.insert(agendaSchedules)
+			.values(modelInstance)
+			.returning();
+		return AgendaScheduleMapper.toEntity(schedule[0]);
 	}
 
 	async getByDateRange(
@@ -29,14 +26,14 @@ export class AgendaScheduleRepository
 		const initialDateString = `${initialDate.year}-${initialDate.month.toString().padStart(2, "0")}-${initialDate.day.toString().padStart(2, "0")}`;
 		const finalDateString = `${finalDate.year}-${finalDate.month.toString().padStart(2, "0")}-${finalDate.day.toString().padStart(2, "0")}`;
 
-		const schedules = await this.sequelizeRepository.findAll({
+		const schedules = await this.connection.query.agendaSchedules.findMany({
 			where: {
-				agendaConfigId,
+				agendaConfigId: agendaConfigId,
 				day: {
-					[Op.between]: [initialDateString, finalDateString],
+					gte: initialDateString,
+					lte: finalDateString,
 				},
 			},
-			transaction: this.transaction,
 		});
 
 		return schedules.map((s) => AgendaScheduleMapper.toEntity(s));

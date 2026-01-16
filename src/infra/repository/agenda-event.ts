@@ -3,32 +3,32 @@ import type {
 	AgendaEventOrderBy,
 	IAgendaEventRepository,
 } from "@domain/repositories/agenda-event.interface.js";
-import * as AgendaEventMapper from "@infra/entities-mappers/agenda-event.js";
-import AgendaEventModel from "../database/models/agenda-event.js";
+import { count } from "drizzle-orm";
+import * as AgendaEventMapper from "@/infra/entities-mappers/agenda-event.js";
+import { agendaEvents } from "../database/schema.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class AgendaEventRepository
 	extends ClassRepository
 	implements IAgendaEventRepository
 {
-	private sequelizeRepository =
-		this.sequelizeConnection.getRepository(AgendaEventModel);
-
 	async create(data: AgendaEventType): Promise<AgendaEventType> {
 		const modelInstance = AgendaEventMapper.toModel(data);
-		const created = await this.sequelizeRepository.create(modelInstance, {
-			transaction: this.transaction,
-		});
-		return AgendaEventMapper.toEntity(created);
+		const created = await this.connection
+			.insert(agendaEvents)
+			.values(modelInstance)
+			.returning();
+		return AgendaEventMapper.toEntity(created[0]);
 	}
 
 	async bulkCreate(data: AgendaEventType[]): Promise<AgendaEventType[]> {
 		const modelInstances = data.map((event) =>
 			AgendaEventMapper.toModel(event),
 		);
-		const created = await this.sequelizeRepository.bulkCreate(modelInstances, {
-			transaction: this.transaction,
-		});
+		const created = await this.connection
+			.insert(agendaEvents)
+			.values(modelInstances)
+			.returning();
 		return created.map((event) => AgendaEventMapper.toEntity(event));
 	}
 
@@ -40,17 +40,27 @@ export class AgendaEventRepository
 	): Promise<{ items: AgendaEventType[]; total: number }> {
 		const offset = (page - 1) * pageSize;
 
-		const { rows, count } = await this.sequelizeRepository.findAndCountAll({
-			where: { agendaConfigId },
+		const orderField = orderBy.field;
+		const orderDirection = orderBy.direction === "ASC" ? "asc" : "desc";
+
+		const items = await this.connection.query.agendaEvents.findMany({
+			where: {
+				agendaConfigId,
+			},
 			limit: pageSize,
 			offset,
-			order: [[orderBy.field, orderBy.direction]],
-			transaction: this.transaction,
+			orderBy: {
+				[orderField]: orderDirection,
+			},
 		});
 
+		const totalResult = await this.connection
+			.select({ count: count() })
+			.from(agendaEvents);
+
 		return {
-			items: rows.map((event) => AgendaEventMapper.toEntity(event)),
-			total: count,
+			items: items.map((event) => AgendaEventMapper.toEntity(event)),
+			total: totalResult[0].count,
 		};
 	}
 }

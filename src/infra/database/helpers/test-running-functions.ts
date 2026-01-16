@@ -1,29 +1,29 @@
+import { execSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import { sql } from "drizzle-orm";
 import { Envs } from "@/infra/envs/envs.js";
-import { schemaName, sequelizeConnection } from "../connection.js";
-import { testSchemaPrefixName } from "./test-schema-name.js";
+import { drizzleConnection } from "../connection.js";
 
-async function dropSchema(_schemaName: string) {
-	await sequelizeConnection.dropSchema(_schemaName, {});
+const testSchemaPrefixName = "test-schema-";
+const createTestSchemaName = () => testSchemaPrefixName + randomUUID();
+
+function createTestUrl(baseDbUrl: string) {
+	const url = new URL(baseDbUrl);
+	const schemaName = createTestSchemaName();
+	url.searchParams.set("schema", schemaName);
+
+	return { url: url.toString(), schemaName };
 }
 
-export async function dropRemainingTestSchemas() {
-	const existingSchemas: unknown[] = await sequelizeConnection.showAllSchemas(
-		{},
-	);
+function getSchemaNameFromUrl(dbUrl: string) {
+	const url = new URL(dbUrl);
+	const search = url.searchParams.get("schema");
+	return search as string;
+}
 
-	for (
-		let indexSchemas = 0;
-		indexSchemas < (existingSchemas as string[]).length;
-		indexSchemas++
-	) {
-		const schemaNameToDrop = (existingSchemas as string[])[indexSchemas];
-
-		if (schemaNameToDrop.indexOf(testSchemaPrefixName) === -1) {
-			continue;
-		}
-
-		await dropSchema(schemaNameToDrop);
-	}
+async function dropSchema(schemaName: string) {
+	const statement = sql`drop schema ${schemaName} cascade`;
+	await drizzleConnection.execute(statement);
 }
 
 function valiateTestEnv() {
@@ -34,15 +34,82 @@ function valiateTestEnv() {
 	}
 }
 
+async function createSchema(schemaName: string) {
+	try {
+		const statement = sql.raw(`create schema "${schemaName}"`);
+		await drizzleConnection.execute(statement);
+	} catch (error) {
+		throw new Error(
+			`Error creating schema ${schemaName}: ${(error as Error).message}`,
+		);
+	}
+}
+
+function executeMigrationsCommansOnSchema(url: string) {
+	process.env.DATABASE_URL = url;
+
+	try {
+		execSync("npx drizzle-kit migrate", {
+			stdio: "inherit",
+			cwd: process.cwd(),
+		});
+	} catch (error) {
+		throw new Error(
+			`Error executing migrations on test database schema: ${
+				(error as Error).message
+			}`,
+		);
+	}
+
+	process.env.DATABASE_URL = Envs.DATABASE_URL;
+}
+
 export async function runInitTestDbConfigs() {
 	valiateTestEnv();
 
-	await sequelizeConnection.createSchema(schemaName as string, {});
-	await sequelizeConnection.sync({ force: true });
+	const connectionString = Envs.DATABASE_URL;
+
+	const { url: testConnectionString, schemaName } =
+		createTestUrl(connectionString);
+
+	await createSchema(schemaName);
+	executeMigrationsCommansOnSchema(testConnectionString);
+	drizzleConnection.$client.options.connectionString = testConnectionString;
 }
 
 export async function runFinalTestDbConfigs() {
 	valiateTestEnv();
 
-	await dropSchema(schemaName as string);
+	const schemaName = getSchemaNameFromUrl(
+		drizzleConnection.$client.options.connectionString as string,
+	);
+
+	await dropSchema(schemaName);
+}
+
+/*****************************/
+
+async function getAllSchemas() {
+	const schemasToIgnore = `'public', 'drizzle', 'information_schema', 'pg_catalog', 'pg_toast'`;
+	const statement = sql`select schema_name from information_schema.schemata where schema_name not in (${schemasToIgnore})`;
+	const res = await drizzleConnection.execute(statement);
+	return res.rows.map((row) => row.schema_name as string);
+}
+
+export async function dropRemainingTestSchemas() {
+	const existingSchemas = await getAllSchemas();
+
+	for (
+		let indexSchemas = 0;
+		indexSchemas < existingSchemas.length;
+		indexSchemas++
+	) {
+		const schemaNameToDrop = existingSchemas[indexSchemas];
+
+		if (schemaNameToDrop.indexOf(testSchemaPrefixName) === -1) {
+			continue;
+		}
+
+		await dropSchema(schemaNameToDrop);
+	}
 }

@@ -4,32 +4,29 @@ import {
 	type DayType,
 	dayToISOString,
 } from "@domain/shared/value-objects/day.js";
-import * as OverwriteDayMapper from "@infra/entities-mappers/overwrite-day.js";
-import { Op } from "sequelize";
-import OverwriteDayModel from "../database/models/overwrite-day.js";
+import * as OverwriteDayMapper from "@/infra/entities-mappers/overwrite-day.js";
+import { overwriteDay } from "../database/schema.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class OverwriteDayRepository
 	extends ClassRepository
 	implements IOverwriteDayRepository
 {
-	private sequelizeRepository =
-		this.sequelizeConnection.getRepository(OverwriteDayModel);
-
 	async create(data: OverwriteDayType): Promise<OverwriteDayType> {
 		const modelInstance = OverwriteDayMapper.toModel(data);
-		const overwriteDay = await this.sequelizeRepository.create(modelInstance, {
-			transaction: this.transaction,
-		});
-		return OverwriteDayMapper.toEntity(overwriteDay);
+		const created = await this.connection
+			.insert(overwriteDay)
+			.values(modelInstance)
+			.returning();
+		return OverwriteDayMapper.toEntity(created[0]);
 	}
 
 	async bulkCreate(data: OverwriteDayType[]): Promise<OverwriteDayType[]> {
 		const modelInstances = data.map((d) => OverwriteDayMapper.toModel(d));
-		const overwriteDays = await this.sequelizeRepository.bulkCreate(
-			modelInstances,
-			{ transaction: this.transaction },
-		);
+		const overwriteDays = await this.connection
+			.insert(overwriteDay)
+			.values(modelInstances)
+			.returning();
 		return overwriteDays.map((o) => OverwriteDayMapper.toEntity(o));
 	}
 
@@ -41,14 +38,14 @@ export class OverwriteDayRepository
 		const initialDateString = dayToISOString(initialDate);
 		const finalDateString = dayToISOString(finalDate);
 
-		const overwriteDays = await this.sequelizeRepository.findAll({
+		const overwriteDays = await this.connection.query.overwriteDay.findMany({
 			where: {
-				agendaConfigId,
+				agendaConfigId: agendaConfigId,
 				day: {
-					[Op.between]: [initialDateString, finalDateString],
+					gte: initialDateString,
+					lte: finalDateString,
 				},
 			},
-			transaction: this.transaction,
 		});
 
 		return overwriteDays.map((o) => OverwriteDayMapper.toEntity(o));

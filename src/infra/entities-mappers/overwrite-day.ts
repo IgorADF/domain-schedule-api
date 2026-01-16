@@ -6,10 +6,12 @@ import {
 	dayToISOString,
 	isoStringToDay,
 } from "@/domain/shared/value-objects/day.js";
-import type OverwriteDayModel from "../database/models/overwrite-day.js";
-import type { OverwriteDayModelType } from "../database/models/overwrite-day.js";
+import type {
+	InsertOverwriteDay,
+	SelectOverwriteDay,
+} from "../database/types.js";
 
-export function toModel(overwriteDay: OverwriteDayType): OverwriteDayModelType {
+export function toModel(overwriteDay: OverwriteDayType): InsertOverwriteDay {
 	const { year, month, day } = overwriteDay.day;
 
 	const dayString = dayToISOString({ year, month, day });
@@ -24,9 +26,7 @@ export function toModel(overwriteDay: OverwriteDayType): OverwriteDayModelType {
 	};
 }
 
-export function toEntity(_overwriteDay: OverwriteDayModel): OverwriteDayType {
-	const overwriteDay = _overwriteDay.toJSON();
-
+export function toEntity(overwriteDay: SelectOverwriteDay): OverwriteDayType {
 	const { year, month, day } = isoStringToDay(overwriteDay.day);
 
 	const map: OverwriteDayType = {

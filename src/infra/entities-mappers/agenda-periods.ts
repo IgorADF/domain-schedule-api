@@ -2,10 +2,12 @@ import {
 	AgendaPeriodSchema,
 	type AgendaPeriodType,
 } from "@domain/entities/agenda-periods.js";
-import type AgendaPeriodsModel from "../database/models/agenda-periods.js";
-import type { AgendaPeriodsModelType } from "../database/models/agenda-periods.js";
+import type {
+	InsertAgendaPeriods,
+	SelectAgendaPeriods,
+} from "../database/types.js";
 
-export function toModel(period: AgendaPeriodType): AgendaPeriodsModelType {
+export function toModel(period: AgendaPeriodType): InsertAgendaPeriods {
 	const startTime = `${String(period.startTime.hour).padStart(2, "0")}:${String(period.startTime.minute).padStart(2, "0")}:00`;
 	const endTime = `${String(period.endTime.hour).padStart(2, "0")}:${String(period.endTime.minute).padStart(2, "0")}:00`;
 
@@ -23,9 +25,7 @@ export function toModel(period: AgendaPeriodType): AgendaPeriodsModelType {
 	};
 }
 
-export function toEntity(_period: AgendaPeriodsModel): AgendaPeriodType {
-	const period = _period.toJSON();
-
+export function toEntity(period: SelectAgendaPeriods): AgendaPeriodType {
 	const [startHour, startMinute] = period.startTime.split(":").map(Number);
 	const [endHour, endMinute] = period.endTime.split(":").map(Number);
 

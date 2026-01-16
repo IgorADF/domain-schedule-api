@@ -1,9 +1,8 @@
 import path from "node:path";
-import { loadEnvFile } from "node:process";
+import { config } from "dotenv";
 import z from "zod";
 
 let envFilePath = "/.env";
-
 if (process.env.NODE_ENV === "production") {
 	envFilePath = "/.env.production";
 } else if (process.env.NODE_ENV === "test") {
@@ -11,8 +10,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 const fullEnvPath = path.join(process.cwd(), envFilePath);
-
-loadEnvFile(fullEnvPath);
+config({ path: fullEnvPath });
 
 export const EnvsSchema = z
 	.object({
@@ -24,11 +22,7 @@ export const EnvsSchema = z
 		API_JWT_RESET_SECRET: z.string(),
 
 		// DB
-		DB_NAME: z.string(),
-		DB_USER: z.string(),
-		DB_PASS: z.string(),
-		DB_HOST: z.string(),
-		DB_PORT: z.string().transform(Number),
+		DATABASE_URL: z.url(),
 
 		REDIS_ENABLE: z.string().transform((val) => val === "true"),
 		REDIS_HOST: z.string(),

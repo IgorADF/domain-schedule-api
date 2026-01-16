@@ -10,10 +10,12 @@ import {
 	fromFormattedTimeString,
 	toFormattedTimeString,
 } from "@/domain/shared/value-objects/time.js";
-import type AgendaScheduleModel from "../database/models/agenda-schedule.js";
-import type { AgendaScheduleModelType } from "../database/models/agenda-schedule.js";
+import type {
+	InsertAgendaSchedule,
+	SelectAgendaSchedule,
+} from "../database/types.js";
 
-export function toModel(schedule: AgendaScheduleType): AgendaScheduleModelType {
+export function toModel(schedule: AgendaScheduleType): InsertAgendaSchedule {
 	const startTime = toFormattedTimeString(schedule.startTime);
 	const endTime = toFormattedTimeString(schedule.endTime);
 
@@ -33,9 +35,7 @@ export function toModel(schedule: AgendaScheduleType): AgendaScheduleModelType {
 	};
 }
 
-export function toEntity(_schedule: AgendaScheduleModel): AgendaScheduleType {
-	const schedule = _schedule.toJSON();
-
+export function toEntity(schedule: SelectAgendaSchedule): AgendaScheduleType {
 	const { hour: startHour, minute: startMinute } = fromFormattedTimeString(
 		schedule.startTime,
 	);

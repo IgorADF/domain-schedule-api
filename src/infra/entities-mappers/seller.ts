@@ -4,10 +4,13 @@ import {
 	SellerWithPasswordSchema,
 	type SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
-import type SellerModel from "../database/models/seller.js";
-import type { SellerModelType } from "../database/models/seller.js";
+import type {
+	InsertSeller,
+	SelectSeller,
+	SelectSellerWithPassword,
+} from "../database/types.js";
 
-export function toModel(sup: SellerWithPasswordSchemaType): SellerModelType {
+export function toModel(sup: SelectSellerWithPassword): InsertSeller {
 	return {
 		id: sup.id,
 		name: sup.name,
@@ -20,8 +23,8 @@ export function toModel(sup: SellerWithPasswordSchemaType): SellerModelType {
 }
 
 export function toPartialModel(
-	sup: Partial<SellerWithPasswordSchemaType>,
-): Partial<SellerModelType> {
+	sup: Partial<SelectSellerWithPassword>,
+): Partial<InsertSeller> {
 	return {
 		id: sup.id,
 		name: sup.name,
@@ -33,9 +36,7 @@ export function toPartialModel(
 	};
 }
 
-export function toEntity(_sup: SellerModel): SellerType {
-	const sup = _sup.toJSON();
-
+export function toEntity(sup: SelectSeller): SellerType {
 	const map: SellerType = {
 		id: sup.id,
 		name: sup.name,
@@ -50,12 +51,10 @@ export function toEntity(_sup: SellerModel): SellerType {
 }
 
 export function toEntityWithPassword(
-	_sup: SellerModel,
+	sup: SelectSellerWithPassword,
 ): SellerWithPasswordSchemaType {
-	const sup = _sup.toJSON();
-
 	const map: SellerWithPasswordSchemaType = {
-		...toEntity(_sup),
+		...toEntity(sup),
 		password: sup.password,
 	};
 

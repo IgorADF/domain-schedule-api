@@ -10,5 +10,5 @@ export interface ISellerRepository {
 	getSellerByEmail(email: string): Promise<SellerType | null>;
 	getSellerById(id: string): Promise<SellerType | null>;
 	create(_: SellerType): Promise<SellerType>;
-	updateSeller(id: string, data: Partial<SellerType>): Promise<SellerType>;
+	updateSeller(id: string, data: Partial<SellerType>): Promise<void>;
 }
