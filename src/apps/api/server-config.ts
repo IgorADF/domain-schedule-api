@@ -10,6 +10,7 @@ import {
 	type ZodTypeProvider,
 } from "fastify-type-provider-zod";
 import { Envs } from "@/infra/envs/envs.js";
+import type { DbClient } from "./@types/db-client.js";
 import type { FastifyZodInstance } from "./@types/fastity-instance.js";
 import { authHandler } from "./handlers/auth/_main.js";
 import { jwtSign } from "./handlers/auth/jwt.js";
@@ -141,7 +142,7 @@ async function setSwaggerConfig(fastifyInstance: FastifyZodInstance) {
 	});
 }
 
-async function createFastifyInstance() {
+export async function createFastifyInstance(dbClient: DbClient) {
 	const fastifyInstance = Fastify({
 		logger: {
 			level: "info",
@@ -165,13 +166,7 @@ async function createFastifyInstance() {
 
 	fastifyInstance.setErrorHandler(errorHandler);
 
-	fastifyInstance.register(initRoutes);
+	fastifyInstance.register(initRoutes(dbClient));
 
 	return fastifyInstance;
-}
-
-export const fastifyInstance = await createFastifyInstance();
-
-export function logInfoOnServer(message: string) {
-	fastifyInstance.log.info(message);
 }

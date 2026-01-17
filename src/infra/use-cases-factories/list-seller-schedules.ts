@@ -1,12 +1,12 @@
 import { ListSellerSchedulesUseCase } from "@domain/use-cases/list-seller-schedules.js";
 import { GetAgendaConfigBySellerOrThrowUseCase } from "@/domain/use-cases/get-agenda-config-by-seller-or-throw.js";
-import { DrizzleUnitOfWork } from "@/infra/repository/_uow.js";
+import { PrismaUnitOfWork } from "@/infra/repositories/_uow.js";
 import type { CreateFactoryFunction } from "./_base-type.js";
 
 export const listSellerSchedulesFactory: CreateFactoryFunction<
 	ListSellerSchedulesUseCase
-> = () => {
-	const uow = DrizzleUnitOfWork.create();
+> = (dbClient) => {
+	const uow = PrismaUnitOfWork.create(dbClient);
 
 	const getAgendaConfigBySellerOrThrowUseCase =
 		new GetAgendaConfigBySellerOrThrowUseCase(uow);

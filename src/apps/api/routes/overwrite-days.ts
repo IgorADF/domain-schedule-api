@@ -1,17 +1,13 @@
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
 import { CreateOverwriteDaysSchema } from "@domain/use-cases/create-overwrite-days.js";
-import type { LogService } from "@/infra/services/log.js";
 import { createOverwriteDaysFactory } from "@/infra/use-cases-factories/create-overwrite-days.js";
 import {
 	CreateOverwriteDaysResponseSchema,
 	NoAgendaConfiguredErrorSchema,
 } from "./../schemas/responses.js";
 
-export const initOverwriteDaysRoutes: InitRoute = (
-	logger: LogService,
-	tags,
-) => {
+export const initOverwriteDaysRoutes: InitRoute = (dbClient, logger, tags) => {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.post(
 			"/",
@@ -29,7 +25,7 @@ export const initOverwriteDaysRoutes: InitRoute = (
 				onRequest: [fastify.authenticate],
 			},
 			async (request) => {
-				const { useCase } = createOverwriteDaysFactory();
+				const { useCase } = createOverwriteDaysFactory(dbClient);
 
 				const sellerId = request.authSeller.id;
 				const result = await useCase.execute({

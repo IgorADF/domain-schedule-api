@@ -1,0 +1,123 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client"
+  output          = "./generated"
+  engineType      = "client"
+  previewFeatures = ["typedSql"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EnumAgendaEventsType {
+  new_schedule
+  cancel_by_client
+  cancel_by_user
+  reschedule_by_user
+}
+
+model Seller {
+  id           String        @id @db.Uuid
+  name         String        @db.VarChar(50)
+  email        String        @unique @db.VarChar(50)
+  password     String        @db.VarChar(100)
+  creationDate DateTime      @db.Timestamp()
+  updateDate   DateTime      @db.Timestamp()
+  deleteDate   DateTime?     @db.Timestamp()
+  agendaConfig AgendaConfig?
+
+  @@map("Sellers")
+}
+
+model AgendaConfig {
+  id                       String            @id @db.Uuid
+  sellerId                 String            @unique @db.Uuid
+  maxDaysOfAdvancedNotice  Int
+  minHoursOfAdvancedNotice Int?
+  timezone                 String            @db.VarChar(50)
+  creationDate             DateTime          @db.Timestamp()
+  updateDate               DateTime          @db.Timestamp()
+  seller                   Seller            @relation(fields: [sellerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  agendaEvents             AgendaEvent[]
+  agendaDayOfWeek          AgendaDayOfWeek[]
+  overwriteDays            OverwriteDay[]
+  agendaSchedules          AgendaSchedule[]
+
+  @@map("AgendaConfigs")
+}
+
+model AgendaEvent {
+  id             String               @id @db.Uuid
+  agendaConfigId String               @db.Uuid
+  type           EnumAgendaEventsType
+  description    String               @db.VarChar(500)
+  creationDate   DateTime             @db.Timestamp()
+  updateDate     DateTime             @db.Timestamp()
+  agendaConfig   AgendaConfig         @relation(fields: [agendaConfigId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("AgendaEvents")
+}
+
+model AgendaDayOfWeek {
+  id             String         @id @db.Uuid
+  agendaConfigId String         @db.Uuid
+  dayOfWeek      Int
+  cancelAllDay   Boolean
+  creationDate   DateTime       @db.Timestamp()
+  updateDate     DateTime       @db.Timestamp()
+  agendaConfig   AgendaConfig   @relation(fields: [agendaConfigId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  agendaPeriods  AgendaPeriod[]
+
+  @@map("AgendaDayOfWeek")
+}
+
+model OverwriteDay {
+  id             String         @id @db.Uuid
+  agendaConfigId String         @db.Uuid
+  day            DateTime       @db.Date()
+  cancelAllDay   Boolean
+  creationDate   DateTime       @db.Timestamp()
+  updateDate     DateTime       @db.Timestamp()
+  agendaConfig   AgendaConfig   @relation(fields: [agendaConfigId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  agendaPeriods  AgendaPeriod[]
+
+  @@map("OverwriteDay")
+}
+
+model AgendaPeriod {
+  id                String           @id @db.Uuid
+  agendaDayOfWeekId String?          @db.Uuid
+  overwriteDayId    String?          @db.Uuid
+  startTime         String           @db.VarChar(5)
+  endTime           String           @db.VarChar(5)
+  minutesOfService  Int
+  minutesOfInterval Int?
+  order             Int
+  creationDate      DateTime         @db.Timestamp()
+  updateDate        DateTime         @db.Timestamp()
+  agendaDayOfWeek   AgendaDayOfWeek? @relation(fields: [agendaDayOfWeekId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  overwriteDay      OverwriteDay?    @relation(fields: [overwriteDayId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("AgendaPeriods")
+}
+
+model AgendaSchedule {
+  id                 String       @id @db.Uuid
+  agendaConfigId     String       @db.Uuid
+  contactName        String       @db.VarChar(100)
+  contactPhoneNumber String       @db.VarChar(20)
+  day                DateTime     @db.Date
+  startTime          String       @db.VarChar(5)
+  endTime            String       @db.VarChar(5)
+  creationDate       DateTime     @db.Timestamp()
+  updateDate         DateTime     @db.Timestamp()
+  agendaConfig       AgendaConfig @relation(fields: [agendaConfigId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("AgendaSchedules")
+}

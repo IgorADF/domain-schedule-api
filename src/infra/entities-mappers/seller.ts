@@ -5,12 +5,12 @@ import {
 	type SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
 import type {
-	InsertSeller,
-	SelectSeller,
-	SelectSellerWithPassword,
+	CreateSellerPrisma,
+	SellerPrisma,
+	SellerWithPasswordPrisma,
 } from "../database/types.js";
 
-export function toModel(sup: SelectSellerWithPassword): InsertSeller {
+export function toModel(sup: SellerWithPasswordPrisma): CreateSellerPrisma {
 	return {
 		id: sup.id,
 		name: sup.name,
@@ -23,8 +23,8 @@ export function toModel(sup: SelectSellerWithPassword): InsertSeller {
 }
 
 export function toPartialModel(
-	sup: Partial<SelectSellerWithPassword>,
-): Partial<InsertSeller> {
+	sup: Partial<SellerWithPasswordPrisma>,
+): Partial<CreateSellerPrisma> {
 	return {
 		id: sup.id,
 		name: sup.name,
@@ -36,14 +36,14 @@ export function toPartialModel(
 	};
 }
 
-export function toEntity(sup: SelectSeller): SellerType {
+export function toEntity(sup: SellerPrisma): SellerType {
 	const map: SellerType = {
 		id: sup.id,
 		name: sup.name,
 		email: sup.email,
 		creationDate: sup.creationDate,
 		updateDate: sup.updateDate,
-		deleteDate: sup.deleteDate,
+		deleteDate: sup.deleteDate ?? null,
 	};
 
 	const entity = SellerSchema.parse(map);
@@ -51,7 +51,7 @@ export function toEntity(sup: SelectSeller): SellerType {
 }
 
 export function toEntityWithPassword(
-	sup: SelectSellerWithPassword,
+	sup: SellerWithPasswordPrisma,
 ): SellerWithPasswordSchemaType {
 	const map: SellerWithPasswordSchemaType = {
 		...toEntity(sup),

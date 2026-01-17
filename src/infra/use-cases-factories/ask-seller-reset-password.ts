@@ -1,12 +1,12 @@
 import { AskSellerResetPasswordUseCase } from "@/domain/use-cases/ask-seller-reset-password.js";
-import { DrizzleUnitOfWork } from "@/infra/repository/_uow.js";
 import { QueueService } from "@/infra/services/queue.js";
+import { PrismaUnitOfWork } from "../repositories/_uow.js";
 import type { CreateFactoryFunction } from "./_base-type.js";
 
 export const askSellerResetPasswordFactory: CreateFactoryFunction<
 	AskSellerResetPasswordUseCase
-> = (logService) => {
-	const uow = DrizzleUnitOfWork.create();
+> = (dbClient, logService) => {
+	const uow = PrismaUnitOfWork.create(dbClient);
 	const queueService = QueueService.create();
 	const useCase = new AskSellerResetPasswordUseCase(
 		uow,

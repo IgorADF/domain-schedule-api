@@ -8,7 +8,7 @@ import type { ISellerRepository } from "@domain/repositories/seller.interface.js
 import type { Class } from "@/@types/class.js";
 import type { IUnitOfWork } from "@/domain/repositories/_uow.interface.js";
 import { RedisCacheService } from "@/infra/cache/redis-service.js";
-import { drizzleConnection } from "../database/connection.js";
+import type { MyPrismaClient, PrismaTransaction } from "../database/types.js";
 import { AgendaConfigsRepository } from "./agenda-configs.js";
 import { AgendaDayOfWeekRepository } from "./agenda-day-of-week.js";
 import { AgendaEventRepository } from "./agenda-event.js";
@@ -33,7 +33,14 @@ type RepositoriesToCache = {
 	[K in CacheRepositoryNames]?: true;
 };
 
-export class DrizzleUnitOfWork implements IUnitOfWork {
+export class PrismaUnitOfWork implements IUnitOfWork {
+	constructor(
+		private readonly prismaClient: MyPrismaClient,
+		private configs: { repositoriesToCache: RepositoriesToCache } = {
+			repositoriesToCache: {},
+		},
+	) {}
+
 	private _sellerRepository: ISellerRepository | null = null;
 	private _agendaPeriodsRepository: IAgendaPeriodsRepository | null = null;
 	private _agendaDayOfWeekRepository: IAgendaDayOfWeekRepository | null = null;
@@ -42,20 +49,16 @@ export class DrizzleUnitOfWork implements IUnitOfWork {
 	private _agendaScheduleRepository: IAgendaScheduleRepository | null = null;
 	private _overwriteDayRepository: IOverwriteDayRepository | null = null;
 
-	constructor(
-		private configs: { repositoriesToCache: RepositoriesToCache } = {
-			repositoriesToCache: {},
-		},
-	) {}
-
-	static create() {
-		return new DrizzleUnitOfWork();
+	static create(dbClient: MyPrismaClient) {
+		return new PrismaUnitOfWork(dbClient);
 	}
 
 	async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
-		return await drizzleConnection.transaction(async (tx) => {
-			return fn();
-		});
+		return await this.prismaClient.$transaction(
+			async (_: PrismaTransaction) => {
+				return fn();
+			},
+		);
 	}
 
 	private createAndGetRepository<T>(
@@ -69,7 +72,7 @@ export class DrizzleUnitOfWork implements IUnitOfWork {
 					(propName as string).substring(breakCharIndex) as CacheRepositoryNames
 				] ?? false;
 
-			const classInstance = new ClassDef(drizzleConnection);
+			const classInstance = new ClassDef(this.prismaClient);
 
 			if (shouldCreateCacheRep && CachedClassDef) {
 				const cacheService = RedisCacheService.createInstance();

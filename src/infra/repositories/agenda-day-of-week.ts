@@ -1,7 +1,6 @@
 import type { AgendaDayOfWeekType } from "@domain/entities/agenda-day-of-week.js";
 import type { IAgendaDayOfWeekRepository } from "@domain/repositories/agenda-day-of-week.interface.js";
 import * as AgendaDayOfWeekMapper from "@/infra/entities-mappers/agenda-day-of-week.js";
-import { agendaDayOfWeek } from "../database/schema.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class AgendaDayOfWeekRepository
@@ -10,29 +9,33 @@ export class AgendaDayOfWeekRepository
 {
 	async create(data: AgendaDayOfWeekType): Promise<AgendaDayOfWeekType> {
 		const model = AgendaDayOfWeekMapper.toModel(data);
-		const created = await this.connection
-			.insert(agendaDayOfWeek)
-			.values(model)
-			.returning();
-		return AgendaDayOfWeekMapper.toEntity(created[0]);
+		const created = await this.prismaClient.agendaDayOfWeek.create({
+			data: model,
+		});
+		return AgendaDayOfWeekMapper.toEntity(created);
 	}
 
 	async bulkCreate(
 		data: AgendaDayOfWeekType[],
 	): Promise<AgendaDayOfWeekType[]> {
 		const models = data.map((item) => AgendaDayOfWeekMapper.toModel(item));
-		const created = await this.connection
-			.insert(agendaDayOfWeek)
-			.values(models)
-			.returning();
+		await this.prismaClient.agendaDayOfWeek.createMany({
+			data: models,
+		});
+
+		// Fetch created records
+		const created = await this.prismaClient.agendaDayOfWeek.findMany({
+			where: {
+				id: { in: data.map((d) => d.id) },
+			},
+		});
+
 		return created.map((item) => AgendaDayOfWeekMapper.toEntity(item));
 	}
 
 	async getById(id: string): Promise<AgendaDayOfWeekType | null> {
-		const found = await this.connection.query.agendaDayOfWeek.findFirst({
-			where: {
-				id,
-			},
+		const found = await this.prismaClient.agendaDayOfWeek.findFirst({
+			where: { id },
 		});
 
 		if (!found) return null;
@@ -43,7 +46,7 @@ export class AgendaDayOfWeekRepository
 	async getByAgendaConfigId(
 		agendaConfigId: string,
 	): Promise<AgendaDayOfWeekType[]> {
-		const found = await this.connection.query.agendaDayOfWeek.findMany({
+		const found = await this.prismaClient.agendaDayOfWeek.findMany({
 			where: { agendaConfigId },
 		});
 

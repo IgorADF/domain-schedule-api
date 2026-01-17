@@ -3,28 +3,30 @@ import {
 	type AgendaConfigType,
 } from "@domain/entities/agenda-config.js";
 import type {
-	InsertAgendaConfigs,
-	SelectAgendaConfigs,
+	AgendaConfigsPrisma,
+	CreateAgendaConfigsPrisma,
 } from "../database/types.js";
 
-export function toModel(agendaConfig: AgendaConfigType): InsertAgendaConfigs {
+export function toModel(
+	agendaConfig: AgendaConfigType,
+): CreateAgendaConfigsPrisma {
 	return {
 		id: agendaConfig.id,
 		sellerId: agendaConfig.sellerId,
 		maxDaysOfAdvancedNotice: agendaConfig.maxDaysOfAdvancedNotice,
-		minHoursOfAdvancedNotice: agendaConfig.minHoursOfAdvancedNotice,
+		minHoursOfAdvancedNotice: agendaConfig.minHoursOfAdvancedNotice ?? null,
 		timezone: agendaConfig.timezone,
 		creationDate: agendaConfig.creationDate,
 		updateDate: agendaConfig.updateDate,
 	};
 }
 
-export function toEntity(agendaConfig: SelectAgendaConfigs): AgendaConfigType {
+export function toEntity(agendaConfig: AgendaConfigsPrisma): AgendaConfigType {
 	const map: AgendaConfigType = {
 		id: agendaConfig.id,
 		sellerId: agendaConfig.sellerId,
 		maxDaysOfAdvancedNotice: agendaConfig.maxDaysOfAdvancedNotice,
-		minHoursOfAdvancedNotice: agendaConfig.minHoursOfAdvancedNotice,
+		minHoursOfAdvancedNotice: agendaConfig.minHoursOfAdvancedNotice ?? null,
 		timezone: agendaConfig.timezone,
 		creationDate: agendaConfig.creationDate,
 		updateDate: agendaConfig.updateDate,

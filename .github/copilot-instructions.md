@@ -195,7 +195,7 @@ Cached repository decorators live in `src/infra/repository/cached/` and usually 
 Routes in `src/apps/api/routes/` follow the `InitRoute` pattern:
 
 ```typescript
-export const initEntityRoutes: InitRoute = (logger: LogService, tags) => {
+export const initEntityRoutes: InitRoute = (dbClient, logger, tags) => {
   return async (fastify: FastifyZodInstance) => {
     fastify.post(
       "/",

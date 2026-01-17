@@ -3,11 +3,13 @@ import {
 	type AgendaDayOfWeekType,
 } from "@domain/entities/agenda-day-of-week.js";
 import type {
-	InsertAgendaDayOfWeek,
-	SelectAgendaDayOfWeek,
+	AgendaDayOfWeekPrisma,
+	CreateAgendaDayOfWeekPrisma,
 } from "../database/types.js";
 
-export function toModel(dayOfWeek: AgendaDayOfWeekType): InsertAgendaDayOfWeek {
+export function toModel(
+	dayOfWeek: AgendaDayOfWeekType,
+): CreateAgendaDayOfWeekPrisma {
 	return {
 		id: dayOfWeek.id,
 		agendaConfigId: dayOfWeek.agendaConfigId,
@@ -19,7 +21,7 @@ export function toModel(dayOfWeek: AgendaDayOfWeekType): InsertAgendaDayOfWeek {
 }
 
 export function toEntity(
-	dayOfWeek: SelectAgendaDayOfWeek,
+	dayOfWeek: AgendaDayOfWeekPrisma,
 ): AgendaDayOfWeekType {
 	const map: AgendaDayOfWeekType = {
 		id: dayOfWeek.id,

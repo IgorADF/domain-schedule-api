@@ -4,11 +4,10 @@ import { AuthSellerSchema } from "@domain/use-cases/auth-seller.js";
 import { CreateSellerSchema } from "@domain/use-cases/create-seller.js";
 import { AskSellerResetPasswordSchema } from "@/domain/use-cases/ask-seller-reset-password.js";
 import { Envs } from "@/infra/envs/envs.js";
-import type { LogService } from "@/infra/services/log.js";
 import { askSellerResetPasswordFactory } from "@/infra/use-cases-factories/ask-seller-reset-password.js";
 import { authSellerFactory } from "@/infra/use-cases-factories/auth-seller.js";
 import { createSellerFactory } from "@/infra/use-cases-factories/create-seller.js";
-import { updateSellerFactory } from "@/infra/use-cases-factories/update-seller.js";
+// import { updateSellerFactory } from "@/infra/use-cases-factories/update-seller.js";
 import { jwtSign } from "../handlers/auth/jwt.js";
 import {
 	CreateSellerResponseSchema,
@@ -16,7 +15,7 @@ import {
 	DefaultSuccessSchema,
 } from "./../schemas/responses.js";
 
-export const initSellerRoutes: InitRoute = (logger: LogService, tags) => {
+export const initSellerRoutes: InitRoute = (dbClient, logger, tags) => {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.post(
 			"/auth",
@@ -35,7 +34,7 @@ export const initSellerRoutes: InitRoute = (logger: LogService, tags) => {
 				},
 			},
 			async (request, reply) => {
-				const { useCase } = authSellerFactory(logger);
+				const { useCase } = authSellerFactory(dbClient, logger);
 				const result = await useCase.execute(request.body);
 
 				fastify.setSignTokensToReply(reply, {
@@ -98,7 +97,7 @@ export const initSellerRoutes: InitRoute = (logger: LogService, tags) => {
 				},
 			},
 			async (request) => {
-				const { useCase } = askSellerResetPasswordFactory(logger);
+				const { useCase } = askSellerResetPasswordFactory(dbClient, logger);
 
 				const jwtFunction = (payload: { id: string; email: string }) => {
 					return jwtSign(payload, Envs.API_JWT_RESET_SECRET, {
@@ -128,7 +127,7 @@ export const initSellerRoutes: InitRoute = (logger: LogService, tags) => {
 				},
 			},
 			async (request) => {
-				const { useCase } = createSellerFactory();
+				const { useCase } = createSellerFactory(dbClient);
 				const result = await useCase.execute(request.body);
 				return { data: result.data };
 			},

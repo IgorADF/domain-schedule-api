@@ -1,23 +1,30 @@
-import type * as schema from "./schema.js";
+import type {
+	PrismaClient as _PrismaClient,
+	Prisma,
+} from "./generated/client.js";
+import type { TransactionClient } from "./generated/internal/prismaNamespace.js";
 
-export type SelectSellerWithPassword = typeof schema.sellers.$inferSelect;
-export type SelectSeller = Omit<SelectSellerWithPassword, "password">;
-export type InsertSeller = typeof schema.sellers.$inferInsert;
+export type MyPrismaClient = _PrismaClient;
+export type PrismaTransaction = TransactionClient;
 
-export type SelectAgendaConfigs = typeof schema.agendaConfigs.$inferSelect;
-export type InsertAgendaConfigs = typeof schema.agendaConfigs.$inferInsert;
+export type SellerWithPasswordPrisma = Prisma.SellerGetPayload<object>;
+export type SellerPrisma = Omit<SellerWithPasswordPrisma, "password">;
+export type CreateSellerPrisma = Prisma.SellerCreateInput;
 
-export type SelectAgendaDayOfWeek = typeof schema.agendaDayOfWeek.$inferSelect;
-export type InsertAgendaDayOfWeek = typeof schema.agendaDayOfWeek.$inferInsert;
+export type AgendaConfigsPrisma = Prisma.AgendaConfigGetPayload<object>;
+export type CreateAgendaConfigsPrisma = Prisma.AgendaConfigCreateManyInput;
 
-export type SelectAgendaPeriods = typeof schema.agendaPeriods.$inferSelect;
-export type InsertAgendaPeriods = typeof schema.agendaPeriods.$inferInsert;
+export type AgendaDayOfWeekPrisma = Prisma.AgendaDayOfWeekGetPayload<object>;
+export type CreateAgendaDayOfWeekPrisma = Prisma.AgendaDayOfWeekCreateManyInput;
 
-export type SelectAgendaEvent = typeof schema.agendaEvents.$inferSelect;
-export type InsertAgendaEvent = typeof schema.agendaEvents.$inferInsert;
+export type AgendaPeriodsPrisma = Prisma.AgendaPeriodGetPayload<object>;
+export type CreateAgendaPeriodsPrisma = Prisma.AgendaPeriodCreateManyInput;
 
-export type SelectAgendaSchedule = typeof schema.agendaSchedules.$inferSelect;
-export type InsertAgendaSchedule = typeof schema.agendaSchedules.$inferInsert;
+export type AgendaEventPrisma = Prisma.AgendaEventGetPayload<object>;
+export type CreateAgendaEventPrisma = Prisma.AgendaEventCreateManyInput;
 
-export type SelectOverwriteDay = typeof schema.overwriteDay.$inferSelect;
-export type InsertOverwriteDay = typeof schema.overwriteDay.$inferInsert;
+export type AgendaSchedulePrisma = Prisma.AgendaScheduleGetPayload<object>;
+export type CreateAgendaSchedulePrisma = Prisma.AgendaScheduleCreateManyInput;
+
+export type OverwriteDayPrisma = Prisma.OverwriteDayGetPayload<object>;
+export type CreateOverwriteDayPrisma = Prisma.OverwriteDayCreateManyInput;

@@ -2,32 +2,29 @@ import {
 	OverwriteDaySchema,
 	type OverwriteDayType,
 } from "@domain/entities/overwrite-day.js";
-import {
-	dayToISOString,
-	isoStringToDay,
-} from "@/domain/shared/value-objects/day.js";
+import { getDayFromDate, toJSDate } from "@/domain/shared/value-objects/day.js";
 import type {
-	InsertOverwriteDay,
-	SelectOverwriteDay,
+	CreateOverwriteDayPrisma,
+	OverwriteDayPrisma,
 } from "../database/types.js";
 
-export function toModel(overwriteDay: OverwriteDayType): InsertOverwriteDay {
-	const { year, month, day } = overwriteDay.day;
-
-	const dayString = dayToISOString({ year, month, day });
+export function toModel(
+	overwriteDay: OverwriteDayType,
+): CreateOverwriteDayPrisma {
+	const dayDate = toJSDate(overwriteDay.day);
 
 	return {
 		id: overwriteDay.id,
 		agendaConfigId: overwriteDay.agendaConfigId,
-		day: dayString,
+		day: dayDate,
 		cancelAllDay: overwriteDay.cancelAllDay,
 		creationDate: overwriteDay.creationDate,
 		updateDate: overwriteDay.updateDate,
 	};
 }
 
-export function toEntity(overwriteDay: SelectOverwriteDay): OverwriteDayType {
-	const { year, month, day } = isoStringToDay(overwriteDay.day);
+export function toEntity(overwriteDay: OverwriteDayPrisma): OverwriteDayType {
+	const { year, month, day } = getDayFromDate(overwriteDay.day);
 
 	const map: OverwriteDayType = {
 		id: overwriteDay.id,

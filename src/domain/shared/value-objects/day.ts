@@ -9,16 +9,19 @@ export const DayObj = z.object({
 export type DayType = z.infer<typeof DayObj>;
 
 /**
- * Convert DayObj to ISO date string (YYYY-MM-DD).
+ * Convert DayObj to JS Date object.
  */
-export function dayToISOString(day: DayType): string {
-	return `${day.year}-${day.month.toString().padStart(2, "0")}-${day.day.toString().padStart(2, "0")}`;
+export function toJSDate(day: DayType): Date {
+	return new Date(day.year, day.month - 1, day.day);
 }
 
 /**
  * Convert ISO date string (YYYY-MM-DD) to DayObj.
  */
-export function isoStringToDay(isoString: string): DayType {
-	const [year, month, day] = isoString.split("-").map(Number);
-	return { year, month, day };
+export function getDayFromDate(date: Date): DayType {
+	return {
+		year: date.getFullYear(),
+		month: date.getMonth() + 1,
+		day: date.getDate(),
+	};
 }

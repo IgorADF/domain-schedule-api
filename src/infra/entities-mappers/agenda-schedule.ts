@@ -2,32 +2,29 @@ import {
 	AgendaScheduleSchema,
 	type AgendaScheduleType,
 } from "@domain/entities/agenda-schedule.js";
-import {
-	dayToISOString,
-	isoStringToDay,
-} from "@/domain/shared/value-objects/day.js";
+import { getDayFromDate, toJSDate } from "@/domain/shared/value-objects/day.js";
 import {
 	fromFormattedTimeString,
 	toFormattedTimeString,
 } from "@/domain/shared/value-objects/time.js";
 import type {
-	InsertAgendaSchedule,
-	SelectAgendaSchedule,
+	AgendaSchedulePrisma,
+	CreateAgendaSchedulePrisma,
 } from "../database/types.js";
 
-export function toModel(schedule: AgendaScheduleType): InsertAgendaSchedule {
+export function toModel(
+	schedule: AgendaScheduleType,
+): CreateAgendaSchedulePrisma {
 	const startTime = toFormattedTimeString(schedule.startTime);
 	const endTime = toFormattedTimeString(schedule.endTime);
-
-	const { year, month, day } = schedule.day;
-	const dayString = dayToISOString({ year, month, day });
+	const dayDate = toJSDate(schedule.day);
 
 	return {
 		id: schedule.id,
 		agendaConfigId: schedule.agendaConfigId,
 		contactName: schedule.contactName,
 		contactPhoneNumber: schedule.contactPhoneNumber,
-		day: dayString,
+		day: dayDate,
 		startTime,
 		endTime,
 		creationDate: schedule.creationDate,
@@ -35,7 +32,7 @@ export function toModel(schedule: AgendaScheduleType): InsertAgendaSchedule {
 	};
 }
 
-export function toEntity(schedule: SelectAgendaSchedule): AgendaScheduleType {
+export function toEntity(schedule: AgendaSchedulePrisma): AgendaScheduleType {
 	const { hour: startHour, minute: startMinute } = fromFormattedTimeString(
 		schedule.startTime,
 	);
@@ -43,7 +40,7 @@ export function toEntity(schedule: SelectAgendaSchedule): AgendaScheduleType {
 		schedule.endTime,
 	);
 
-	const { year, month, day } = isoStringToDay(schedule.day);
+	const { year, month, day } = getDayFromDate(schedule.day);
 
 	const map: AgendaScheduleType = {
 		id: schedule.id,

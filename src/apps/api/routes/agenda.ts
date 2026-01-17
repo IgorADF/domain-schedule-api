@@ -2,7 +2,6 @@ import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
 import { CreateCompleteAgendaSchema } from "@domain/use-cases/create-complete-agenda.js";
 import { ListAvailableSlotsSchema } from "@domain/use-cases/list-available-slots.js";
-import type { LogService } from "@/infra/services/log.js";
 import { createCompleteAgendaFactory } from "@/infra/use-cases-factories/create-complete-agenda.js";
 import { listAgendaConfigFactory } from "@/infra/use-cases-factories/list-agenda-config.js";
 import { listAvailableSlotsFactory } from "@/infra/use-cases-factories/list-available-slots.js";
@@ -14,7 +13,7 @@ import {
 	PostAgendaResponseSchema,
 } from "./../schemas/responses.js";
 
-export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
+export const initAgendaRoutes: InitRoute = (dbClient, logger, tags) => {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.get(
 			"/",
@@ -32,7 +31,7 @@ export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
 				onRequest: [fastify.authenticate],
 			},
 			async (request) => {
-				const { useCase } = listAgendaConfigFactory();
+				const { useCase } = listAgendaConfigFactory(dbClient);
 
 				const sellerId = request.authSeller.id;
 				const result = await useCase.execute(sellerId);
@@ -56,7 +55,7 @@ export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
 				},
 			},
 			async (request) => {
-				const { useCase } = listAvailableSlotsFactory();
+				const { useCase } = listAvailableSlotsFactory(dbClient);
 
 				const result = await useCase.execute({
 					agendaConfigId: request.query.agendaConfigId,
@@ -87,7 +86,7 @@ export const initAgendaRoutes: InitRoute = (logger: LogService, tags) => {
 				onRequest: [fastify.authenticate],
 			},
 			async (request) => {
-				const { useCase } = createCompleteAgendaFactory();
+				const { useCase } = createCompleteAgendaFactory(dbClient);
 
 				const sellerId = request.authSeller.id;
 				const { data } = await useCase.execute({ ...request.body, sellerId });

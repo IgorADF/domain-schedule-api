@@ -1,7 +1,6 @@
 import type { AgendaPeriodType } from "@domain/entities/agenda-periods.js";
 import type { IAgendaPeriodsRepository } from "@domain/repositories/agenda-periods.interface.js";
 import * as AgendaPeriodsMapper from "@/infra/entities-mappers/agenda-periods.js";
-import { agendaPeriods } from "../database/schema.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class AgendaPeriodsRepository
@@ -12,10 +11,17 @@ export class AgendaPeriodsRepository
 		const modelInstances = data.map((period) =>
 			AgendaPeriodsMapper.toModel(period),
 		);
-		const periods = await this.connection
-			.insert(agendaPeriods)
-			.values(modelInstances)
-			.returning();
+		await this.prismaClient.agendaPeriod.createMany({
+			data: modelInstances,
+		});
+
+		// Fetch created records
+		const periods = await this.prismaClient.agendaPeriod.findMany({
+			where: {
+				id: { in: data.map((d) => d.id) },
+			},
+		});
+
 		return periods.map((period) => AgendaPeriodsMapper.toEntity(period));
 	}
 
@@ -24,7 +30,7 @@ export class AgendaPeriodsRepository
 			return [];
 		}
 
-		const periods = await this.connection.query.agendaPeriods.findMany({
+		const periods = await this.prismaClient.agendaPeriod.findMany({
 			where: {
 				agendaDayOfWeekId: { in: agendaDayOfWeekIds },
 			},
@@ -38,7 +44,7 @@ export class AgendaPeriodsRepository
 			return [];
 		}
 
-		const periods = await this.connection.query.agendaPeriods.findMany({
+		const periods = await this.prismaClient.agendaPeriod.findMany({
 			where: {
 				overwriteDayId: { in: overwriteDayIds },
 			},

@@ -2,7 +2,6 @@ import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
 import { CreateAgendaScheduleSchema } from "@domain/use-cases/create-agenda-schedule.js";
 import { ListSellerSchedulesSchema } from "@domain/use-cases/list-seller-schedules.js";
-import type { LogService } from "@/infra/services/log.js";
 import { createAgendaScheduleFactory } from "@/infra/use-cases-factories/create-agenda-schedule.js";
 import { listSellerSchedulesFactory } from "@/infra/use-cases-factories/list-seller-schedules.js";
 import {
@@ -12,10 +11,7 @@ import {
 	NoAgendaConfiguredErrorSchema,
 } from "./../schemas/responses.js";
 
-export const initAgendaScheduleRoutes: InitRoute = (
-	logger: LogService,
-	tags,
-) => {
+export const initAgendaScheduleRoutes: InitRoute = (dbClient, logger, tags) => {
 	return async (fastify: FastifyZodInstance) => {
 		fastify.get(
 			"/",
@@ -34,7 +30,7 @@ export const initAgendaScheduleRoutes: InitRoute = (
 				onRequest: [fastify.authenticate],
 			},
 			async (request) => {
-				const { useCase } = listSellerSchedulesFactory();
+				const { useCase } = listSellerSchedulesFactory(dbClient);
 
 				const sellerId = request.authSeller.id;
 				const result = await useCase.execute({
@@ -68,7 +64,7 @@ export const initAgendaScheduleRoutes: InitRoute = (
 				},
 			},
 			async (request) => {
-				const { useCase } = createAgendaScheduleFactory();
+				const { useCase } = createAgendaScheduleFactory(dbClient);
 				const { data } = await useCase.execute(request.body);
 
 				return { data };

@@ -1,8 +1,7 @@
 import type { AgendaScheduleType } from "@domain/entities/agenda-schedule.js";
 import type { IAgendaScheduleRepository } from "@domain/repositories/agenda-schedule.interface.js";
-import type { DayType } from "@domain/shared/value-objects/day.js";
+import { type DayType, toJSDate } from "@domain/shared/value-objects/day.js";
 import * as AgendaScheduleMapper from "@/infra/entities-mappers/agenda-schedule.js";
-import { agendaSchedules } from "../database/schema.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class AgendaScheduleRepository
@@ -11,11 +10,10 @@ export class AgendaScheduleRepository
 {
 	async create(data: AgendaScheduleType) {
 		const modelInstance = AgendaScheduleMapper.toModel(data);
-		const schedule = await this.connection
-			.insert(agendaSchedules)
-			.values(modelInstance)
-			.returning();
-		return AgendaScheduleMapper.toEntity(schedule[0]);
+		const schedule = await this.prismaClient.agendaSchedule.create({
+			data: modelInstance,
+		});
+		return AgendaScheduleMapper.toEntity(schedule);
 	}
 
 	async getByDateRange(
@@ -23,15 +21,15 @@ export class AgendaScheduleRepository
 		initialDate: DayType,
 		finalDate: DayType,
 	): Promise<AgendaScheduleType[]> {
-		const initialDateString = `${initialDate.year}-${initialDate.month.toString().padStart(2, "0")}-${initialDate.day.toString().padStart(2, "0")}`;
-		const finalDateString = `${finalDate.year}-${finalDate.month.toString().padStart(2, "0")}-${finalDate.day.toString().padStart(2, "0")}`;
+		const initialDateDate = toJSDate(initialDate);
+		const finalDateDate = toJSDate(finalDate);
 
-		const schedules = await this.connection.query.agendaSchedules.findMany({
+		const schedules = await this.prismaClient.agendaSchedule.findMany({
 			where: {
 				agendaConfigId: agendaConfigId,
 				day: {
-					gte: initialDateString,
-					lte: finalDateString,
+					gte: initialDateDate,
+					lte: finalDateDate,
 				},
 			},
 		});
