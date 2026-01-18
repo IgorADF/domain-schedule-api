@@ -40,7 +40,7 @@ export class CreateOverwriteDaysUseCase {
 
 	async execute(
 		input: CreateOverwriteDaysInput,
-	): Promise<{ data: OverwriteDayType[] }> {
+	): Promise<{ overwriteDays: OverwriteDayType[] }> {
 		const agendaConfig = await this.uow.agendaConfigsRepository.getBySellerId(
 			input.sellerId,
 		);
@@ -97,6 +97,6 @@ export class CreateOverwriteDaysUseCase {
 			return createdOverwriteDays;
 		});
 
-		return { data: createdOverwriteDays };
+		return { overwriteDays: createdOverwriteDays };
 	}
 }

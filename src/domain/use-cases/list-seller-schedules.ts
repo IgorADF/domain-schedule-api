@@ -31,10 +31,8 @@ export class ListSellerSchedulesUseCase {
 		sellerId,
 		initialDate: initialDateString,
 		finalDate: finalDateString,
-	}: ListSellerSchedulesType): Promise<{
-		data: ListSellerSchedulesResponseType;
-	}> {
-		const agendaConfig =
+	}: ListSellerSchedulesType): Promise<ListSellerSchedulesResponseType> {
+		const { agendaConfig } =
 			await this.getAgendaConfigBySellerOrThrowUseCase.executeThrowIfNotFound(
 				sellerId,
 			);
@@ -51,9 +49,7 @@ export class ListSellerSchedulesUseCase {
 		const groupedSchedules = this.groupSchedulesByDate(schedules);
 
 		return {
-			data: {
-				groupedSchedules,
-			},
+			groupedSchedules,
 		};
 	}
 

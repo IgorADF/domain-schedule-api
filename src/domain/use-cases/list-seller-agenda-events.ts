@@ -29,8 +29,8 @@ export class ListSellerAgendaEventsUseCase {
 
 	async execute(
 		input: ListSellerAgendaEventsInput,
-	): Promise<{ data: ListSellerAgendaEventsResponse }> {
-		const agendaConfig =
+	): Promise<ListSellerAgendaEventsResponse> {
+		const { agendaConfig } =
 			await this.getAgendaConfigBySellerOrThrowUseCase.executeThrowIfNotFound(
 				input.sellerId,
 			);
@@ -44,13 +44,11 @@ export class ListSellerAgendaEventsUseCase {
 			);
 
 		return {
-			data: {
-				items,
-				total,
-				page: input.page,
-				pageSize: input.pageSize,
-				totalPages: Math.ceil(total / input.pageSize),
-			},
+			items,
+			total,
+			page: input.page,
+			pageSize: input.pageSize,
+			totalPages: Math.ceil(total / input.pageSize),
 		};
 	}
 }

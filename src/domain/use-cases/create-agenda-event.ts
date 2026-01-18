@@ -24,8 +24,8 @@ export class CreateAgendaEventUseCase {
 
 	async execute(
 		input: CreateAgendaEventInput,
-	): Promise<{ data: AgendaEventType }> {
-		const agendaConfig =
+	): Promise<{ agendaEvent: AgendaEventType }> {
+		const { agendaConfig } =
 			await this.getAgendaConfigBySellerOrThrowUseCase.executeThrowIfNotFound(
 				input.sellerId,
 			);
@@ -42,6 +42,6 @@ export class CreateAgendaEventUseCase {
 			return await this.uow.agendaEventRepository.create(parsedAgendaEvent);
 		});
 
-		return { data: createdAgendaEvent };
+		return { agendaEvent: createdAgendaEvent };
 	}
 }

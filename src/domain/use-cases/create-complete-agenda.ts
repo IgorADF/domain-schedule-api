@@ -79,7 +79,7 @@ export class CreateCompleteAgendaUseCase {
 				sellerId,
 			);
 
-			const { data: createdConfig } = await this.createAgendaConfig(
+			const { agendaConfig: createdConfig } = await this.createAgendaConfig(
 				agendaConfig,
 				sellerId,
 			);
@@ -89,13 +89,13 @@ export class CreateCompleteAgendaUseCase {
 			return createdConfig;
 		});
 
-		return { data: createdConfig };
+		return { agendaConfig: createdConfig };
 	}
 
 	private async createAgendaConfig(
 		input: _AgendaConfigType,
 		sellerId: string,
-	): Promise<{ data: AgendaConfigType }> {
+	): Promise<{ agendaConfig: AgendaConfigType }> {
 		const useCaseData = {
 			sellerId: sellerId,
 			...input,
@@ -103,7 +103,10 @@ export class CreateCompleteAgendaUseCase {
 
 		const parsedUseCaseData = CreateAgendaConfigSchema.parse(useCaseData);
 
-		return await this.createAgendaConfigUseCase.execute(parsedUseCaseData);
+		const { agendaConfig } =
+			await this.createAgendaConfigUseCase.execute(parsedUseCaseData);
+
+		return { agendaConfig };
 	}
 
 	private async createDaysOfWeek(
@@ -123,7 +126,7 @@ export class CreateCompleteAgendaUseCase {
 			const parsedDayOfWeekToCreate =
 				CreateAgendaDayOfWeekSchema.parse(dayOfWeekToCreate);
 
-			const { data: createdDayOfWeek } =
+			const { dayOfWeek: createdDayOfWeek } =
 				await this.createAgendaDayOfWeekUseCase.execute(
 					parsedDayOfWeekToCreate,
 					false,
@@ -167,6 +170,6 @@ export class CreateCompleteAgendaUseCase {
 			false,
 		);
 
-		return createdPeriods.data;
+		return createdPeriods.periods;
 	}
 }

@@ -33,13 +33,13 @@ export const initAgendaScheduleRoutes: InitRoute = (dbClient, logger, tags) => {
 				const { useCase } = listSellerSchedulesFactory(dbClient);
 
 				const sellerId = request.authSeller.id;
-				const result = await useCase.execute({
+				const { groupedSchedules } = await useCase.execute({
 					sellerId,
 					initialDate: request.query.initialDate,
 					finalDate: request.query.finalDate,
 				});
 
-				return { data: result.data };
+				return { data: { groupedSchedules } };
 			},
 		);
 
@@ -64,9 +64,8 @@ export const initAgendaScheduleRoutes: InitRoute = (dbClient, logger, tags) => {
 			},
 			async (request) => {
 				const { useCase } = createAgendaScheduleFactory(dbClient);
-				const { data } = await useCase.execute(request.body);
-
-				return { data };
+				const { schedule } = await useCase.execute(request.body);
+				return { data: schedule };
 			},
 		);
 	};

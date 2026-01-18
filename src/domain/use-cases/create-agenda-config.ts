@@ -19,7 +19,7 @@ export class CreateAgendaConfigUseCase {
 	constructor(private readonly uow: IUnitOfWork) {}
 
 	async execute(input: CreateAgendaConfigType): Promise<{
-		data: AgendaConfigType;
+		agendaConfig: AgendaConfigType;
 	}> {
 		const agendaConfig = createEntity<AgendaConfigType>({
 			...input,
@@ -31,7 +31,7 @@ export class CreateAgendaConfigUseCase {
 			await this.uow.agendaConfigsRepository.create(parsedConfig);
 
 		return {
-			data: createdConfig,
+			agendaConfig: createdConfig,
 		};
 	}
 }

@@ -27,7 +27,7 @@ export class CreateSellerUseCase {
 		private readonly passwordService: IHashPasswordService,
 	) {}
 
-	async execute(input: CreateSellerType): Promise<{ data: SellerType }> {
+	async execute(input: CreateSellerType): Promise<{ seller: SellerType }> {
 		const existingSeller = await this.uow.sellerRepository.getSellerByEmail(
 			input.email,
 		);
@@ -42,7 +42,7 @@ export class CreateSellerUseCase {
 			return await this.uow.sellerRepository.create(formattedNewSeller);
 		});
 
-		return { data: newSeller };
+		return { seller: newSeller };
 	}
 
 	formatNewSeller(newSeller: CreateSellerType): SellerWithPasswordSchemaType {

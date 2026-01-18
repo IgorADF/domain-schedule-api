@@ -24,10 +24,10 @@ export class ListAgendaConfigUseCase {
 		private readonly getAgendaConfigBySellerOrThrowUseCase: GetAgendaConfigBySellerOrThrowUseCase,
 	) {}
 
-	async execute(sellerId: ListAgendaConfigType): Promise<{
-		data: ListAgendaConfigResponseType;
-	}> {
-		const agendaConfig =
+	async execute(
+		sellerId: ListAgendaConfigType,
+	): Promise<ListAgendaConfigResponseType> {
+		const { agendaConfig } =
 			await this.getAgendaConfigBySellerOrThrowUseCase.executeThrowIfNotFound(
 				sellerId,
 			);
@@ -56,10 +56,8 @@ export class ListAgendaConfigUseCase {
 		});
 
 		return {
-			data: {
-				agendaConfig,
-				agendaDaysOfWeek: agendaDaysOfWeekWithPeriods,
-			},
+			agendaConfig,
+			agendaDaysOfWeek: agendaDaysOfWeekWithPeriods,
 		};
 	}
 }

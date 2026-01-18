@@ -13,7 +13,7 @@ export const ListAvailableSlotsSchema = z.object({
 export type ListAvailableSlotsInput = z.infer<typeof ListAvailableSlotsSchema>;
 
 export type AvailableSlotsOutput = {
-	data: DaySlots[];
+	slots: DaySlots[];
 };
 
 export class ListAvailableSlotsUseCase {
@@ -27,43 +27,36 @@ export class ListAvailableSlotsUseCase {
 		initialDate: initialDateString,
 		finalDate: finalDateString,
 	}: ListAvailableSlotsInput): Promise<AvailableSlotsOutput> {
-		const initialDate = parseDateString(initialDateString);
-		const finalDate = parseDateString(finalDateString);
+		const agendaConfigContext =
+			await this.uow.agendaConfigsRepository.getFullContext({
+				id: agendaConfigId,
+			});
 
-		const agendaConfig =
-			await this.uow.agendaConfigsRepository.getById(agendaConfigId);
-
-		if (!agendaConfig) {
+		if (!agendaConfigContext) {
 			throw new EntityNotFound();
 		}
 
-		const daysOfWeek =
-			await this.uow.agendaDayOfWeekRepository.getByAgendaConfigId(
-				agendaConfig.id,
-			);
+		const {
+			data: agendaConfig,
+			daysOfWeekContext,
+			overwriteDaysContext,
+		} = agendaConfigContext;
+
+		const { data: daysOfWeek, periods } = daysOfWeekContext;
 
 		if (daysOfWeek.length === 0) {
-			return { data: [] };
+			return { slots: [] };
 		}
 
-		const dayOfWeekIds = daysOfWeek.map((d) => d.id);
-		const periods =
-			await this.uow.agendaPeriodsRepository.getByAgendaDayOfWeekIds(
-				dayOfWeekIds,
-			);
+		const { data: overwriteDays, periods: overwritePeriods } =
+			overwriteDaysContext;
 
-		const { overwriteDays, overwritePeriods } =
-			await this.generateSlotsUseCase.fetchOverwriteContext(
-				this.uow,
-				agendaConfig.id,
-				initialDate,
-				finalDate,
-			);
-
-		// No slots available if there are no regular periods and no overwrite periods
 		if (periods.length === 0 && overwritePeriods.length === 0) {
-			return { data: [] };
+			return { slots: [] };
 		}
+
+		const initialDate = parseDateString(initialDateString);
+		const finalDate = parseDateString(finalDateString);
 
 		const existingSchedules =
 			await this.uow.agendaScheduleRepository.getByDateRange(
@@ -98,6 +91,6 @@ export class ListAvailableSlotsUseCase {
 			finalDate,
 		);
 
-		return { data: groupedSlots };
+		return { slots: groupedSlots };
 	}
 }

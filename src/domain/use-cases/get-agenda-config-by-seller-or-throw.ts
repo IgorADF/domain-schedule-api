@@ -6,7 +6,9 @@ import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 export class GetAgendaConfigBySellerOrThrowUseCase {
 	constructor(private readonly uow: IUnitOfWork) {}
 
-	async executeThrowIfNotFound(sellerId: string): Promise<AgendaConfigType> {
+	async executeThrowIfNotFound(
+		sellerId: string,
+	): Promise<{ agendaConfig: AgendaConfigType }> {
 		const agendaConfig =
 			await this.uow.agendaConfigsRepository.getBySellerId(sellerId);
 
@@ -14,7 +16,7 @@ export class GetAgendaConfigBySellerOrThrowUseCase {
 			throw new EntityNotFound();
 		}
 
-		return agendaConfig;
+		return { agendaConfig };
 	}
 
 	async executeThrowIfFound(sellerId: string) {
@@ -24,5 +26,7 @@ export class GetAgendaConfigBySellerOrThrowUseCase {
 		if (agendaConfig) {
 			throw new EntityAlreadyExist();
 		}
+
+		return { agendaConfig };
 	}
 }

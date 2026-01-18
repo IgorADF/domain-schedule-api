@@ -22,7 +22,7 @@ export class CreateAgendaDayOfWeekUseCase {
 	async execute(
 		input: CreateAgendaDayOfWeekType,
 		persistData: boolean = true,
-	): Promise<{ data: AgendaDayOfWeekType }> {
+	): Promise<{ dayOfWeek: AgendaDayOfWeekType }> {
 		const agendaDayOfWeek = createEntity<AgendaDayOfWeekType>({
 			...input,
 		});
@@ -33,7 +33,7 @@ export class CreateAgendaDayOfWeekUseCase {
 			await CreateAgendaDayOfWeekUseCase.persist(parsedDayOfWeek, this.uow);
 		}
 
-		return { data: parsedDayOfWeek };
+		return { dayOfWeek: parsedDayOfWeek };
 	}
 
 	static async persist(data: AgendaDayOfWeekType, uow: IUnitOfWork) {

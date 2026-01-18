@@ -22,5 +22,13 @@
       "@queue/*": ["./src/apps/queue/*"]
     }
   },
-  "exclude": ["src/**/*.js", "src/**/*.cjs"]
+  "exclude": [
+    "src/**/*.js",
+    "src/**/*.cjs",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/**/tests/**",
+    "node_modules",
+    "dist"
+  ]
 }

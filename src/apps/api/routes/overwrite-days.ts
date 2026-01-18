@@ -28,12 +28,12 @@ export const initOverwriteDaysRoutes: InitRoute = (dbClient, logger, tags) => {
 				const { useCase } = createOverwriteDaysFactory(dbClient);
 
 				const sellerId = request.authSeller.id;
-				const result = await useCase.execute({
+				const { overwriteDays } = await useCase.execute({
 					...request.body,
 					sellerId,
 				});
 
-				return result;
+				return { data: overwriteDays };
 			},
 		);
 	};

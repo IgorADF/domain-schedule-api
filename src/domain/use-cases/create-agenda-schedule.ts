@@ -34,7 +34,7 @@ export class CreateAgendaScheduleUseCase {
 
 	async execute(
 		input: CreateAgendaScheduleType,
-	): Promise<{ data: AgendaScheduleType }> {
+	): Promise<{ schedule: AgendaScheduleType }> {
 		await this.validateSlotAvailability(input);
 
 		const agendaSchedule = createEntity<AgendaScheduleType>({
@@ -47,7 +47,7 @@ export class CreateAgendaScheduleUseCase {
 			return await this.uow.agendaScheduleRepository.create(parsedSchedule);
 		});
 
-		return { data: newSchedule };
+		return { schedule: newSchedule };
 	}
 
 	private async validateSlotAvailability(
@@ -55,14 +55,21 @@ export class CreateAgendaScheduleUseCase {
 	): Promise<void> {
 		const { agendaConfigId, day, startTime, endTime } = input;
 
-		const agendaConfig =
-			await this.uow.agendaConfigsRepository.getById(agendaConfigId);
+		const agendaConfigContext =
+			await this.uow.agendaConfigsRepository.getFullContext({
+				id: agendaConfigId,
+			});
 
-		if (!agendaConfig) {
+		if (!agendaConfigContext) {
 			throw new SlotNotAvailable();
 		}
 
-		// Validate timing limits first
+		const {
+			data: agendaConfig,
+			daysOfWeekContext,
+			overwriteDaysContext,
+		} = agendaConfigContext;
+
 		const timingValidation = this.generateSlotsUseCase.validateSlotTiming(
 			{ day, startTime, endTime },
 			agendaConfig,
@@ -76,28 +83,14 @@ export class CreateAgendaScheduleUseCase {
 			throw new ScheduleTooFarAhead();
 		}
 
-		const daysOfWeek =
-			await this.uow.agendaDayOfWeekRepository.getByAgendaConfigId(
-				agendaConfig.id,
-			);
+		const { data: daysOfWeek, periods } = daysOfWeekContext;
 
 		if (daysOfWeek.length === 0) {
 			throw new SlotNotAvailable();
 		}
 
-		const dayOfWeekIds = daysOfWeek.map((d) => d.id);
-		const periods =
-			await this.uow.agendaPeriodsRepository.getByAgendaDayOfWeekIds(
-				dayOfWeekIds,
-			);
-
-		const { overwriteDays, overwritePeriods } =
-			await this.generateSlotsUseCase.fetchOverwriteContext(
-				this.uow,
-				agendaConfig.id,
-				day,
-				day,
-			);
+		const { data: overwriteDays, periods: overwritePeriods } =
+			overwriteDaysContext;
 
 		const existingSchedules =
 			await this.uow.agendaScheduleRepository.getByDateRange(

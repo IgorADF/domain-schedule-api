@@ -25,7 +25,7 @@ export class CreateAgendaPeriodsUseCase {
 	async execute(
 		input: CreateAgendaPeriodsType,
 		persistData: boolean,
-	): Promise<{ data: AgendaPeriodType[] }> {
+	): Promise<{ periods: AgendaPeriodType[] }> {
 		const formattedPeriods: AgendaPeriodType[] = [];
 
 		for (let iPeriods = 0; iPeriods < input.length; iPeriods++) {
@@ -44,7 +44,7 @@ export class CreateAgendaPeriodsUseCase {
 			await CreateAgendaPeriodsUseCase.bulkPersist(formattedPeriods, this.uow);
 		}
 
-		return { data: formattedPeriods };
+		return { periods: formattedPeriods };
 	}
 
 	static async bulkPersist(data: AgendaPeriodType[], uow: IUnitOfWork) {

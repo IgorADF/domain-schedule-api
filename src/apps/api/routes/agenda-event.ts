@@ -31,13 +31,13 @@ export const initAgendaEventRoutes: InitRoute = (dbClient, logger, tags) => {
 				const { useCase } = listSellerAgendaEventsFactory(dbClient);
 				const sellerId = request.authSeller.id;
 
-				const result = await useCase.execute({
+				const agendaEvents = await useCase.execute({
 					sellerId,
 					page: request.query.page,
 					pageSize: request.query.pageSize,
 				});
 
-				return result;
+				return { data: agendaEvents };
 			},
 		);
 	};

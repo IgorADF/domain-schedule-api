@@ -34,9 +34,10 @@ export const initAgendaRoutes: InitRoute = (dbClient, logger, tags) => {
 				const { useCase } = listAgendaConfigFactory(dbClient);
 
 				const sellerId = request.authSeller.id;
-				const result = await useCase.execute(sellerId);
+				const { agendaConfig, agendaDaysOfWeek } =
+					await useCase.execute(sellerId);
 
-				return { data: result.data };
+				return { data: { agendaConfig, agendaDaysOfWeek } };
 			},
 		);
 
@@ -57,13 +58,13 @@ export const initAgendaRoutes: InitRoute = (dbClient, logger, tags) => {
 			async (request) => {
 				const { useCase } = listAvailableSlotsFactory(dbClient);
 
-				const result = await useCase.execute({
+				const { slots } = await useCase.execute({
 					agendaConfigId: request.query.agendaConfigId,
 					initialDate: request.query.initialDate,
 					finalDate: request.query.finalDate,
 				});
 
-				return { data: result.data };
+				return { data: slots };
 			},
 		);
 
@@ -89,9 +90,12 @@ export const initAgendaRoutes: InitRoute = (dbClient, logger, tags) => {
 				const { useCase } = createCompleteAgendaFactory(dbClient);
 
 				const sellerId = request.authSeller.id;
-				const { data } = await useCase.execute({ ...request.body, sellerId });
+				const { agendaConfig } = await useCase.execute({
+					...request.body,
+					sellerId,
+				});
 
-				return { data };
+				return { data: agendaConfig };
 			},
 		);
 	};

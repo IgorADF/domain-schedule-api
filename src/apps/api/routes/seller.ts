@@ -35,11 +35,11 @@ export const initSellerRoutes: InitRoute = (dbClient, logger, tags) => {
 			},
 			async (request, reply) => {
 				const { useCase } = authSellerFactory(dbClient, logger);
-				const result = await useCase.execute(request.body);
+				const { seller } = await useCase.execute(request.body);
 
 				fastify.setSignTokensToReply(reply, {
-					id: result.sellerId,
-					email: result.email,
+					id: seller.id,
+					email: seller.email,
 				});
 
 				return { success: true };
@@ -128,8 +128,8 @@ export const initSellerRoutes: InitRoute = (dbClient, logger, tags) => {
 			},
 			async (request) => {
 				const { useCase } = createSellerFactory(dbClient);
-				const result = await useCase.execute(request.body);
-				return { data: result.data };
+				const { seller } = await useCase.execute(request.body);
+				return { data: seller };
 			},
 		);
 
