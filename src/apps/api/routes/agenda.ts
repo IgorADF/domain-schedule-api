@@ -19,6 +19,7 @@ export const initAgendaRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/",
 			{
 				schema: {
+					operationId: "getAgendaConfig",
 					tags,
 					description:
 						"Get the agenda configuration for the authenticated seller",
@@ -45,6 +46,7 @@ export const initAgendaRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/available-slots",
 			{
 				schema: {
+					operationId: "listAvailableSlots",
 					querystring: ListAvailableSlotsSchema,
 					tags,
 					description:
@@ -72,6 +74,7 @@ export const initAgendaRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/",
 			{
 				schema: {
+					operationId: "createCompleteAgenda",
 					body: CreateCompleteAgendaSchema.omit({ sellerId: true }),
 					tags,
 					description:

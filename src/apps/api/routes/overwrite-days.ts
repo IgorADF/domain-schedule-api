@@ -13,6 +13,7 @@ export const initOverwriteDaysRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/",
 			{
 				schema: {
+					operationId: "createOverwriteDays",
 					body: CreateOverwriteDaysSchema.omit({ sellerId: true }),
 					tags,
 					description: "Public route to create new overwrite days for a seller",

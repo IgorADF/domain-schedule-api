@@ -13,6 +13,7 @@ export const initAgendaEventRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/",
 			{
 				schema: {
+					operationId: "listSellerAgendaEvents",
 					querystring: ListSellerAgendaEventsSchema.omit({ sellerId: true }),
 					tags,
 					description:

@@ -17,6 +17,7 @@ export const initAgendaScheduleRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/",
 			{
 				schema: {
+					operationId: "listSellerSchedules",
 					querystring: ListSellerSchedulesSchema.omit({ sellerId: true }),
 					tags,
 					description:
@@ -47,6 +48,7 @@ export const initAgendaScheduleRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/",
 			{
 				schema: {
+					operationId: "createAgendaSchedule",
 					body: CreateAgendaScheduleSchema,
 					tags,
 					description:

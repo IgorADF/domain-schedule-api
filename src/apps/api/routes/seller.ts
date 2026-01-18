@@ -21,6 +21,7 @@ export const initSellerRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/auth",
 			{
 				schema: {
+					operationId: "authSeller",
 					body: AuthSellerSchema,
 					tags,
 					description:
@@ -50,6 +51,7 @@ export const initSellerRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/validate-auth",
 			{
 				schema: {
+					operationId: "validateAuth",
 					tags,
 					description:
 						"Validate authentication by checking authentication middleware tokens in http cookies",
@@ -68,6 +70,7 @@ export const initSellerRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/logout",
 			{
 				schema: {
+					operationId: "logoutSeller",
 					tags,
 					response: {
 						200: DefaultSuccessSchema,
@@ -84,6 +87,7 @@ export const initSellerRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/ask-reset-password",
 			{
 				schema: {
+					operationId: "askSellerResetPassword",
 					body: AskSellerResetPasswordSchema,
 					tags,
 					description:
@@ -115,6 +119,7 @@ export const initSellerRoutes: InitRoute = (dbClient, logger, tags) => {
 			"/",
 			{
 				schema: {
+					operationId: "createSeller",
 					body: CreateSellerSchema,
 					tags,
 					description: "Public route to create a new seller (system user)",
