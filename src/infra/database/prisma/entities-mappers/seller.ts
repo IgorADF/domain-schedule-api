@@ -8,7 +8,7 @@ import type {
 	CreateSellerPrisma,
 	SellerPrisma,
 	SellerWithPasswordPrisma,
-} from "../database/types.js";
+} from "../types.js";
 
 export function toModel(sup: SellerWithPasswordPrisma): CreateSellerPrisma {
 	return {

@@ -1,7 +1,7 @@
 import type { AgendaScheduleType } from "@domain/entities/agenda-schedule.js";
 import type { IAgendaScheduleRepository } from "@domain/repositories/agenda-schedule.interface.js";
 import { type DayType, toJSDate } from "@domain/shared/value-objects/day.js";
-import * as AgendaScheduleMapper from "@/infra/entities-mappers/agenda-schedule.js";
+import * as AgendaScheduleMapper from "@/infra/database/prisma/entities-mappers/agenda-schedule.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class AgendaScheduleRepository

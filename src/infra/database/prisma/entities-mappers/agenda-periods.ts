@@ -9,7 +9,7 @@ import {
 import type {
 	AgendaPeriodsPrisma,
 	CreateAgendaPeriodsPrisma,
-} from "../database/types.js";
+} from "../types.js";
 
 export function toModel(period: AgendaPeriodType): CreateAgendaPeriodsPrisma {
 	const startTime = toFormattedTimeString(period.startTime);

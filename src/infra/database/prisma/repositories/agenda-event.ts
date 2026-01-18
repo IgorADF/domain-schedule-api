@@ -3,7 +3,7 @@ import type {
 	AgendaEventOrderBy,
 	IAgendaEventRepository,
 } from "@domain/repositories/agenda-event.interface.js";
-import * as AgendaEventMapper from "@/infra/entities-mappers/agenda-event.js";
+import * as AgendaEventMapper from "@/infra/database/prisma/entities-mappers/agenda-event.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class AgendaEventRepository

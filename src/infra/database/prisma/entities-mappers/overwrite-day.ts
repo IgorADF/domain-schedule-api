@@ -3,10 +3,7 @@ import {
 	type OverwriteDayType,
 } from "@domain/entities/overwrite-day.js";
 import { getDayFromDate, toJSDate } from "@/domain/shared/value-objects/day.js";
-import type {
-	CreateOverwriteDayPrisma,
-	OverwriteDayPrisma,
-} from "../database/types.js";
+import type { CreateOverwriteDayPrisma, OverwriteDayPrisma } from "../types.js";
 
 export function toModel(
 	overwriteDay: OverwriteDayType,

@@ -2,10 +2,7 @@ import {
 	AgendaEventSchema,
 	type AgendaEventType,
 } from "@domain/entities/agenda-event.js";
-import type {
-	AgendaEventPrisma,
-	CreateAgendaEventPrisma,
-} from "../database/types.js";
+import type { AgendaEventPrisma, CreateAgendaEventPrisma } from "../types.js";
 
 export function toModel(event: AgendaEventType): CreateAgendaEventPrisma {
 	return {

@@ -1,8 +1,8 @@
 import { execSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { Envs } from "@/infra/envs/envs.js";
-import type { PrismaClient } from "../generated/client.js";
-import { getSchemas } from "../generated/sql/getSchemas.js";
+import type { PrismaClient } from "../_generated/client.js";
+import { getSchemas } from "../_generated/sql/getSchemas.js";
 import { createDbClient } from "./create-client.js";
 import { setSchemaSearchParamToUrl } from "./schema-database-url.js";
 

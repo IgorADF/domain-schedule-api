@@ -6,15 +6,15 @@ if (!process.env.DATABASE_URL) {
 }
 
 export default defineConfig({
-	schema: "src/infra/database/schema.prisma",
+	schema: "src/infra/database/prisma/schema.prisma",
 	migrations: {
-		path: "src/infra/database/migrations",
+		path: "src/infra/database/prisma/migrations",
 	},
 	datasource: {
 		// url: env("DATABASE_URL"),
 		url: process.env.DATABASE_URL,
 	},
 	typedSql: {
-		path: "src/infra/database/sql",
+		path: "src/infra/database/prisma/sql",
 	},
 });

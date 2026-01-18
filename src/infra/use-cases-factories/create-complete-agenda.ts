@@ -3,13 +3,13 @@ import { CreateAgendaConfigUseCase } from "@/domain/use-cases/create-agenda-conf
 import { CreateAgendaDayOfWeekUseCase } from "@/domain/use-cases/create-agenda-day-of-week.js";
 import { CreateAgendaPeriodsUseCase } from "@/domain/use-cases/create-agenda-periods.js";
 import { GetAgendaConfigBySellerOrThrowUseCase } from "@/domain/use-cases/get-agenda-config-by-seller-or-throw.js";
-import { PrismaUnitOfWork } from "@/infra/repositories/_uow.js";
 import type { CreateFactoryFunction } from "./_base-type.js";
+import { createUowFactory } from "./_repository-uow.js";
 
 export const createCompleteAgendaFactory: CreateFactoryFunction<
 	CreateCompleteAgendaUseCase
 > = (dbClient) => {
-	const uow = PrismaUnitOfWork.create(dbClient);
+	const { uow } = createUowFactory(dbClient);
 
 	const createAgendaConfigUseCase = new CreateAgendaConfigUseCase(uow);
 	const createAgendaDayOfWeekUseCase = new CreateAgendaDayOfWeekUseCase(uow);

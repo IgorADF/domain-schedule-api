@@ -1,6 +1,6 @@
 import type { AgendaPeriodType } from "@domain/entities/agenda-periods.js";
 import type { IAgendaPeriodsRepository } from "@domain/repositories/agenda-periods.interface.js";
-import * as AgendaPeriodsMapper from "@/infra/entities-mappers/agenda-periods.js";
+import * as AgendaPeriodsMapper from "@/infra/database/prisma/entities-mappers/agenda-periods.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class AgendaPeriodsRepository

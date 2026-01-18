@@ -8,7 +8,7 @@ import type { ISellerRepository } from "@domain/repositories/seller.interface.js
 import type { Class } from "@/@types/class.js";
 import type { IUnitOfWork } from "@/domain/repositories/_uow.interface.js";
 import { RedisCacheService } from "@/infra/cache/redis-service.js";
-import type { MyPrismaClient, PrismaTransaction } from "../database/types.js";
+import type { MyPrismaClient, PrismaTransaction } from "../types.js";
 import { AgendaConfigsRepository } from "./agenda-configs.js";
 import { AgendaDayOfWeekRepository } from "./agenda-day-of-week.js";
 import { AgendaEventRepository } from "./agenda-event.js";
@@ -48,10 +48,6 @@ export class PrismaUnitOfWork implements IUnitOfWork {
 	private _agendaEventRepository: IAgendaEventRepository | null = null;
 	private _agendaScheduleRepository: IAgendaScheduleRepository | null = null;
 	private _overwriteDayRepository: IOverwriteDayRepository | null = null;
-
-	static create(dbClient: MyPrismaClient) {
-		return new PrismaUnitOfWork(dbClient);
-	}
 
 	async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
 		return await this.prismaClient.$transaction(

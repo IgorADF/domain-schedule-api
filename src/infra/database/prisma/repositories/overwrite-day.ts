@@ -1,7 +1,7 @@
 import type { OverwriteDayType } from "@domain/entities/overwrite-day.js";
 import type { IOverwriteDayRepository } from "@domain/repositories/overwrite-day.interface.js";
 import { type DayType, toJSDate } from "@domain/shared/value-objects/day.js";
-import * as OverwriteDayMapper from "@/infra/entities-mappers/overwrite-day.js";
+import * as OverwriteDayMapper from "@/infra/database/prisma/entities-mappers/overwrite-day.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class OverwriteDayRepository

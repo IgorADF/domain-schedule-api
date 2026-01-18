@@ -10,7 +10,7 @@ import {
 import type {
 	AgendaSchedulePrisma,
 	CreateAgendaSchedulePrisma,
-} from "../database/types.js";
+} from "../types.js";
 
 export function toModel(
 	schedule: AgendaScheduleType,

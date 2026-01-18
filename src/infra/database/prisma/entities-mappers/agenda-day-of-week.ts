@@ -5,7 +5,7 @@ import {
 import type {
 	AgendaDayOfWeekPrisma,
 	CreateAgendaDayOfWeekPrisma,
-} from "../database/types.js";
+} from "../types.js";
 
 export function toModel(
 	dayOfWeek: AgendaDayOfWeekType,

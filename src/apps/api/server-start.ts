@@ -1,6 +1,6 @@
 import { testRedisConnection } from "@/infra/cache/redis.js";
-import { authenticateDbConnection } from "@/infra/database/helpers/authenticate-connection.js";
-import { createDbClient } from "@/infra/database/helpers/create-client.js";
+import { authenticateDbConnection } from "@/infra/database/prisma/helpers/authenticate-connection.js";
+import { createDbClient } from "@/infra/database/prisma/helpers/create-client.js";
 import { Envs } from "@/infra/envs/envs.js";
 import type { FastifyZodInstance } from "./@types/fastity-instance.js";
 import { createFastifyInstance } from "./server-config.js";

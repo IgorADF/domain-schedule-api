@@ -1,8 +1,8 @@
 import type {
 	PrismaClient as _PrismaClient,
 	Prisma,
-} from "./generated/client.js";
-import type { TransactionClient } from "./generated/internal/prismaNamespace.js";
+} from "./_generated/client.js";
+import type { TransactionClient } from "./_generated/internal/prismaNamespace.js";
 
 export type MyPrismaClient = _PrismaClient;
 export type PrismaTransaction = TransactionClient;

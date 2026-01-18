@@ -3,7 +3,7 @@ import type {
 	SellerWithPasswordSchemaType,
 } from "@domain/entities/seller.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
-import * as SellerMapper from "@/infra/entities-mappers/seller.js";
+import * as SellerMapper from "@/infra/database/prisma/entities-mappers/seller.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class SellerRepository

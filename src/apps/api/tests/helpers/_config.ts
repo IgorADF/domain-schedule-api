@@ -1,4 +1,4 @@
-import { TestDatabaseHelper } from "@/infra/database/helpers/test-enviroment.js";
+import { TestDatabaseHelper } from "@/infra/database/prisma/helpers/test-enviroment.js";
 import type { FastifyZodInstance } from "../../@types/fastity-instance.js";
 import { createFastifyInstance } from "../../server-config.js";
 

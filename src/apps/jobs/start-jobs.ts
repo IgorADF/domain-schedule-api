@@ -1,6 +1,6 @@
 import cron from "node-cron";
-import { createDbClient } from "@/infra/database/helpers/create-client.js";
-import { CleanupTestSchemasHelper } from "@/infra/database/helpers/test-enviroment.js";
+import { createDbClient } from "@/infra/database/prisma/helpers/create-client.js";
+import { CleanupTestSchemasHelper } from "@/infra/database/prisma/helpers/test-enviroment.js";
 import { Envs } from "@/infra/envs/envs.js";
 
 //At 12:00 every day

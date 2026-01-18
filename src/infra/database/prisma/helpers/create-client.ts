@@ -1,5 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/client.js";
+import { PrismaClient } from "../_generated/client.js";
 import { getSchemaSearchParamFromUrl } from "./schema-database-url.js";
 
 const defaultSchemaName = "public";

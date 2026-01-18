@@ -5,7 +5,7 @@ import {
 import type {
 	AgendaConfigsPrisma,
 	CreateAgendaConfigsPrisma,
-} from "../database/types.js";
+} from "../types.js";
 
 export function toModel(
 	agendaConfig: AgendaConfigType,

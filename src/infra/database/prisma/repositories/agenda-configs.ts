@@ -1,6 +1,6 @@
 import type { AgendaConfigType } from "@domain/entities/agenda-config.js";
 import type { IAgendaConfigsRepository } from "@domain/repositories/agenda-configs.interface.js";
-import * as AgendaConfigsMapper from "@/infra/entities-mappers/agenda-configs.js";
+import * as AgendaConfigsMapper from "@/infra/database/prisma/entities-mappers/agenda-configs.js";
 import { ClassRepository } from "./_base-class.js";
 
 export class AgendaConfigsRepository
