@@ -20,7 +20,7 @@ export const CreateAgendaPeriodsSchema = z.array(
 export type CreateAgendaPeriodsType = z.infer<typeof CreateAgendaPeriodsSchema>;
 
 export class CreateAgendaPeriodsUseCase {
-	constructor(private uow: IUnitOfWork) {}
+	constructor(private readonly uow: IUnitOfWork) {}
 
 	async execute(
 		input: CreateAgendaPeriodsType,

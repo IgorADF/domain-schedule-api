@@ -16,7 +16,7 @@ export const CreateAgendaConfigSchema = AgendaConfigSchema.pick({
 export type CreateAgendaConfigType = z.infer<typeof CreateAgendaConfigSchema>;
 
 export class CreateAgendaConfigUseCase {
-	constructor(private uow: IUnitOfWork) {}
+	constructor(private readonly uow: IUnitOfWork) {}
 
 	async execute(input: CreateAgendaConfigType): Promise<{
 		data: AgendaConfigType;

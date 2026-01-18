@@ -36,7 +36,7 @@ export type CreateOverwriteDaysInput = z.infer<
 >;
 
 export class CreateOverwriteDaysUseCase {
-	constructor(private uow: IUnitOfWork) {}
+	constructor(private readonly uow: IUnitOfWork) {}
 
 	async execute(
 		input: CreateOverwriteDaysInput,

@@ -35,13 +35,6 @@ Suggestion GPT 5
 
 Here are concrete, “nice-to-create” refactors after actually scanning your real domain use-cases.
 
-3. Date parsing should be centralized
-   You have at least two patterns:
-
-Local parsing inside the use-case: list-seller-schedules.ts
-Delegating to another use-case helper: list-available-slots.ts (via generateSlotsUseCase.parseDateString)
-Suggestion: move date-string parsing/validation into a shared value-object helper (or a small domain utility) so list use-cases don’t duplicate parsing logic differently.
-
 4. Pagination helpers (already starting to repeat)
    Right now the canonical pagination shape appears in:
 

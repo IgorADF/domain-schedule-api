@@ -28,7 +28,7 @@ export type CreateAgendaScheduleType = z.infer<
 
 export class CreateAgendaScheduleUseCase {
 	constructor(
-		private uow: IUnitOfWork,
+		private readonly uow: IUnitOfWork,
 		private generateSlotsUseCase: GenerateSlotsUseCase,
 	) {}
 

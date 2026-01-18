@@ -1,5 +1,5 @@
 ---
-description: "Analyse the code and suggest changes to have a better code based on user questions."
+description: "Analyse the code base and suggest changes to have a better code based, architecture or avoid bugs."
 tools:
   [
     "vscode",

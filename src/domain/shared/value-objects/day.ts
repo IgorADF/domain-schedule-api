@@ -15,6 +15,14 @@ export function toJSDate(day: DayType): Date {
 	return new Date(day.year, day.month - 1, day.day);
 }
 
+/*
+ * Convert ISO date string (YYYY-MM-DD) to DayObj.
+ */
+export function parseDateString(dateString: string): DayType {
+	const [year, month, day] = dateString.split("-").map(Number);
+	return { year, month, day };
+}
+
 /**
  * Convert ISO date string (YYYY-MM-DD) to DayObj.
  */

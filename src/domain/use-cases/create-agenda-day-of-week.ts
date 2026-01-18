@@ -17,7 +17,7 @@ export type CreateAgendaDayOfWeekType = z.infer<
 >;
 
 export class CreateAgendaDayOfWeekUseCase {
-	constructor(private uow: IUnitOfWork) {}
+	constructor(private readonly uow: IUnitOfWork) {}
 
 	async execute(
 		input: CreateAgendaDayOfWeekType,

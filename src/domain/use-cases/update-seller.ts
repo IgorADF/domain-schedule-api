@@ -17,7 +17,7 @@ export const UpdateSellerSchema = SellerWithPasswordSchema.pick({
 export type UpdateSellerType = z.infer<typeof UpdateSellerSchema>;
 
 export class UpdateSellerUseCase {
-	constructor(private uow: IUnitOfWork) {}
+	constructor(private readonly uow: IUnitOfWork) {}
 
 	async execute(sellerData: UpdateSellerType) {
 		const existingSeller = await this.uow.sellerRepository.getSellerById(

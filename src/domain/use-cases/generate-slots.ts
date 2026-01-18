@@ -551,14 +551,6 @@ export class GenerateSlotsUseCase {
 	}
 
 	/**
-	 * Parse date string (YYYY-MM-DD) to DayObj.
-	 */
-	parseDateString(dateString: string): DayType {
-		const [year, month, day] = dateString.split("-").map(Number);
-		return { year, month, day };
-	}
-
-	/**
 	 * Fetch overwrite days and their periods for a date range.
 	 * Helper to reduce duplication across use cases.
 	 */

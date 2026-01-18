@@ -1,7 +1,7 @@
 import z from "zod";
 import type { AgendaScheduleType } from "../entities/agenda-schedule.js";
 import type { IUnitOfWork } from "../repositories/_uow.interface.js";
-import type { DayType } from "../shared/value-objects/day.js";
+import { type DayType, parseDateString } from "../shared/value-objects/day.js";
 import type { GetAgendaConfigBySellerOrThrowUseCase } from "./get-agenda-config-by-seller-or-throw.js";
 
 export const ListSellerSchedulesSchema = z.object({
@@ -39,8 +39,8 @@ export class ListSellerSchedulesUseCase {
 				sellerId,
 			);
 
-		const initialDate = this.parseDateString(initialDateString);
-		const finalDate = this.parseDateString(finalDateString);
+		const initialDate = parseDateString(initialDateString);
+		const finalDate = parseDateString(finalDateString);
 
 		const schedules = await this.uow.agendaScheduleRepository.getByDateRange(
 			agendaConfig.id,
@@ -55,11 +55,6 @@ export class ListSellerSchedulesUseCase {
 				groupedSchedules,
 			},
 		};
-	}
-
-	private parseDateString(dateString: string): DayType {
-		const [year, month, day] = dateString.split("-").map(Number);
-		return { year, month, day };
 	}
 
 	private sortSchedulesByDateAndTime(

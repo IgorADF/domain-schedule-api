@@ -60,7 +60,6 @@ export const initAgendaScheduleRoutes: InitRoute = (dbClient, logger, tags) => {
 							"Slot not available (SLOT_NOT_AVAILABLE)",
 						),
 					},
-					security: [{ cookieAuth: [] }],
 				},
 			},
 			async (request) => {

@@ -1,6 +1,7 @@
 import z from "zod";
 import type { IUnitOfWork } from "../repositories/_uow.interface.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
+import { parseDateString } from "../shared/value-objects/day.js";
 import type { DaySlots, GenerateSlotsUseCase } from "./generate-slots.js";
 
 export const ListAvailableSlotsSchema = z.object({
@@ -26,10 +27,8 @@ export class ListAvailableSlotsUseCase {
 		initialDate: initialDateString,
 		finalDate: finalDateString,
 	}: ListAvailableSlotsInput): Promise<AvailableSlotsOutput> {
-		const initialDate =
-			this.generateSlotsUseCase.parseDateString(initialDateString);
-		const finalDate =
-			this.generateSlotsUseCase.parseDateString(finalDateString);
+		const initialDate = parseDateString(initialDateString);
+		const finalDate = parseDateString(finalDateString);
 
 		const agendaConfig =
 			await this.uow.agendaConfigsRepository.getById(agendaConfigId);
