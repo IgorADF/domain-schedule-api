@@ -5,11 +5,13 @@ import { ListSellerSchedulesSchema } from "@domain/use-cases/list-seller-schedul
 import { createAgendaScheduleFactory } from "@/infra/use-cases-factories/create-agenda-schedule.js";
 import { listSellerSchedulesFactory } from "@/infra/use-cases-factories/list-seller-schedules.js";
 import {
-	CreateAgendaSchedulesResponseSchema,
 	DefaultErrorSchema,
-	GetAgendaSchedulesResponseSchema,
 	NoAgendaConfiguredErrorSchema,
-} from "./../schemas/responses.js";
+} from "../schemas/_general.js";
+import {
+	CreateAgendaSchedulesResponseSchema,
+	GetAgendaSchedulesResponseSchema,
+} from "../schemas/agenda-schedule.js";
 
 export const initAgendaScheduleRoutes: InitRoute = (dbClient, logger, tags) => {
 	return async (fastify: FastifyZodInstance) => {

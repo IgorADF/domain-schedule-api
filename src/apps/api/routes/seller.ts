@@ -10,10 +10,10 @@ import { createSellerFactory } from "@/infra/use-cases-factories/create-seller.j
 // import { updateSellerFactory } from "@/infra/use-cases-factories/update-seller.js";
 import { jwtSign } from "../handlers/auth/jwt.js";
 import {
-	CreateSellerResponseSchema,
 	DefaultErrorSchema,
 	DefaultSuccessSchema,
-} from "./../schemas/responses.js";
+} from "../schemas/_general.js";
+import { CreateSellerResponseSchema } from "../schemas/seller.js";
 
 export const initSellerRoutes: InitRoute = (dbClient, logger, tags) => {
 	return async (fastify: FastifyZodInstance) => {

@@ -7,11 +7,13 @@ import { listAgendaConfigFactory } from "@/infra/use-cases-factories/list-agenda
 import { listAvailableSlotsFactory } from "@/infra/use-cases-factories/list-available-slots.js";
 import {
 	DefaultErrorSchema,
+	NoAgendaConfiguredErrorSchema,
+} from "../schemas/_general.js";
+import {
 	GetAgendaAvailableSlotsResponseSchema,
 	GetAgendaResponseSchema,
-	NoAgendaConfiguredErrorSchema,
 	PostAgendaResponseSchema,
-} from "./../schemas/responses.js";
+} from "../schemas/agenda.js";
 
 export const initAgendaRoutes: InitRoute = (dbClient, logger, tags) => {
 	return async (fastify: FastifyZodInstance) => {

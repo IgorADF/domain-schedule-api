@@ -2,10 +2,8 @@ import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
 import { ListSellerAgendaEventsSchema } from "@domain/use-cases/list-seller-agenda-events.js";
 import { listSellerAgendaEventsFactory } from "@/infra/use-cases-factories/list-seller-agenda-events.js";
-import {
-	DefaultErrorSchema,
-	ListSellerAgendaEventsResponseSchema,
-} from "./../schemas/responses.js";
+import { DefaultErrorSchema } from "../schemas/_general.js";
+import { ListSellerAgendaEventsResponseSchema } from "../schemas/agenda-event.js";
 
 export const initAgendaEventRoutes: InitRoute = (dbClient, logger, tags) => {
 	return async (fastify: FastifyZodInstance) => {

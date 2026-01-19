@@ -2,10 +2,8 @@ import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
 import { CreateOverwriteDaysSchema } from "@domain/use-cases/create-overwrite-days.js";
 import { createOverwriteDaysFactory } from "@/infra/use-cases-factories/create-overwrite-days.js";
-import {
-	CreateOverwriteDaysResponseSchema,
-	NoAgendaConfiguredErrorSchema,
-} from "./../schemas/responses.js";
+import { NoAgendaConfiguredErrorSchema } from "../schemas/_general.js";
+import { CreateOverwriteDaysResponseSchema } from "../schemas/overwrite-days.js";
 
 export const initOverwriteDaysRoutes: InitRoute = (dbClient, logger, tags) => {
 	return async (fastify: FastifyZodInstance) => {
