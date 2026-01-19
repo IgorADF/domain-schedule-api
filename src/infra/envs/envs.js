@@ -20,6 +20,7 @@ export const EnvsSchema = z
 		API_AUTH_JWT_SECRET: z.string(),
 		API_REFRESH_JWT_SECRET: z.string(),
 		API_JWT_RESET_SECRET: z.string(),
+		CORS_ORIGINS: z.string(),
 
 		// DB
 		DATABASE_URL: z.url(),

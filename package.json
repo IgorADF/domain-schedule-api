@@ -4,10 +4,10 @@
   "description": "",
   "main": "test.js",
   "scripts": {
-    "dev:server": "tsx watch ./src/apps/api/server-start.ts",
-    "dev:queue": "tsx watch ./src/apps/queue/start-queue.ts",
-    "dev:jobs": "tsx watch ./src/apps/jobs/start-jobs.ts",
-    "build": "rm -rf dist && tsc",
+    "dev:server": "npx tsx watch ./src/apps/api/server-start.ts",
+    "dev:queue": "npx tsx watch ./src/apps/queue/start-queue.ts",
+    "dev:jobs": "npx tsx watch ./src/apps/jobs/start-jobs.ts",
+    "build": "npx tsx ./scripts/build.ts",
     "start:api": "node dist/apps/api/server-start.js",
     "start:queue": "node dist/apps/queue/start-queue.js",
     "start:jobs": "node dist/apps/jobs/start-jobs.js",
@@ -19,10 +19,11 @@
     "format": "npx @biomejs/biome format --write ./src",
     "organize:all": "npx @biomejs/biome check --write ./src",
     "organize:check": "npm run organize:all && npm run ts:check",
-    "kill:port": "kill-windows-port.bat",
+    "kill:port": "./scripts/kill-windows-port.bat",
     "db:generate": "npx prisma generate --sql",
     "db:migrate:dev": "npm run db:generate && npx prisma migrate dev",
-    "db:migrate:deploy": "npx prisma migrate deploy"
+    "db:migrate:deploy": "npx prisma migrate deploy",
+    "generate:swagger": "npx tsx ./scripts/generate-swagger.ts"
   },
   "keywords": [],
   "author": "",
@@ -32,6 +33,7 @@
     "node": "24.x"
   },
   "dependencies": {
+    "@fastify/cors": "11.2.0",
     "@fastify/swagger": "9.6.1",
     "@fastify/swagger-ui": "5.2.4",
     "@prisma/adapter-pg": "7.2.0",

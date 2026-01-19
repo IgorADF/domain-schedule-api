@@ -20,6 +20,7 @@ import {
 } from "./handlers/auth/tokens-config.js";
 import { errorHandler } from "./handlers/errors/_main.js";
 import { initRoutes } from "./routes/_init.js";
+import cors from "@fastify/cors";
 
 function setFastifyInstanceDecorators(fastifyInstance: FastifyZodInstance) {
 	// decorateRequest and authSeller implemented according docs patterns
@@ -156,6 +157,10 @@ export async function createFastifyInstance(dbClient: DbClient) {
 			},
 		},
 	}).withTypeProvider<ZodTypeProvider>();
+
+	await fastifyInstance.register(cors, {
+		origin: Envs.CORS_ORIGINS,
+	});
 
 	fastifyInstance.setValidatorCompiler(validatorCompiler);
 	fastifyInstance.setSerializerCompiler(serializerCompiler);
