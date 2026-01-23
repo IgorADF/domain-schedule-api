@@ -160,6 +160,7 @@ export async function createFastifyInstance(dbClient: DbClient) {
 
 	await fastifyInstance.register(cors, {
 		origin: Envs.CORS_ORIGINS,
+		credentials: true,
 	});
 
 	fastifyInstance.setValidatorCompiler(validatorCompiler);
