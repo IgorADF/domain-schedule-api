@@ -1,6 +1,6 @@
 import cookie from "cookie";
-import { Envs } from "envs/envs.js";
 import type { FastifyReply, FastifyRequest } from "fastify";
+import { Envs } from "@/infra/envs/envs.js";
 import type { AuthSeller } from "../../@types/auth-seller.js";
 import type { FastifyZodInstance } from "../../@types/fastity-instance.js";
 import { AuthHandlerError } from "./error-class.js";

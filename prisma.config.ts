@@ -1,4 +1,4 @@
-import { Envs } from "envs/envs.js";
+import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 export default defineConfig({
@@ -8,7 +8,7 @@ export default defineConfig({
 	},
 	datasource: {
 		// url: env("DATABASE_URL"),
-		url: Envs.DATABASE_URL,
+		url: process.env.DATABASE_URL,
 	},
 	typedSql: {
 		path: "src/infra/database/prisma/sql",

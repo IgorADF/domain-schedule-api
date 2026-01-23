@@ -1,5 +1,5 @@
 import amqplib from "amqplib";
-import { Envs } from "envs/envs.js";
+import { Envs } from "@/infra/envs/envs.js";
 
 let connection: amqplib.ChannelModel | null = null;
 let channel: amqplib.Channel | null = null;

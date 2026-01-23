@@ -1,5 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { Envs } from "envs/envs.js";
+import { Envs } from "@/infra/envs/envs.js";
 import { PrismaClient } from "../_generated/client.js";
 import { getSchemaSearchParamFromUrl } from "./schema-database-url.js";
 

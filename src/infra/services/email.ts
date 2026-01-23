@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { Envs } from "../../../envs/envs.js";
+import { Envs } from "../envs/envs.js";
 
 export class EmailService {
 	private readonly transporter: nodemailer.Transporter;

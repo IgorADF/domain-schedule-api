@@ -1,8 +1,8 @@
-import { Envs } from "envs/envs.js";
+import "dotenv/config";
 import { resolve } from "node:path";
 import { defineConfig } from "vitest/config";
 
-const isTestEnv = Envs.NODE_ENV === "test";
+const isTestEnv = process.env.NODE_ENV === "test";
 
 export default defineConfig({
 	test: {
