@@ -1,3 +1,4 @@
+import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 import cookie from "cookie";
@@ -20,7 +21,6 @@ import {
 } from "./handlers/auth/tokens-config.js";
 import { errorHandler } from "./handlers/errors/_main.js";
 import { initRoutes } from "./routes/_init.js";
-import cors from "@fastify/cors";
 
 function setFastifyInstanceDecorators(fastifyInstance: FastifyZodInstance) {
 	// decorateRequest and authSeller implemented according docs patterns

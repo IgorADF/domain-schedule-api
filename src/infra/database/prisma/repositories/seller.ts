@@ -1,6 +1,6 @@
 import type {
 	SellerType,
-	SellerWithPasswordSchemaType,
+	SellerWithPasswordType,
 } from "@domain/entities/seller.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
 import * as SellerMapper from "@/infra/database/prisma/entities-mappers/seller.js";
@@ -10,7 +10,7 @@ export class SellerRepository
 	extends ClassRepository
 	implements ISellerRepository
 {
-	async create(data: SellerWithPasswordSchemaType) {
+	async create(data: SellerWithPasswordType) {
 		const modelInstance = SellerMapper.toModel(data);
 
 		const created = await this.prismaClient.seller.create({

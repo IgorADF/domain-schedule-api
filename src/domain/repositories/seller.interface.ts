@@ -1,12 +1,7 @@
-import type {
-	SellerType,
-	SellerWithPasswordSchemaType,
-} from "../entities/seller.js";
+import type { SellerType, SellerWithPasswordType } from "../entities/seller.js";
 
 export interface ISellerRepository {
-	getSellerWithPassword(
-		email: string,
-	): Promise<SellerWithPasswordSchemaType | null>;
+	getSellerWithPassword(email: string): Promise<SellerWithPasswordType | null>;
 	getSellerByEmail(email: string): Promise<SellerType | null>;
 	getSellerById(id: string): Promise<SellerType | null>;
 	create(_: SellerType): Promise<SellerType>;

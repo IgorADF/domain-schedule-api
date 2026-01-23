@@ -1,6 +1,6 @@
 import type {
 	SellerType,
-	SellerWithPasswordSchemaType,
+	SellerWithPasswordType,
 } from "@domain/entities/seller.js";
 import type { ISellerRepository } from "@domain/repositories/seller.interface.js";
 import { ClassCacheRepository } from "./_base-class.js";
@@ -9,7 +9,7 @@ export class CachedSellerRepository
 	extends ClassCacheRepository<ISellerRepository>
 	implements ISellerRepository
 {
-	async create(data: SellerWithPasswordSchemaType) {
+	async create(data: SellerWithPasswordType) {
 		return await this.repository.create(data);
 	}
 

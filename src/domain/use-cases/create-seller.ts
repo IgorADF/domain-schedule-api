@@ -4,10 +4,10 @@ import {
 	maxPasswordCreationLength,
 	type SellerType,
 	SellerWithPasswordSchema,
-	type SellerWithPasswordSchemaType,
+	type SellerWithPasswordType,
 } from "../entities/seller.js";
 import type { IUnitOfWork } from "../repositories/_uow.interface.js";
-import type { IHashPasswordService } from "../services/password.js";
+import type { IPasswordService } from "../services/password.js";
 import { EntityAlreadyExist } from "../shared/errors/entity-already-exist.js";
 
 export const CreateSellerSchema = SellerWithPasswordSchema.pick({
@@ -24,7 +24,7 @@ export type CreateSellerType = z.infer<typeof CreateSellerSchema>;
 export class CreateSellerUseCase {
 	constructor(
 		private readonly uow: IUnitOfWork,
-		private readonly passwordService: IHashPasswordService,
+		private readonly passwordService: IPasswordService,
 	) {}
 
 	async execute(input: CreateSellerType): Promise<{ seller: SellerType }> {
@@ -45,8 +45,8 @@ export class CreateSellerUseCase {
 		return { seller: newSeller };
 	}
 
-	formatNewSeller(newSeller: CreateSellerType): SellerWithPasswordSchemaType {
-		const seller = createEntity<SellerWithPasswordSchemaType>({
+	formatNewSeller(newSeller: CreateSellerType): SellerWithPasswordType {
+		const seller = createEntity<SellerWithPasswordType>({
 			...newSeller,
 			password: this.passwordService.hashPassword(newSeller.password),
 			deleteDate: null,

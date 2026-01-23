@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
-import type { IHashPasswordService } from "@/domain/services/password.js";
+import type { IPasswordService } from "@/domain/services/password.js";
 
-export class HashPasswordService implements IHashPasswordService {
+export class HashPasswordService implements IPasswordService {
 	static create() {
 		return new HashPasswordService();
 	}

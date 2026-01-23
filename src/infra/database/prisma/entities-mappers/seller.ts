@@ -2,7 +2,7 @@ import {
 	SellerSchema,
 	type SellerType,
 	SellerWithPasswordSchema,
-	type SellerWithPasswordSchemaType,
+	type SellerWithPasswordType,
 } from "@domain/entities/seller.js";
 import type {
 	CreateSellerPrisma,
@@ -52,8 +52,8 @@ export function toEntity(sup: SellerPrisma): SellerType {
 
 export function toEntityWithPassword(
 	sup: SellerWithPasswordPrisma,
-): SellerWithPasswordSchemaType {
-	const map: SellerWithPasswordSchemaType = {
+): SellerWithPasswordType {
+	const map: SellerWithPasswordType = {
 		...toEntity(sup),
 		password: sup.password,
 	};

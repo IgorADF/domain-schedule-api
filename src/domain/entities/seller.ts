@@ -17,6 +17,4 @@ export const SellerWithPasswordSchema = SellerSchema.extend({
 });
 
 export type SellerType = z.infer<typeof SellerSchema>;
-export type SellerWithPasswordSchemaType = z.infer<
-	typeof SellerWithPasswordSchema
->;
+export type SellerWithPasswordType = z.infer<typeof SellerWithPasswordSchema>;
