@@ -2,6 +2,7 @@ import cors from "@fastify/cors";
 import swagger from "@fastify/swagger";
 import swaggerUI from "@fastify/swagger-ui";
 import cookie from "cookie";
+import { Envs } from "envs/envs.js";
 import Fastify from "fastify";
 import {
 	jsonSchemaTransform,
@@ -10,7 +11,6 @@ import {
 	validatorCompiler,
 	type ZodTypeProvider,
 } from "fastify-type-provider-zod";
-import { Envs } from "@/infra/envs/envs.js";
 import type { DbClient } from "./@types/db-client.js";
 import type { FastifyZodInstance } from "./@types/fastity-instance.js";
 import { authHandler } from "./handlers/auth/_main.js";

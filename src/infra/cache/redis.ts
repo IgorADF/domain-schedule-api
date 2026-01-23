@@ -1,5 +1,5 @@
 import { Redis } from "ioredis";
-import { Envs } from "../envs/envs.js";
+import { Envs } from "../../../envs/envs.js";
 
 const reconnectEveryMilliseconds = 5 * 1000;
 

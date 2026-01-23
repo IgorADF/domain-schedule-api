@@ -1,4 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Envs } from "envs/envs.js";
 import { PrismaClient } from "../_generated/client.js";
 import { getSchemaSearchParamFromUrl } from "./schema-database-url.js";
 
@@ -14,4 +15,8 @@ export function createDbClient(connectionString: string) {
 	const prisma = new PrismaClient({ adapter });
 
 	return { prisma };
+}
+
+export function createDefaultDbClient() {
+	return createDbClient(Envs.DATABASE_URL);
 }

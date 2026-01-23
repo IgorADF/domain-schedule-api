@@ -3,9 +3,7 @@ import { config } from "dotenv";
 import z from "zod";
 
 let envFilePath = "/.env";
-if (process.env.NODE_ENV === "production") {
-	envFilePath = "/.env.production";
-} else if (process.env.NODE_ENV === "test") {
+if (process.env.NODE_ENV === "test") {
 	envFilePath = "/.env.test";
 }
 
