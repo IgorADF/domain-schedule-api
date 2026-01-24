@@ -8,4 +8,6 @@ export interface IAgendaScheduleRepository {
 		initialDate: DayType,
 		finalDate: DayType,
 	): Promise<AgendaScheduleType[]>;
+	getById(id: string): Promise<AgendaScheduleType | null>;
+	delete(id: string): Promise<void>;
 }

@@ -1,15 +1,18 @@
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
+import z from "zod";
 import { CreateAgendaScheduleSchema } from "@domain/use-cases/create-agenda-schedule.js";
 import { ListSellerSchedulesSchema } from "@domain/use-cases/list-seller-schedules.js";
 import { createAgendaScheduleFactory } from "@/infra/use-cases-factories/create-agenda-schedule.js";
 import { listSellerSchedulesFactory } from "@/infra/use-cases-factories/list-seller-schedules.js";
+import { deleteAgendaScheduleFactory } from "@/infra/use-cases-factories/delete-agenda-schedule.js";
 import {
 	DefaultErrorSchema,
 	NoAgendaConfiguredErrorSchema,
 } from "../schemas/_general.js";
 import {
 	CreateAgendaSchedulesResponseSchema,
+	DeleteAgendaScheduleResponseSchema,
 	GetAgendaSchedulesResponseSchema,
 } from "../schemas/agenda-schedule.js";
 
@@ -70,6 +73,33 @@ export const initAgendaScheduleRoutes: InitRoute = (dbClient, logger, tags) => {
 				const { useCase } = createAgendaScheduleFactory(dbClient);
 				const { schedule } = await useCase.execute(request.body);
 				return { data: schedule };
+			},
+		);
+
+		fastify.delete(
+			"/:id",
+			{
+				schema: {
+					operationId: "deleteAgendaSchedule",
+					params: z.object({ id: z.string() }),
+					tags,
+					description: "Delete a schedule from the agenda",
+					response: {
+						204: DeleteAgendaScheduleResponseSchema,
+						404: DefaultErrorSchema.describe(
+							"Schedule not found or unauthorized",
+						),
+					},
+				},
+				onRequest: [fastify.authenticate],
+			},
+			async (request, reply) => {
+				const { useCase } = deleteAgendaScheduleFactory(dbClient);
+				await useCase.execute({
+					id: request.params.id,
+					sellerId: request.authSeller.id,
+				});
+				return reply.status(204).send();
 			},
 		);
 	};

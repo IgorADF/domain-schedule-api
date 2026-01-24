@@ -36,4 +36,19 @@ export class AgendaScheduleRepository
 
 		return schedules.map((s) => AgendaScheduleMapper.toEntity(s));
 	}
+
+	async getById(id: string): Promise<AgendaScheduleType | null> {
+		const schedule = await this.prismaClient.agendaSchedule.findUnique({
+			where: { id },
+		});
+
+		if (!schedule) return null;
+		return AgendaScheduleMapper.toEntity(schedule);
+	}
+
+	async delete(id: string): Promise<void> {
+		await this.prismaClient.agendaSchedule.delete({
+			where: { id },
+		});
+	}
 }

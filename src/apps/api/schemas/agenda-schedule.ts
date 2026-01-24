@@ -16,3 +16,5 @@ export const GetAgendaSchedulesResponseSchema = z.object({
 export const CreateAgendaSchedulesResponseSchema = z.object({
 	data: AgendaScheduleSchema,
 });
+
+export const DeleteAgendaScheduleResponseSchema = z.null();
