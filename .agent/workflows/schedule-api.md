@@ -1,3 +1,7 @@
+---
+description: This is the all project summary of architecture, pattenrs, instructions and code implmentation
+---
+
 # Architecture Overview & Instructions
 
 This document serves as the primary technical guide for the `new_schedule_plataform` API. It outlines the architectural patterns, directory structure, and technology choices.
