@@ -262,4 +262,99 @@ describe("Agenda Schedule Routes", () => {
 			expect(response.body.error).toBe("ENTITY_NOT_FOUND");
 		});
 	});
+
+	describe("DELETE /agenda-schedules/:id", () => {
+		const systemDate = new Date(2026, 0, 12);
+
+		beforeAll(async () => {
+			setVitestSystemTime(systemDate);
+		});
+
+		afterAll(() => {
+			useRealTimersVitest();
+		});
+
+		it("should delete a schedule successfully", async () => {
+			const { agendaConfigId, authData } =
+				await setSellerFullInitialTestData(server);
+
+			const { formattedCookies: cookies } = authData;
+			const date = DateTime.now().plus({ days: 10 }).toJSDate();
+
+			const createResponse = await request(server)
+				.post("/agenda-schedules")
+				.send({
+					agendaConfigId,
+					contactName: "Test Contact",
+					contactPhoneNumber: "+5511999999999",
+					day: toDayObj(date),
+					startTime: { hour: 8, minute: 0 },
+					endTime: { hour: 9, minute: 30 },
+				});
+
+			const scheduleId = createResponse.body.data.id;
+
+			const deleteResponse = await request(server)
+				.delete(`/agenda-schedules/${scheduleId}`)
+				.set("Cookie", cookies);
+
+			expect(deleteResponse.status).toBe(204);
+
+			// Verify it's gone
+			const listResponse = await request(server)
+				.get("/agenda-schedules")
+				.set("Cookie", cookies)
+				.query({
+					initialDate: toDateFormat(date),
+					finalDate: toDateFormat(date),
+				});
+
+			const hasSchedule = listResponse.body.data.groupedSchedules.some(
+				(group: any) => group.schedules.some((s: any) => s.id === scheduleId),
+			);
+			expect(hasSchedule).toBe(false);
+		});
+
+		it("should return 404 when deleting a non-existent schedule", async () => {
+			const { authData } = await setSellerFullInitialTestData(server);
+			const { formattedCookies: cookies } = authData;
+
+			const id = "019bf25e-4536-7a06-af46-758644f6746f"
+
+			const deleteResponse = await request(server)
+				.delete(`/agenda-schedules/${id}`)
+				.set("Cookie", cookies);	
+
+			expect(deleteResponse.status).toBe(404);
+		});
+
+		it("should return 404 when deleting a schedule from another seller", async () => {
+			// Seller 1 creates a schedule
+			const { agendaConfigId, authData: authData1 } =
+				await setSellerFullInitialTestData(server);
+
+			const date = DateTime.now().plus({ days: 10 }).toJSDate();
+			const createResponse = await request(server)
+				.post("/agenda-schedules")
+				.send({
+					agendaConfigId,
+					contactName: "Test Contact",
+					contactPhoneNumber: "+5511999999999",
+					day: toDayObj(date),
+					startTime: { hour: 8, minute: 0 },
+					endTime: { hour: 9, minute: 30 },
+				});
+
+			const scheduleId = createResponse.body.data.id;
+
+			// Seller 2 tries to delete it
+			const authData2 = await createAndAuthTestSeller(server);
+
+			const deleteResponse = await request(server)
+				.delete(`/agenda-schedules/${scheduleId}`)
+				.set("Cookie", authData2.formattedCookies);
+
+			expect(deleteResponse.status).toBe(404);
+		});
+	});
 });

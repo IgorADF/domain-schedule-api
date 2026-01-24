@@ -3,8 +3,8 @@ import type { IUnitOfWork } from "../repositories/_uow.interface.js";
 import { EntityNotFound } from "../shared/errors/entity-not-found.js";
 
 export const DeleteAgendaScheduleSchema = z.object({
-	id: z.string(),
-	sellerId: z.string(),
+	id: z.uuid(),
+	sellerId: z.uuid(),
 });
 
 export type DeleteAgendaScheduleType = z.infer<

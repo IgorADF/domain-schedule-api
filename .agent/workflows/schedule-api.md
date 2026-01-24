@@ -56,3 +56,4 @@ The executable running contexts.
 2.  **Contracts**: Always define interfaces in `domain/repositories` before implementing them in `infra`.
 3.  **Factoring**: Use `use-cases-factories` in `infra` to assemble the dependency graph. Do not manually instantiate heavy dependencies in controllers.
 4.  **Api handlers**: Keep controllers thin. They should parse input, call a use-case, and return the result. HTTP status codes and DTOs belong here.
+5.  **Testing**: Every new route or feature **MUST** have a corresponding integration test in `src/apps/api/tests/`. Ensure both success and failure scenarios (e.g., 404, 403) are covered.
