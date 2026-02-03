@@ -1,14 +1,14 @@
 import { execSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { Envs } from "@/infra/envs/envs.js";
-import type { PrismaClient } from "../_generated/client.js";
 import { getSchemas } from "../_generated/sql/getSchemas.js";
+import type { MyPrismaClient } from "../types.js";
 import { createDbClient } from "./create-client.js";
 import { setSchemaSearchParamToUrl } from "./schema-database-url.js";
 
 const testSchemaPrefixName = "test-schema-";
 
-async function dropSchema(prismaClient: PrismaClient, schemaName: string) {
+async function dropSchema(prismaClient: MyPrismaClient, schemaName: string) {
 	try {
 		await prismaClient.$executeRawUnsafe(
 			`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`,
@@ -23,7 +23,7 @@ async function dropSchema(prismaClient: PrismaClient, schemaName: string) {
 }
 
 export class TestDatabaseHelper {
-	prismaClient: PrismaClient;
+	prismaClient: MyPrismaClient;
 	private originalDatabaseUrl: string;
 	private testDatabaseUrl: string;
 	private testSchemaName: string;
@@ -91,7 +91,7 @@ export class TestDatabaseHelper {
 }
 
 export class CleanupTestSchemasHelper {
-	constructor(private readonly prismaClient: PrismaClient) {}
+	constructor(private readonly prismaClient: MyPrismaClient) {}
 
 	private async getAllSchemas() {
 		const res = await this.prismaClient.$queryRawTyped(getSchemas());

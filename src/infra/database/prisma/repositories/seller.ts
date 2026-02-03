@@ -23,6 +23,7 @@ export class SellerRepository
 	async getSellerWithPassword(email: string) {
 		const seller = await this.prismaClient.seller.findFirst({
 			where: { email },
+			omit: { password: false },
 		});
 		return seller ? SellerMapper.toEntityWithPassword(seller) : null;
 	}

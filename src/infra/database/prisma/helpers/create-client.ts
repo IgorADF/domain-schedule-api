@@ -12,7 +12,14 @@ export function createDbClient(connectionString: string) {
 		{ connectionString },
 		{ schema: schemaName || defaultSchemaName },
 	);
-	const prisma = new PrismaClient({ adapter });
+	const prisma = new PrismaClient({
+		adapter,
+		omit: {
+			seller: {
+				password: true,
+			},
+		},
+	});
 
 	return { prisma };
 }

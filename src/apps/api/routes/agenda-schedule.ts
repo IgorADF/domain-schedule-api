@@ -1,11 +1,11 @@
 import type { FastifyZodInstance } from "@api/@types/fastity-instance.js";
 import type { InitRoute } from "@api/@types/init-routes.js";
-import z from "zod";
 import { CreateAgendaScheduleSchema } from "@domain/use-cases/create-agenda-schedule.js";
 import { ListSellerSchedulesSchema } from "@domain/use-cases/list-seller-schedules.js";
+import z from "zod";
 import { createAgendaScheduleFactory } from "@/infra/use-cases-factories/create-agenda-schedule.js";
-import { listSellerSchedulesFactory } from "@/infra/use-cases-factories/list-seller-schedules.js";
 import { deleteAgendaScheduleFactory } from "@/infra/use-cases-factories/delete-agenda-schedule.js";
+import { listSellerSchedulesFactory } from "@/infra/use-cases-factories/list-seller-schedules.js";
 import {
 	DefaultErrorSchema,
 	NoAgendaConfiguredErrorSchema,

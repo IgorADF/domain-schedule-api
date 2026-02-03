@@ -319,11 +319,11 @@ describe("Agenda Schedule Routes", () => {
 			const { authData } = await setSellerFullInitialTestData(server);
 			const { formattedCookies: cookies } = authData;
 
-			const id = "019bf25e-4536-7a06-af46-758644f6746f"
+			const id = "019bf25e-4536-7a06-af46-758644f6746f";
 
 			const deleteResponse = await request(server)
 				.delete(`/agenda-schedules/${id}`)
-				.set("Cookie", cookies);	
+				.set("Cookie", cookies);
 
 			expect(deleteResponse.status).toBe(404);
 		});
