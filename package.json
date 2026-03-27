@@ -72,7 +72,7 @@
     "supertest": "7.1.4",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
-    "vitest": "4.0.14"
+    "vites": "4.0.14"
   },
   "overrides": {
     "hono": "4.12.6"
